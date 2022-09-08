@@ -1,0 +1,23 @@
+name: PR Label Bot
+
+on:
+  pull_request_target:
+
+jobs:
+  labelRobot:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: "Checkout ${{ github.ref }}"
+        uses: actions/checkout@v2
+
+      - name: "Label in pr"
+        uses: actions/labeler@v4
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: .github/conf/labeler.yml
+          sync-labels: true

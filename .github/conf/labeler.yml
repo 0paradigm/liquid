@@ -1,0 +1,8 @@
+document:
+  - any: ['docs/**/*']
+  - '**/*.md'
+  - '**/*.rst'
+  - 'README.md'
+
+ci:
+  - any: ['.github/**/*']

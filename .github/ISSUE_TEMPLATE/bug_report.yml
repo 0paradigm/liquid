@@ -1,0 +1,30 @@
+name: Bug report
+title: "[Module Name] Bug title"
+description: Problems and issues with code of Liquid
+labels: [ "bug" ]
+
+body:
+  - type: textarea
+    attributes:
+      label: Bug description
+      placeholder: >
+        Copy of error log, screenshot, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Expected behavior
+
+  - type: textarea
+    attributes:
+      label: How to reproduce
+      placeholder: >
+        1. Run command `...`
+        2. Go to ...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional Information
