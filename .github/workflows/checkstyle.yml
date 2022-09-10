@@ -19,7 +19,7 @@ jobs:
       - name: Run check style
         uses: nikitasavinov/checkstyle-action@0.6.0
         with:
-          checkstyle_config: 'checkstyle.yml'
+          checkstyle_config: 'checkstyle.xml'
           github_token: ${{ secrets.GITHUB_TOKEN }}
           filter_mode: diff_context
           reporter: 'github-pr-review'
