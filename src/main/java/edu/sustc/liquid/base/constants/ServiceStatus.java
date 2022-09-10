@@ -24,14 +24,48 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid;
+package edu.sustc.liquid.base.constants;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Optional;
+import lombok.AllArgsConstructor;
+import org.springframework.context.i18n.LocaleContextHolder;
 
-@SpringBootTest
-class LiquidApplicationTests {
+/**
+ * When controller throws an exception, attach the error code and message to the response.
+ *
+ * @author hezean
+ */
+@AllArgsConstructor
+public enum ServiceStatus {
+    SUCCESS(0, "success", "成功"),
 
-    @Test
-    void contextLoads() {}
+    INTERNAL_SERVER_ERROR_ARGS(10000, "internal server error: {0}", "服务端异常: {0}"),
+
+    REQUEST_PARAMS_NOT_VALID_ERROR(10001, "request parameter {0} is not valid", "请求参数[{0}]无效");
+
+    private final int code;
+    private final String enMsg;
+    private final String zhMsg;
+
+    public int getCode() {
+        return this.code;
+    }
+
+    /**
+     * @return i18n status message
+     */
+    public String getMsg() {
+        return Locale.SIMPLIFIED_CHINESE
+                        .getLanguage()
+                        .equals(LocaleContextHolder.getLocale().getLanguage())
+                ? this.zhMsg
+                : this.enMsg;
+    }
+
+    /** Find ServiceStatus entity by status code. */
+    public static Optional<ServiceStatus> findStatusBy(int code) {
+        return Arrays.stream(ServiceStatus.values()).filter(ss -> ss.code == code).findFirst();
+    }
 }

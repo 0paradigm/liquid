@@ -24,14 +24,44 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid;
+package edu.sustc.liquid.exceptions;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import edu.sustc.liquid.base.constants.ServiceStatus;
+import java.text.MessageFormat;
+import lombok.Getter;
+import lombok.Setter;
 
-@SpringBootTest
-class LiquidApplicationTests {
+/**
+ * When catching spec exceptions, or throw intentionally, can spec the message and error code.
+ *
+ * @author hezean
+ */
+@Getter
+@Setter
+public class ServiceException extends RuntimeException {
 
-    @Test
-    void contextLoads() {}
+    private Integer code;
+
+    public ServiceException(String message) {
+        super(message);
+    }
+
+    public ServiceException(String message, Exception cause) {
+        super(message, cause);
+    }
+
+    public ServiceException(Integer code, String message) {
+        super(message);
+        this.code = code;
+    }
+
+    public ServiceException(ServiceStatus status) {
+        super(status.getMsg());
+        this.code = status.getCode();
+    }
+
+    public ServiceException(ServiceStatus status, Object... formatter) {
+        super(MessageFormat.format(status.getMsg(), formatter));
+        this.code = status.getCode();
+    }
 }

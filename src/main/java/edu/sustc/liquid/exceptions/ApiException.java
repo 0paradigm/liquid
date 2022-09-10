@@ -24,14 +24,21 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid;
+package edu.sustc.liquid.exceptions;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import edu.sustc.liquid.base.constants.ServiceStatus;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@SpringBootTest
-class LiquidApplicationTests {
-
-    @Test
-    void contextLoads() {}
+/**
+ * Exceptions may be thrown by controllers.
+ *
+ * @author hezean
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface ApiException {
+    ServiceStatus value();
 }

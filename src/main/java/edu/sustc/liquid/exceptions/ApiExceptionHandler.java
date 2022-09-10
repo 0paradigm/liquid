@@ -24,14 +24,43 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid;
+package edu.sustc.liquid.exceptions;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import edu.sustc.liquid.base.constants.ServiceStatus;
+import edu.sustc.liquid.dto.Result;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.HandlerMethod;
 
-@SpringBootTest
-class LiquidApplicationTests {
+/**
+ * Injects state code and i18n message in rest api response.
+ *
+ * @author hezean
+ */
+@RestControllerAdvice
+@ResponseBody
+@Slf4j
+public class ApiExceptionHandler {
 
-    @Test
-    void contextLoads() {}
+    @ExceptionHandler(ServiceException.class)
+    @SuppressWarnings("rawtypes")
+    public Result exceptionHandler(ServiceException e, HandlerMethod hm) {
+        log.error("ServiceException", e);
+        return new Result(e.getCode(), e.getMessage());
+    }
+
+    @SuppressWarnings({"checkstyle:MissingJavadocMethod", "rawtypes"})
+    @ExceptionHandler(Exception.class)
+    public Result exceptionHandler(Exception e, HandlerMethod hm) {
+        ApiException ae = hm.getMethodAnnotation(ApiException.class);
+        if (ae == null) {
+            log.error(e.getMessage(), e);
+            return Result.error(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS, e.getMessage());
+        }
+        ServiceStatus st = ae.value();
+        log.error(st.getMsg(), e);
+        return Result.error(st);
+    }
 }
