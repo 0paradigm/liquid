@@ -33,12 +33,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Exceptions may be thrown by controllers.
+ * Exceptions may be thrown by controllers, wraps real Java exceptions.
  *
  * @author hezean
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface ApiException {
+
+    @SuppressWarnings("checkstyle:MissingJavadocMethod")
     ServiceStatus value();
 }

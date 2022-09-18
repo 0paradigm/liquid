@@ -33,7 +33,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.i18n.LocaleContextHolder;
 
 /**
- * When controller throws an exception, attach the error code and message to the response.
+ * When controller throws an exception (or <i>0</i> as <i>success</i>), attach the error code and
+ * message to the response.
  *
  * @author hezean
  */
@@ -54,6 +55,8 @@ public enum ServiceStatus {
     }
 
     /**
+     * Gets the prompt message, fit backend i18n.
+     *
      * @return i18n status message
      */
     public String getMsg() {
@@ -64,7 +67,11 @@ public enum ServiceStatus {
                 : this.enMsg;
     }
 
-    /** Find ServiceStatus entity by status code. */
+    public String getMsg(boolean isZh) {
+        return isZh ? this.zhMsg : this.enMsg;
+    }
+
+    /** Finds ServiceStatus entity by status code. */
     public static Optional<ServiceStatus> findStatusBy(int code) {
         return Arrays.stream(ServiceStatus.values()).filter(ss -> ss.code == code).findFirst();
     }

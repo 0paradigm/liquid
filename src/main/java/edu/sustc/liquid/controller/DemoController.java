@@ -27,6 +27,7 @@
 package edu.sustc.liquid.controller;
 
 import edu.sustc.liquid.base.constants.ServiceStatus;
+import edu.sustc.liquid.dto.Result;
 import edu.sustc.liquid.exceptions.ApiException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -34,7 +35,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -68,13 +69,13 @@ public class DemoController {
                 dataTypeClass = String.class,
                 example = "chris")
     })
-    @GetMapping(value = "/hello")
+    @PostMapping(value = "/hello")
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiException(ServiceStatus.SUCCESS)
-    public Object hello(
+    @ApiException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
+    public Result<String> hello(
             @RequestParam(value = "name") String name,
             @ApiIgnore @RequestBody(required = false) String ts) {
         log.debug("User {}", name);
-        return "Hello " + name + "!";
+        return Result.success("Hello " + name + "!");
     }
 }

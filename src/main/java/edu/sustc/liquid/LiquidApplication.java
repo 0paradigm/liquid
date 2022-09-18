@@ -26,11 +26,15 @@
 
 package edu.sustc.liquid;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 
 /**
- * Liquid code hosting platform.
+ * Liquid code hosting platform (backend).
  *
  * @author hezean
  * @author buzzy0423
@@ -38,7 +42,33 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author 1tang1
  */
 @SpringBootApplication
+@Slf4j
 public class LiquidApplication {
+    private static final String BANNER =
+            """
+        Liquid Backend running on port {}
+        $$\\      $$\\                     $$\\       $$\\
+        $$ |     \\__|                    \\__|      $$ |
+        $$ |     $$\\  $$$$$$\\  $$\\   $$\\ $$\\  $$$$$$$ |
+        $$ |     $$ |$$  __$$\\ $$ |  $$ |$$ |$$  __$$ |
+        $$$$$$$$\\$$ |\\$$$$$$$ |\\$$$$$$  |$$ |\\$$$$$$$ |
+        \\________\\__| \\____$$ | \\______/ \\__| \\_______|
+                           $$ |
+                           \\__|  ({}) :: {}""";
+
+    @Value("${application.name}")
+    private String appName;
+
+    @Value("${build.version}")
+    private String buildVersion;
+
+    @Value("${server.port}")
+    private String serverPort;
+
+    @EventListener
+    public void run(ApplicationReadyEvent readyEvent) {
+        log.info(BANNER, serverPort, appName, buildVersion);
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(LiquidApplication.class, args);

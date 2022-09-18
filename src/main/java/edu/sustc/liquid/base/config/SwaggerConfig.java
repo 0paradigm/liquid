@@ -63,11 +63,12 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 public class SwaggerConfig {
 
+    private static final String API_BASE_PACKAGE = "edu.sustc.liquid.controller";
+
+    private static final String LICENSE = "Apache-2.0";
+
     @Value("${application.name}")
     private String appName;
-
-    @Value("${application.description}")
-    private String appDescription;
 
     @Value("${build.version}")
     private String buildVersion;
@@ -81,7 +82,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("edu.sustc.liquid.controller"))
+                .apis(RequestHandlerSelectors.basePackage(API_BASE_PACKAGE))
                 .paths(PathSelectors.any())
                 .build();
     }
@@ -89,13 +90,12 @@ public class SwaggerConfig {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title(appName)
-                .description(appDescription)
-                .license("Apache-2.0")
+                .license(LICENSE)
                 .version(String.format("%s+%s", buildVersion, buildTimestamp))
                 .build();
     }
 
-    /** ref: <a href="https://github.com/springfox/springfox/issues/3462">springfox#3462</a> */
+    /** ref: <a href="https://github.com/springfox/springfox/issues/3462">springfox#3462</a>. */
     @Bean
     public WebMvcEndpointHandlerMapping webEndpointServletHandlerMapping(
             WebEndpointsSupplier webEndpointsSupplier,

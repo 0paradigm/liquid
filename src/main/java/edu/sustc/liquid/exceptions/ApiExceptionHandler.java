@@ -46,21 +46,21 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(ServiceException.class)
     @SuppressWarnings("rawtypes")
-    public Result exceptionHandler(ServiceException e, HandlerMethod hm) {
+    public Result exceptionHandler(ServiceException e, HandlerMethod handler) {
         log.error("ServiceException", e);
         return new Result(e.getCode(), e.getMessage());
     }
 
-    @SuppressWarnings({"checkstyle:MissingJavadocMethod", "rawtypes"})
+    @SuppressWarnings({"rawtypes", "checkstyle:MissingJavadocMethod"})
     @ExceptionHandler(Exception.class)
-    public Result exceptionHandler(Exception e, HandlerMethod hm) {
-        ApiException ae = hm.getMethodAnnotation(ApiException.class);
+    public Result exceptionHandler(Exception e, HandlerMethod handler) {
+        ApiException ae = handler.getMethodAnnotation(ApiException.class);
         if (ae == null) {
             log.error(e.getMessage(), e);
             return Result.error(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS, e.getMessage());
         }
-        ServiceStatus st = ae.value();
-        log.error(st.getMsg(), e);
-        return Result.error(st);
+        ServiceStatus stat = ae.value();
+        log.error(stat.getMsg(), e);
+        return Result.error(stat);
     }
 }
