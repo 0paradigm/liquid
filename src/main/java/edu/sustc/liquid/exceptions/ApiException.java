@@ -24,14 +24,23 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid;
+package edu.sustc.liquid.exceptions;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import edu.sustc.liquid.base.constants.ServiceStatus;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@SpringBootTest
-class LiquidApplicationTests {
+/**
+ * Exceptions may be thrown by controllers, wraps real Java exceptions.
+ *
+ * @author hezean
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface ApiException {
 
-    @Test
-    void contextLoads() {}
+    @SuppressWarnings("checkstyle:MissingJavadocMethod")
+    ServiceStatus value();
 }

@@ -6,7 +6,7 @@
  *    $$$$$$$$\$$ |\$$$$$$$ |\$$$$$$  |$$ |\$$$$$$$ |
  *    \________\__| \____$$ | \______/ \__| \_______|
  *                       $$ |
- *                       \__|  :: Liquid ::  (c) 2022
+ *                       \__|  :: Liquid ::  (c) $YEAR
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -24,14 +24,3 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-@SpringBootTest
-class LiquidApplicationTests {
-
-    @Test
-    void contextLoads() {}
-}
