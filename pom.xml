@@ -122,7 +122,7 @@
                         </googleJavaFormat>
 
                         <licenseHeader>
-                            <file>${project.basedir}/license-header</file>
+                            <file>${project.basedir}/misc/license-header</file>
                         </licenseHeader>
                     </java>
                 </configuration>
