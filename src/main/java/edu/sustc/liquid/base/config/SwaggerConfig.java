@@ -67,7 +67,7 @@ public class SwaggerConfig {
 
     private static final String LICENSE = "Apache-2.0";
 
-    @Value("${application.name}")
+    @Value("${application.artifact}")
     private String appName;
 
     @Value("${build.version}")

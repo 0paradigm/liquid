@@ -27,6 +27,8 @@
 package edu.sustc.liquid.controller;
 
 import edu.sustc.liquid.base.constants.ServiceStatus;
+import edu.sustc.liquid.dao.UserDao;
+import edu.sustc.liquid.dao.entity.User;
 import edu.sustc.liquid.dto.Result;
 import edu.sustc.liquid.exceptions.ApiException;
 import io.swagger.annotations.Api;
@@ -34,6 +36,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,7 +55,9 @@ import springfox.documentation.annotations.ApiIgnore;
 @RestController
 @RequestMapping("/demo")
 @Slf4j
-public class DemoController {
+public class UserController {
+
+    @Autowired UserDao userDao;
 
     /**
      * Says hello to the person.
@@ -77,5 +82,28 @@ public class DemoController {
             @ApiIgnore @RequestBody(required = false) String ts) {
         log.debug("User {}", name);
         return Result.success("Hello " + name + "!");
+    }
+
+    /**
+     * Queries the first user with that name.
+     *
+     * @param name person name
+     * @return first user
+     */
+    @ApiOperation(value = "getUserNamedAs", notes = "queries the first user with that name")
+    @ApiImplicitParams({
+        @ApiImplicitParam(
+                name = "name",
+                value = "user's name",
+                required = true,
+                dataTypeClass = String.class,
+                example = "foo")
+    })
+    @PostMapping(value = "/user")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
+    public Result<User> getUserNamedAs(@RequestParam(value = "name") String name) {
+        log.debug("User {}", name);
+        return Result.success(userDao.getByNameAndUpdate(name));
     }
 }

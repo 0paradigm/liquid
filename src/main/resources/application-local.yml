@@ -1,0 +1,46 @@
+server:
+  port: 8085
+
+spring:
+  banner:
+    charset: UTF-8
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  jpa:
+    show-sql: false
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: 'jdbc:mysql://127.0.0.1:13306/liquid-mysql?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC'
+    username: root
+    password: liquid
+
+  redis:
+    host: localhost
+    port: 16379
+    database: 0
+    password:
+    timeout: 1200
+    jedis:
+      pool:
+        enabled: true
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1
+
+  flyway:
+    clean-disabled: false
+    validate-on-migrate: true
+
+logging:
+  charset:
+    file: UTF-8
+  file:
+    path: logs
+    name: liquid-backend-local.log
+
+# TODO: adapt mysql and h2 via profile

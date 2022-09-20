@@ -24,56 +24,43 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.base.constants;
+package edu.sustc.liquid.dao.entity;
 
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Optional;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.AllArgsConstructor;
-import org.springframework.context.i18n.LocaleContextHolder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
- * When controller throws an exception (or <i>0</i> as <i>success</i>), attach the error code and
- * message to the response.
+ * Demo.
  *
  * @author hezean
  */
+@NoArgsConstructor
 @AllArgsConstructor
-public enum ServiceStatus {
-    SUCCESS(0, "success", "成功"),
+@Data
+@EqualsAndHashCode
+@ToString
+@TableName("t_ds_user")
+public class User {
 
-    INTERNAL_SERVER_ERROR_ARGS(10000, "internal server error: {0}", "服务端异常: {0}"),
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
 
-    REQUEST_PARAMS_NOT_VALID_ERROR(10001, "request parameter {0} is not valid", "请求参数[{0}]无效"),
-    ;
+    @TableField("name")
+    private String name;
 
-    private final int code;
-    private final String enMsg;
-    private final String zhMsg;
+    @TableField("update_time")
+    private Date updateTime;
 
-    public int getCode() {
-        return this.code;
-    }
-
-    /**
-     * Gets the prompt message, fit backend i18n.
-     *
-     * @return i18n status message
-     */
-    public String getMsg() {
-        return Locale.SIMPLIFIED_CHINESE
-                        .getLanguage()
-                        .equals(LocaleContextHolder.getLocale().getLanguage())
-                ? this.zhMsg
-                : this.enMsg;
-    }
-
-    public String getMsg(boolean isZh) {
-        return isZh ? this.zhMsg : this.enMsg;
-    }
-
-    /** Finds ServiceStatus entity by status code. */
-    public static Optional<ServiceStatus> findStatusBy(int code) {
-        return Arrays.stream(ServiceStatus.values()).filter(ss -> ss.code == code).findFirst();
-    }
+    @TableField(exist = false)
+    private Map<String, Object> info = new HashMap<>();
 }
