@@ -28,6 +28,7 @@ package edu.sustc.liquid.base.constants;
 
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -68,8 +69,17 @@ public enum ServiceStatus {
                 : this.enMsg;
     }
 
-    public String getMsg(boolean isZh) {
-        return isZh ? this.zhMsg : this.enMsg;
+    /**
+     * Return messages in all languages.
+     *
+     * @return i18n messages
+     * @deprecated use @code{@link ServiceStatus#getMsg()} instead
+     */
+    @Deprecated
+    public Map<String, String> getMsgI18n() {
+        return Map.of(
+                "zh", this.zhMsg,
+                "en", this.enMsg);
     }
 
     /** Finds ServiceStatus entity by status code. */

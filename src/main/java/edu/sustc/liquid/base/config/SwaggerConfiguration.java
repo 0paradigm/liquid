@@ -61,19 +61,19 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @Configuration
 @EnableSwagger2
-public class SwaggerConfig {
+public class SwaggerConfiguration {
 
     private static final String API_BASE_PACKAGE = "edu.sustc.liquid.controller";
 
     private static final String LICENSE = "Apache-2.0";
 
-    @Value("${application.artifact}")
+    @Value("${application.artifact:\"liquid\"}")
     private String appName;
 
-    @Value("${build.version}")
+    @Value("${build.version:\"dev\"}")
     private String buildVersion;
 
-    @Value("${build.timestamp}")
+    @Value("${build.timestamp:\"na\"}")
     private String buildTimestamp;
 
     @Bean

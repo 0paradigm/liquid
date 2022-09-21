@@ -32,14 +32,14 @@ import io.micrometer.core.lang.Nullable;
 import java.util.Date;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 /**
  * Demo dao.
  *
  * @author hezean
  */
-@Component
+@Repository
 public class UserDao {
     @Autowired UserMapper userMapper;
 

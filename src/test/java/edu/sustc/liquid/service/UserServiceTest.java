@@ -24,10 +24,6 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.service.impl;
+package edu.sustc.liquid.service;
 
-import edu.sustc.liquid.service.AlertService;
-import org.springframework.stereotype.Service;
-
-@Service
-public class AlertServiceImpl implements AlertService {}
+public class UserServiceTest {}

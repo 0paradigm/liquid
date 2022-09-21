@@ -24,6 +24,25 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.service;
+package edu.sustc.liquid.service.impl;
 
-public interface AlertService {}
+import edu.sustc.liquid.dao.UserDao;
+import edu.sustc.liquid.dao.entity.User;
+import edu.sustc.liquid.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+
+@Service
+@CacheConfig(cacheNames = "users")
+public class UserServiceImpl implements UserService {
+    @Autowired private UserDao userDao;
+
+    @Override
+    @Cacheable
+    public String greet(int id) {
+        User user = userDao.getByNameAndUpdate("foo");
+        return user.getName() + " hi!";
+    }
+}

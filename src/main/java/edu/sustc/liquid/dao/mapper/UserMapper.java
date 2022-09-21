@@ -48,4 +48,6 @@ public interface UserMapper extends BaseMapper<User> {
      */
     @Nullable
     User findByName(@Param("name") String name);
+
+    void deleteByName(@Param("name") String name);
 }

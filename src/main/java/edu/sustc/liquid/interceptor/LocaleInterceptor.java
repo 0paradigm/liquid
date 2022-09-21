@@ -24,18 +24,40 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.base.config;
+package edu.sustc.liquid.interceptor;
 
-import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.Configuration;
+import edu.sustc.liquid.base.constants.Constants;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.util.WebUtils;
 
 /**
- * Allows MyBatis to auto scan mappers.
+ * Locale checker for requests.
+ *
+ * <p>Should set the language config as {@code zh_CN} or {@code en_US} in request header
+ * 'Liquid-Language'.
  *
  * @author hezean
  */
-@Configuration
-@EnableAutoConfiguration
-@MapperScan("edu.sustc.liquid.dao")
-public class DaoConfig {}
+public class LocaleInterceptor implements HandlerInterceptor {
+
+    @Override
+    @SuppressWarnings("java:S3516")
+    public boolean preHandle(
+            @NotNull HttpServletRequest request,
+            @NotNull HttpServletResponse response,
+            @NotNull Object handler) {
+        if (WebUtils.getCookie(request, Constants.LOCALE_INDICATOR_NAME) != null) {
+            return true;
+        }
+        String locale = request.getHeader(Constants.LOCALE_INDICATOR_NAME);
+        if (locale != null) {
+            LocaleContextHolder.setLocale(StringUtils.parseLocale(locale));
+        }
+        return true;
+    }
+}

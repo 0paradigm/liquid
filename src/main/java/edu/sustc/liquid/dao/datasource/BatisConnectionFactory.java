@@ -31,6 +31,7 @@ import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -71,11 +72,18 @@ public class BatisConnectionFactory {
         return new DataSourceTransactionManager(dataSource);
     }
 
+    /**
+     * Uses the right mapper .xml files for supported db types.
+     *
+     * @param dataSource target database provided by profile
+     * @return sql session factory
+     * @throws Exception
+     *     <p>{@code SQLException} when cannot get connection from @p dataSource
+     *     <p>{@code IOException} when cannot get resource from resolver
+     *     <p>{@code Exception} when cannot get object from sqlSessionFactoryBean
+     */
     @Bean
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
-        String databaseType =
-                SUPPORTED_DB.get(dataSource.getConnection().getMetaData().getDatabaseProductName());
-
         MybatisConfiguration configuration = new MybatisConfiguration();
         configuration.setMapUnderscoreToCamelCase(true);
         configuration.setCacheEnabled(false);
@@ -91,12 +99,17 @@ public class BatisConnectionFactory {
         dbConfig.setIdType(IdType.AUTO);
         globalConfig.setDbConfig(dbConfig);
 
+        String databaseType = dataSource.getConnection().getMetaData().getDatabaseProductName();
+        log.info("Datasource type: {}", databaseType);
+
         sqlSessionFactoryBean.setGlobalConfig(globalConfig);
         sqlSessionFactoryBean.setTypeAliasesPackage("edu.sustc.liquid.dao.entity");
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         sqlSessionFactoryBean.setMapperLocations(
                 resolver.getResources(
-                        String.format("edu/sustc/liquid/dao/mapper/%s/*Mapper.xml", databaseType)));
+                        String.format(
+                                "edu/sustc/liquid/dao/mapper/%s/*Mapper.xml",
+                                Objects.requireNonNull(SUPPORTED_DB.get(databaseType)))));
         sqlSessionFactoryBean.setDatabaseIdProvider(databaseIdProvider());
         return sqlSessionFactoryBean.getObject();
     }

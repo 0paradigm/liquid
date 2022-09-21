@@ -9,9 +9,6 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
-  jpa:
-    show-sql: true
-
   redis:
     host: localhost
     port: 16379
@@ -33,6 +30,9 @@ logging:
     path: logs
     name: liquid-backend-dev.log
 
+springfox:
+  documentation:
+    enabled: false
 
 ---
 
