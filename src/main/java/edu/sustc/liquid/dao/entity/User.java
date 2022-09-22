@@ -24,49 +24,43 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid;
+package edu.sustc.liquid.dao.entity;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
- * Liquid code hosting platform (backend).
+ * Demo.
  *
  * @author hezean
- * @author buzzy0423
  */
-@SpringBootApplication
-@Slf4j
-public class LiquidApplication {
-    private static final String BANNER =
-            """
-        Liquid Backend running on port {}
-          _     _             _     _
-         | |   (_) __ _ _   _(_) __| |
-         | |   | |/ _` | | | | |/ _` |
-         | |___| | (_| | |_| | | (_| |
-         |_____|_|\\__, |\\__,_|_|\\__,_|
-                      |_| :: {} :: {}""";
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@EqualsAndHashCode
+@ToString
+@TableName("t_ds_user")
+public class User {
 
-    @Value("${application.artifact:\"liquid\"}")
-    private String appName;
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
 
-    @Value("${build.version:\"dev\"}")
-    private String buildVersion;
+    @TableField("name")
+    private String name;
 
-    @Value("${server.port:-1}")
-    private int serverPort;
+    @TableField("update_time")
+    private Date updateTime;
 
-    @EventListener
-    public void run(ApplicationReadyEvent readyEvent) {
-        log.info(BANNER, serverPort, appName, buildVersion);
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(LiquidApplication.class, args);
-    }
+    @TableField(exist = false)
+    private Map<String, Object> info = new HashMap<>();
 }

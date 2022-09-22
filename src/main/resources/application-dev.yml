@@ -1,0 +1,63 @@
+server:
+  port: 8085
+
+spring:
+  banner:
+    charset: UTF-8
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  jpa:
+    show-sql: true
+
+  redis:
+    host: localhost
+    port: 16379
+    database: 0
+    password:
+    timeout: 1200
+    jedis:
+      pool:
+        enabled: true
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1
+
+logging:
+  charset:
+    file: UTF-8
+  file:
+    path: logs
+    name: liquid-backend-dev.log
+
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: mysql
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: 'jdbc:mysql://127.0.0.1:13306/liquid-mysql?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC'
+    username: root
+    password: liquid
+  flyway:
+    locations: 'classpath:db/migration/mysql'
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: h2
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: 'jdbc:h2:mem:liquid;MODE=MySQL;AUTO_RECONNECT=TRUE'
+    username: root
+    password: liquid
+  flyway:
+    locations: 'classpath:db/migration/h2'

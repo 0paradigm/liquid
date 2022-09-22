@@ -24,49 +24,25 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid;
+package edu.sustc.liquid.service.impl;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
+import edu.sustc.liquid.dao.UserDao;
+import edu.sustc.liquid.dao.entity.User;
+import edu.sustc.liquid.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
 
-/**
- * Liquid code hosting platform (backend).
- *
- * @author hezean
- * @author buzzy0423
- */
-@SpringBootApplication
-@Slf4j
-public class LiquidApplication {
-    private static final String BANNER =
-            """
-        Liquid Backend running on port {}
-          _     _             _     _
-         | |   (_) __ _ _   _(_) __| |
-         | |   | |/ _` | | | | |/ _` |
-         | |___| | (_| | |_| | | (_| |
-         |_____|_|\\__, |\\__,_|_|\\__,_|
-                      |_| :: {} :: {}""";
+@Service
+@CacheConfig(cacheNames = "users")
+public class UserServiceImpl implements UserService {
+    @Autowired private UserDao userDao;
 
-    @Value("${application.artifact:\"liquid\"}")
-    private String appName;
-
-    @Value("${build.version:\"dev\"}")
-    private String buildVersion;
-
-    @Value("${server.port:-1}")
-    private int serverPort;
-
-    @EventListener
-    public void run(ApplicationReadyEvent readyEvent) {
-        log.info(BANNER, serverPort, appName, buildVersion);
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(LiquidApplication.class, args);
+    @Override
+    @Cacheable
+    public String greet(int id) {
+        User user = userDao.getByNameAndUpdate("foo");
+        return user.getName() + " hi!";
     }
 }

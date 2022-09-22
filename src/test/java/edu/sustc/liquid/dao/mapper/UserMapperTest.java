@@ -24,49 +24,25 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid;
+package edu.sustc.liquid.dao.mapper;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
+import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Liquid code hosting platform (backend).
- *
- * @author hezean
- * @author buzzy0423
- */
-@SpringBootApplication
-@Slf4j
-public class LiquidApplication {
-    private static final String BANNER =
-            """
-        Liquid Backend running on port {}
-          _     _             _     _
-         | |   (_) __ _ _   _(_) __| |
-         | |   | |/ _` | | | | |/ _` |
-         | |___| | (_| | |_| | | (_| |
-         |_____|_|\\__, |\\__,_|_|\\__,_|
-                      |_| :: {} :: {}""";
+import org.junit.jupiter.api.Test;
+import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-    @Value("${application.artifact:\"liquid\"}")
-    private String appName;
+@MybatisTest
+@Transactional
+public class UserMapperTest {
 
-    @Value("${build.version:\"dev\"}")
-    private String buildVersion;
+    @Autowired private UserMapper userMapper;
 
-    @Value("${server.port:-1}")
-    private int serverPort;
-
-    @EventListener
-    public void run(ApplicationReadyEvent readyEvent) {
-        log.info(BANNER, serverPort, appName, buildVersion);
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(LiquidApplication.class, args);
+    @Test
+    void testSimple() {
+        assertThat(userMapper.findByName("foo")).isNotNull();
+        userMapper.deleteByName("foo");
+        assertThat(userMapper.findByName("foo")).isNull();
     }
 }

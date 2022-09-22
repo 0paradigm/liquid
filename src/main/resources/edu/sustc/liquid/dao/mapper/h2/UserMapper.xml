@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="edu.sustc.liquid.dao.mapper.UserMapper">
+    <delete id="deleteByName">
+        DELETE
+        FROM `t_ds_user`
+        WHERE `name` = #{name}
+    </delete>
+
+    <select id="findByName" resultType="edu.sustc.liquid.dao.entity.User">
+        SELECT *
+        FROM `t_ds_user`
+        WHERE `name` = #{name}
+        ORDER BY `id` DESC
+        LIMIT 1
+    </select>
+
+</mapper>

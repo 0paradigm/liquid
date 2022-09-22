@@ -24,49 +24,30 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid;
+package edu.sustc.liquid.dao;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
+import edu.sustc.liquid.dao.entity.User;
+import edu.sustc.liquid.dao.mapper.UserMapper;
+import io.micrometer.core.lang.Nullable;
+import java.util.Date;
+import java.util.Objects;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 /**
- * Liquid code hosting platform (backend).
+ * Demo dao.
  *
  * @author hezean
- * @author buzzy0423
  */
-@SpringBootApplication
-@Slf4j
-public class LiquidApplication {
-    private static final String BANNER =
-            """
-        Liquid Backend running on port {}
-          _     _             _     _
-         | |   (_) __ _ _   _(_) __| |
-         | |   | |/ _` | | | | |/ _` |
-         | |___| | (_| | |_| | | (_| |
-         |_____|_|\\__, |\\__,_|_|\\__,_|
-                      |_| :: {} :: {}""";
+@Repository
+public class UserDao {
+    @Autowired UserMapper userMapper;
 
-    @Value("${application.artifact:\"liquid\"}")
-    private String appName;
-
-    @Value("${build.version:\"dev\"}")
-    private String buildVersion;
-
-    @Value("${server.port:-1}")
-    private int serverPort;
-
-    @EventListener
-    public void run(ApplicationReadyEvent readyEvent) {
-        log.info(BANNER, serverPort, appName, buildVersion);
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(LiquidApplication.class, args);
+    @Nullable
+    public User getByNameAndUpdate(String name) {
+        User user = Objects.requireNonNull(userMapper.findByName(name));
+        user.setUpdateTime(new Date());
+        userMapper.updateById(user);
+        return user;
     }
 }
