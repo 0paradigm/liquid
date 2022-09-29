@@ -32,7 +32,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Allows MyBatis to auto scan mappers.
+ * Allows MyBatis to auto scan mappers. In case of some annotations are missed.
  *
  * @author hezean
  */

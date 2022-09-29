@@ -24,42 +24,30 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.interceptor;
+package edu.sustc.liquid.service.impl;
 
-import edu.sustc.liquid.base.constants.Constants;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.util.WebUtils;
+import edu.sustc.liquid.auth.UserToken;
+import edu.sustc.liquid.service.AuthService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.ShiroException;
+import org.apache.shiro.authz.AuthorizationException;
+import org.apache.shiro.subject.Subject;
+import org.springframework.stereotype.Service;
 
-/**
- * Locale checker for requests.
- *
- * <p>Should set the language config as {@code zh_CN} or {@code en_US} in request header
- * 'Liquid-Language'.
- *
- * @author hezean
- */
-@Component
-public class LocaleInterceptor implements HandlerInterceptor {
+@Slf4j
+@Service
+public class AuthServiceImpl implements AuthService {
 
     @Override
-    @SuppressWarnings("java:S3516")
-    public boolean preHandle(
-            @NotNull HttpServletRequest request,
-            @NotNull HttpServletResponse response,
-            @NotNull Object handler) {
-        if (WebUtils.getCookie(request, Constants.LOCALE_INDICATOR_NAME) != null) {
-            return true;
+    public Subject login(UserToken token) throws ShiroException {
+        Subject subject = SecurityUtils.getSubject();
+        subject.login(token);
+
+        if (subject.isAuthenticated()) {
+            return subject;
+        } else {
+            throw new AuthorizationException();
         }
-        String locale = request.getHeader(Constants.LOCALE_INDICATOR_NAME);
-        if (locale != null) {
-            LocaleContextHolder.setLocale(StringUtils.parseLocale(locale));
-        }
-        return true;
     }
 }

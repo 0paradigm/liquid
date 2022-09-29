@@ -58,12 +58,11 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Slf4j
 public class RedisConfiguration extends CachingConfigurerSupport {
 
-    @Override
     @Bean
+    @Override
     public KeyGenerator keyGenerator() {
         return (target, method, params) -> {
-            StringBuilder sb = new StringBuilder();
-            sb.append(target.getClass().getName());
+            StringBuilder sb = new StringBuilder(target.getClass().getName());
             sb.append(method.getName());
             for (Object obj : params) {
                 sb.append(obj.toString());
@@ -116,6 +115,7 @@ public class RedisConfiguration extends CachingConfigurerSupport {
                     @NotNull RuntimeException exception,
                     @NotNull Cache cache,
                     @NotNull Object key) {
+                log.error(exception.getClass().getName());
                 log.error(
                         "Failure getting from cache: {}, key: {}", cache.getName(), key, exception);
             }

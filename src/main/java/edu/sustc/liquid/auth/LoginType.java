@@ -24,42 +24,46 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.interceptor;
+package edu.sustc.liquid.auth;
 
-import edu.sustc.liquid.base.constants.Constants;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.util.WebUtils;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import edu.sustc.liquid.auth.realm.UserPasswordRealm;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.apache.shiro.realm.AuthorizingRealm;
 
 /**
- * Locale checker for requests.
- *
- * <p>Should set the language config as {@code zh_CN} or {@code en_US} in request header
- * 'Liquid-Language'.
+ * Supported login methods.
  *
  * @author hezean
  */
-@Component
-public class LocaleInterceptor implements HandlerInterceptor {
+@AllArgsConstructor
+@Getter
+public enum LoginType {
+    PASSWORD("password", UserPasswordRealm.class),
+    GITHUB("github", UserPasswordRealm.class),
+    PHONE_CAPTCHA("phone-captcha", UserPasswordRealm.class),
+    WECHAT("wechat", UserPasswordRealm.class),
+    ;
 
-    @Override
-    @SuppressWarnings("java:S3516")
-    public boolean preHandle(
-            @NotNull HttpServletRequest request,
-            @NotNull HttpServletResponse response,
-            @NotNull Object handler) {
-        if (WebUtils.getCookie(request, Constants.LOCALE_INDICATOR_NAME) != null) {
-            return true;
-        }
-        String locale = request.getHeader(Constants.LOCALE_INDICATOR_NAME);
-        if (locale != null) {
-            LocaleContextHolder.setLocale(StringUtils.parseLocale(locale));
-        }
-        return true;
+    private final String identifier;
+    private final Class<? extends AuthorizingRealm> realm;
+
+    private static final Map<String, LoginType> NAMES_MAP =
+            Arrays.stream(LoginType.values())
+                    .collect(Collectors.toMap(lt -> lt.identifier, lt -> lt));
+
+    @JsonCreator
+    public static LoginType forValue(String value) {
+        return NAMES_MAP.get(value);
+    }
+
+    @JsonValue
+    public String toValue() {
+        return identifier;
     }
 }

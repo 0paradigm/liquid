@@ -37,12 +37,13 @@ import org.springframework.stereotype.Service;
 @Service
 @CacheConfig(cacheNames = "users")
 public class UserServiceImpl implements UserService {
+
     @Autowired private UserDao userDao;
 
     @Override
     @Cacheable
-    public String greet(int id) {
-        User user = userDao.getByNameAndUpdate("foo");
-        return user.getName() + " hi!";
+    public String greet(String s) {
+//        User user = userDao.getByNameAndUpdate(s);
+        return " hi!";
     }
 }

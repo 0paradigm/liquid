@@ -41,8 +41,8 @@ public class UserMapperTest {
 
     @Test
     void testSimple() {
-        assertThat(userMapper.findByName("foo")).isNotNull();
-        userMapper.deleteByName("foo");
-        assertThat(userMapper.findByName("foo")).isNull();
+        assertThat(userMapper.findByNameOrMail("admin")).isNotNull();
+        userMapper.deleteById(1);
+        assertThat(userMapper.findByNameOrMail("foo")).isNull();
     }
 }

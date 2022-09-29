@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/auth/login",
+    "auth": "anon"
+  },
+  {
+    "path": "/auth/logout",
+    "auth": "logout"
+  },
+  {
+    "path": "/pub/**",
+    "auth": "anon"
+  },
+  {
+    "path": "/api/**",
+    "auth": "authc"
+  },
+  {
+    "path": "/**",
+    "auth": "authc"
+  }
+]

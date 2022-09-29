@@ -53,9 +53,9 @@ import springfox.documentation.annotations.ApiIgnore;
  * @author hezean
  */
 @Api(value = "this class is only for testing swagger")
-@RestController
-@RequestMapping("/demo")
 @Slf4j
+@RestController
+@RequestMapping("/api/demo")
 public class UserController {
 
     @Autowired UserDao userDao;
@@ -83,7 +83,7 @@ public class UserController {
             @RequestParam(value = "name") String name,
             @ApiIgnore @RequestBody(required = false) String ts) {
         log.debug("User {}", name);
-        return Result.success(userService.greet(1));
+        return Result.success(userService.greet(name));
     }
 
     /**

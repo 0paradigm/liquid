@@ -29,8 +29,10 @@ package edu.sustc.liquid.exceptions;
 import edu.sustc.liquid.base.constants.ServiceStatus;
 import edu.sustc.liquid.dto.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.HandlerMethod;
 
@@ -40,8 +42,9 @@ import org.springframework.web.method.HandlerMethod;
  * @author hezean
  */
 @RestControllerAdvice
-@ResponseBody
 @Slf4j
+@ResponseBody
+@ResponseStatus(HttpStatus.BAD_REQUEST)
 public class ApiExceptionHandler {
 
     @ExceptionHandler(ServiceException.class)

@@ -24,42 +24,34 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.interceptor;
+package edu.sustc.liquid.auth;
 
-import edu.sustc.liquid.base.constants.Constants;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.util.WebUtils;
+import edu.sustc.liquid.base.constants.ServiceStatus;
+import edu.sustc.liquid.dto.Result;
+import java.io.IOException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Locale checker for requests.
- *
- * <p>Should set the language config as {@code zh_CN} or {@code en_US} in request header
- * 'Liquid-Language'.
+ * Suppress redirect.
  *
  * @author hezean
  */
-@Component
-public class LocaleInterceptor implements HandlerInterceptor {
+public class RestAuthorizationFilter extends FormAuthenticationFilter {
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    @SuppressWarnings("java:S3516")
-    public boolean preHandle(
-            @NotNull HttpServletRequest request,
-            @NotNull HttpServletResponse response,
-            @NotNull Object handler) {
-        if (WebUtils.getCookie(request, Constants.LOCALE_INDICATOR_NAME) != null) {
-            return true;
-        }
-        String locale = request.getHeader(Constants.LOCALE_INDICATOR_NAME);
-        if (locale != null) {
-            LocaleContextHolder.setLocale(StringUtils.parseLocale(locale));
-        }
-        return true;
+    protected boolean onAccessDenied(ServletRequest request, ServletResponse response)
+            throws IOException {
+        response.setContentType("application/Json");
+        response.setCharacterEncoding("UTF-8");
+        mapper.writeValue(response.getWriter(), Result.error(ServiceStatus.NOT_AUTHENTICATED));
+        return false;
     }
 }

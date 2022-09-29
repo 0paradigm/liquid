@@ -33,5 +33,5 @@ package edu.sustc.liquid.base.constants;
  * @author buzzy0423
  */
 public final class Constants {
-    public static final String LOCALE_INDICATOR_NAME = "Liquid-Language";
+    public static final String LOCALE_INDICATOR_NAME = "locale";
 }

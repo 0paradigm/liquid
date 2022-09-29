@@ -30,9 +30,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import edu.sustc.liquid.dao.annotation.Unique;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -52,15 +50,55 @@ import lombok.ToString;
 @TableName("t_ds_user")
 public class User {
 
+    /** system generated primary key. */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
+    /** account name / username. */
+    @Unique
+    @TableField("login")
+    private String login;
+
+    /** nickname, default to none, and display large @code{User.login} in profile page. */
     @TableField("name")
     private String name;
 
-    @TableField("update_time")
-    private Date updateTime;
+    /** only one, need to check regex both in frontend and backend. */
+    @Unique
+    @TableField("email")
+    private String email;
+
+    @TableField("twitter_username")
+    private String twitterUsername;
+
+    @TableField("bio")
+    private String biography;
+
+    @TableField("location")
+    private String location;
+
+    /** supports '@apache' representations, need to split and find fuzzily. */
+    @TableField("company")
+    private String company;
+
+    /** System.currentTimeMillis() */
+    @TableField("created_at")
+    private Long createdAt;
+
+    /** System.currentTimeMillis() */
+    @TableField("updated_at")
+    private Long updatedAt;
 
     @TableField(exist = false)
-    private Map<String, Object> info = new HashMap<>();
+    private Integer following;
+
+    @TableField(exist = false)
+    private Integer followers;
+
+    @TableField(exist = false)
+    private Integer publicRepos;
+
+    /** needs strength checking. */
+    @TableField("password")
+    private String password;
 }

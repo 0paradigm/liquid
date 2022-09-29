@@ -26,40 +26,26 @@
 
 package edu.sustc.liquid.interceptor;
 
-import edu.sustc.liquid.base.constants.Constants;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.util.WebUtils;
 
-/**
- * Locale checker for requests.
- *
- * <p>Should set the language config as {@code zh_CN} or {@code en_US} in request header
- * 'Liquid-Language'.
- *
- * @author hezean
- */
 @Component
-public class LocaleInterceptor implements HandlerInterceptor {
-
+public class CrossOriginInterceptor implements HandlerInterceptor {
     @Override
-    @SuppressWarnings("java:S3516")
     public boolean preHandle(
             @NotNull HttpServletRequest request,
-            @NotNull HttpServletResponse response,
+            HttpServletResponse response,
             @NotNull Object handler) {
-        if (WebUtils.getCookie(request, Constants.LOCALE_INDICATOR_NAME) != null) {
-            return true;
-        }
-        String locale = request.getHeader(Constants.LOCALE_INDICATOR_NAME);
-        if (locale != null) {
-            LocaleContextHolder.setLocale(StringUtils.parseLocale(locale));
-        }
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "*");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader(
+                "Access-Control-Allow-Headers",
+                "Origin, X-Requested-With, Content-Type, Accept, token");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
         return true;
     }
 }

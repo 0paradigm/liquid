@@ -27,12 +27,11 @@
 package edu.sustc.liquid.dao;
 
 import edu.sustc.liquid.dao.entity.User;
-import edu.sustc.liquid.dao.mapper.UserMapper;
+// import edu.sustc.liquid.dao.mapper.UserMapper;
 import io.micrometer.core.lang.Nullable;
-import java.util.Date;
-import java.util.Objects;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Demo dao.
@@ -40,14 +39,17 @@ import org.springframework.stereotype.Repository;
  * @author hezean
  */
 @Repository
+@EnableCaching
 public class UserDao {
-    @Autowired UserMapper userMapper;
+    //    @Autowired UserMapper userMapper;
 
     @Nullable
+    @Transactional(rollbackFor = Exception.class)
     public User getByNameAndUpdate(String name) {
-        User user = Objects.requireNonNull(userMapper.findByName(name));
-        user.setUpdateTime(new Date());
-        userMapper.updateById(user);
-        return user;
+        //        User user = Objects.requireNonNull(userMapper.findByName(name));
+        //        user.setUpdateTime(new Date());
+        //        userMapper.updateById(user);
+        //        return user;
+        return null;
     }
 }

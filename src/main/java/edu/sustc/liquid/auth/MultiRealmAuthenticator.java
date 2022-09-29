@@ -24,42 +24,39 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.interceptor;
+package edu.sustc.liquid.auth;
 
-import edu.sustc.liquid.base.constants.Constants;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.util.WebUtils;
+import java.util.Optional;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
+import org.apache.shiro.realm.Realm;
 
 /**
- * Locale checker for requests.
- *
- * <p>Should set the language config as {@code zh_CN} or {@code en_US} in request header
- * 'Liquid-Language'.
+ * Supports selecting auth method.
  *
  * @author hezean
  */
-@Component
-public class LocaleInterceptor implements HandlerInterceptor {
+public class MultiRealmAuthenticator extends ModularRealmAuthenticator {
 
     @Override
-    @SuppressWarnings("java:S3516")
-    public boolean preHandle(
-            @NotNull HttpServletRequest request,
-            @NotNull HttpServletResponse response,
-            @NotNull Object handler) {
-        if (WebUtils.getCookie(request, Constants.LOCALE_INDICATOR_NAME) != null) {
-            return true;
+    protected AuthenticationInfo doAuthenticate(AuthenticationToken authenticationToken)
+            throws AuthenticationException {
+        assertRealmsConfigured();
+
+        UserToken token = (UserToken) authenticationToken;
+        String loginTypeId = token.getLoginType().getIdentifier();
+
+        Optional<Realm> supportRealm =
+                getRealms().stream()
+                        .filter(r -> loginTypeId.equalsIgnoreCase(r.getName()))
+                        .findFirst();
+
+        if (supportRealm.isPresent()) {
+            return doSingleRealmAuthentication(supportRealm.get(), token);
+        } else {
+            return doMultiRealmAuthentication(getRealms(), token);
         }
-        String locale = request.getHeader(Constants.LOCALE_INDICATOR_NAME);
-        if (locale != null) {
-            LocaleContextHolder.setLocale(StringUtils.parseLocale(locale));
-        }
-        return true;
     }
 }

@@ -24,42 +24,61 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.interceptor;
+package edu.sustc.liquid.auth;
 
-import edu.sustc.liquid.base.constants.Constants;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.util.WebUtils;
+import java.util.Objects;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.apache.shiro.authc.UsernamePasswordToken;
 
 /**
- * Locale checker for requests.
- *
- * <p>Should set the language config as {@code zh_CN} or {@code en_US} in request header
- * 'Liquid-Language'.
+ * Pass to Shiro, select auth type from multi realms.
  *
  * @author hezean
  */
-@Component
-public class LocaleInterceptor implements HandlerInterceptor {
+@Getter
+@Setter
+@NoArgsConstructor
+public class UserToken extends UsernamePasswordToken {
 
-    @Override
-    @SuppressWarnings("java:S3516")
-    public boolean preHandle(
-            @NotNull HttpServletRequest request,
-            @NotNull HttpServletResponse response,
-            @NotNull Object handler) {
-        if (WebUtils.getCookie(request, Constants.LOCALE_INDICATOR_NAME) != null) {
-            return true;
+    private LoginType loginType;
+
+    private String phone;
+    private String captcha;
+
+    /** Sets whether remember this user for the session. */
+    public UserToken remember(boolean remember) {
+        this.setRememberMe(remember);
+        return this;
+    }
+
+    /**
+     * Uses username or email to log in with general password.
+     *
+     * @param login username or email
+     * @param password website password
+     */
+    public UserToken password(String login, String password) {
+        this.loginType = LoginType.PASSWORD;
+        this.setUsername(login);
+        if (Objects.isNull(password)) {
+            password = "";
         }
-        String locale = request.getHeader(Constants.LOCALE_INDICATOR_NAME);
-        if (locale != null) {
-            LocaleContextHolder.setLocale(StringUtils.parseLocale(locale));
-        }
-        return true;
+        this.setPassword(password.toCharArray());
+        return this;
+    }
+
+    /**
+     * Uses sms captcha service to log in.
+     *
+     * @param phone phone number
+     * @param captcha captcha received
+     */
+    public UserToken phoneCaptcha(String phone, String captcha) {
+        this.loginType = LoginType.PHONE_CAPTCHA;
+        this.phone = phone;
+        this.captcha = captcha;
+        return this;
     }
 }

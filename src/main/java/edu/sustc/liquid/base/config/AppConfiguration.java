@@ -26,7 +26,9 @@
 
 package edu.sustc.liquid.base.config;
 
+import edu.sustc.liquid.interceptor.CrossOriginInterceptor;
 import edu.sustc.liquid.interceptor.LocaleInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -39,15 +41,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class AppConfiguration implements WebMvcConfigurer {
 
-    private LocaleInterceptor checkLocaleInterceptor() {
-        return new LocaleInterceptor();
-    }
+    @Autowired private LocaleInterceptor localeInterceptor;
+
+    @Autowired private CrossOriginInterceptor crossOriginInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // i18n
-        registry.addInterceptor(checkLocaleInterceptor());
-
-        // TODO: add more interceptors
+        registry.addInterceptor(crossOriginInterceptor).addPathPatterns("/**").order(1);
+        registry.addInterceptor(localeInterceptor).addPathPatterns("/**").order(2);
     }
 }

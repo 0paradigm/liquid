@@ -28,9 +28,9 @@ package edu.sustc.liquid.base.constants;
 
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.context.i18n.LocaleContextHolder;
 
 /**
@@ -40,8 +40,14 @@ import org.springframework.context.i18n.LocaleContextHolder;
  * @author hezean
  */
 @AllArgsConstructor
+@Getter
 public enum ServiceStatus {
     SUCCESS(0, "success", "成功"),
+
+    NOT_AUTHENTICATED(100, "Not authenticated", "账号未认证"),
+    ACCOUNT_NOT_FOUND(101, "Account {0} not found", "未找到对应账号：{0}"),
+    INCORRECT_CREDENTIAL(102, "Incorrect username or password", "账号密码不匹配"),
+    ERROR_LOGGING(103, "Error logging in, please try again", "服务端异常，请重试"),
 
     INTERNAL_SERVER_ERROR_ARGS(10000, "internal server error: {0}", "服务端异常: {0}"),
 
@@ -52,12 +58,8 @@ public enum ServiceStatus {
     private final String enMsg;
     private final String zhMsg;
 
-    public int getCode() {
-        return this.code;
-    }
-
     /**
-     * Gets the prompt message, fit backend i18n.
+     * Gets the prompt message, fit website i18n, fallback as en_US.
      *
      * @return i18n status message
      */
@@ -67,19 +69,6 @@ public enum ServiceStatus {
                         .equals(LocaleContextHolder.getLocale().getLanguage())
                 ? this.zhMsg
                 : this.enMsg;
-    }
-
-    /**
-     * Return messages in all languages.
-     *
-     * @return i18n messages
-     * @deprecated use @code{@link ServiceStatus#getMsg()} instead
-     */
-    @Deprecated
-    public Map<String, String> getMsgI18n() {
-        return Map.of(
-                "zh", this.zhMsg,
-                "en", this.enMsg);
     }
 
     /** Finds ServiceStatus entity by status code. */
