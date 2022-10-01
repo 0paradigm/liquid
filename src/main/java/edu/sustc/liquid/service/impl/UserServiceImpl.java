@@ -27,7 +27,6 @@
 package edu.sustc.liquid.service.impl;
 
 import edu.sustc.liquid.dao.UserDao;
-import edu.sustc.liquid.dao.entity.User;
 import edu.sustc.liquid.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -43,7 +42,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Cacheable
     public String greet(String s) {
-//        User user = userDao.getByNameAndUpdate(s);
+        //        User user = userDao.getByNameAndUpdate(s);
         return " hi!";
     }
 }

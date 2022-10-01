@@ -26,32 +26,37 @@
 
 package edu.sustc.liquid.auth;
 
-import edu.sustc.liquid.base.constants.ServiceStatus;
-import edu.sustc.liquid.dto.Result;
-import java.io.IOException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import edu.sustc.liquid.auth.exceptions.MissingCredentialFieldException;
+import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+class UserTokenTest {
 
-/**
- * Suppress redirect.
- *
- * @author hezean
- */
-public class RestAuthorizationFilter extends FormAuthenticationFilter {
+    @Test
+    void testPasswordToken() throws Exception {
+        assertThat(new UserToken().password("user", "pwd").remember(true)).isNotNull();
+        assertThatThrownBy(() -> new UserToken().password("user", ""))
+                .isInstanceOf(MissingCredentialFieldException.class);
+        assertThatThrownBy(() -> new UserToken().password("user", null))
+                .isInstanceOf(MissingCredentialFieldException.class);
+        assertThatThrownBy(() -> new UserToken().password(null, ""))
+                .isInstanceOf(MissingCredentialFieldException.class);
+    }
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    @Test
+    void testPhoneCaptchaToken() throws Exception {
+        assertThat(new UserToken().phoneCaptcha("10000000000000", "a21d")).isNotNull();
+    }
 
-    @Override
-    protected boolean onAccessDenied(ServletRequest request, ServletResponse response)
-            throws IOException {
-        response.setContentType("application/Json");
-        response.setCharacterEncoding("UTF-8");
-        mapper.writeValue(response.getWriter(), Result.error(ServiceStatus.NOT_AUTHENTICATED));
-        return false;
+    @Test
+    void testInvalidToken() throws Exception {
+        assertThat(new UserToken()).isNotNull();
+    }
+
+    @Test
+    void testRememberToken() throws Exception {
+        assertThat(new UserToken().remember(true).isRememberMe()).isTrue();
     }
 }

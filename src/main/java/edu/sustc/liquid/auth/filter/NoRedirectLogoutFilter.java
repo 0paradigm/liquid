@@ -24,39 +24,21 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.auth;
+package edu.sustc.liquid.auth.filter;
 
-import edu.sustc.liquid.auth.realm.GenericAuthorizationRealm;
-import java.util.Optional;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
-import org.apache.shiro.realm.Realm;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import org.apache.shiro.web.filter.authc.LogoutFilter;
 
 /**
- * Supports selecting auth method.
+ * Suppress redirect after logout, provides unified response body.
  *
  * @author hezean
  */
-public class MultiRealmAuthenticator extends ModularRealmAuthenticator {
+public class NoRedirectLogoutFilter extends LogoutFilter {
 
     @Override
-    protected AuthenticationInfo doAuthenticate(AuthenticationToken authenticationToken)
-            throws AuthenticationException {
-        assertRealmsConfigured();
-
-        UserToken token = (UserToken) authenticationToken;
-        Optional<Realm> realm =
-                getRealms().stream()
-                        .filter(r -> r.getClass() != GenericAuthorizationRealm.class)
-                        .filter(r -> r.supports(authenticationToken))
-                        .findFirst();
-
-        if (realm.isPresent()) {
-            return doSingleRealmAuthentication(realm.get(), token);
-        } else {
-            return doMultiRealmAuthentication(getRealms(), token);
-        }
+    protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception {
+        return true;
     }
 }

@@ -28,6 +28,7 @@ package edu.sustc.liquid.exceptions;
 
 import edu.sustc.liquid.base.constants.ServiceStatus;
 import edu.sustc.liquid.dto.Result;
+import edu.sustc.liquid.exceptions.annotations.WrapsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -57,7 +58,7 @@ public class ApiExceptionHandler {
     @SuppressWarnings({"rawtypes", "checkstyle:MissingJavadocMethod"})
     @ExceptionHandler(Exception.class)
     public Result exceptionHandler(Exception e, HandlerMethod handler) {
-        ApiException ae = handler.getMethodAnnotation(ApiException.class);
+        WrapsException ae = handler.getMethodAnnotation(WrapsException.class);
         if (ae == null) {
             log.error(e.getMessage(), e);
             return Result.error(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS, e.getMessage());

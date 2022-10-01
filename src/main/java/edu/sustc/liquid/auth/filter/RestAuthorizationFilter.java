@@ -24,23 +24,45 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.exceptions;
+package edu.sustc.liquid.auth.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.sustc.liquid.base.constants.ServiceStatus;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import edu.sustc.liquid.dto.Result;
+import java.io.IOException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
+import org.springframework.http.MediaType;
 
 /**
- * Exceptions may be thrown by controllers, wraps real Java exceptions.
+ * Suppress redirect after login, provides unified response body.
  *
  * @author hezean
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface ApiException {
+@Slf4j
+public class RestAuthorizationFilter extends FormAuthenticationFilter {
 
-    @SuppressWarnings("checkstyle:MissingJavadocMethod")
-    ServiceStatus value();
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    @Override
+    protected boolean onAccessDenied(ServletRequest request, ServletResponse response)
+            throws IOException {
+        if (request instanceof HttpServletRequest req) {
+            log.info(
+                    "{} access denied for {}",
+                    SecurityUtils.getSubject().getSession().getId(),
+                    req.getPathInfo());
+        }
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        if (response instanceof HttpServletResponse resp) {
+            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        }
+        mapper.writeValue(response.getWriter(), Result.error(ServiceStatus.NOT_AUTHENTICATED));
+        return false;
+    }
 }

@@ -24,39 +24,24 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.auth;
+package edu.sustc.liquid.auth.exceptions;
 
-import edu.sustc.liquid.auth.realm.GenericAuthorizationRealm;
-import java.util.Optional;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
-import org.apache.shiro.realm.Realm;
+import java.util.Locale;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.springframework.context.i18n.LocaleContextHolder;
 
-/**
- * Supports selecting auth method.
- *
- * @author hezean
- */
-public class MultiRealmAuthenticator extends ModularRealmAuthenticator {
+@Getter
+@AllArgsConstructor
+public class MissingCredentialFieldException extends Exception {
+    private final String enMsg;
+    private final String zhMsg;
 
-    @Override
-    protected AuthenticationInfo doAuthenticate(AuthenticationToken authenticationToken)
-            throws AuthenticationException {
-        assertRealmsConfigured();
-
-        UserToken token = (UserToken) authenticationToken;
-        Optional<Realm> realm =
-                getRealms().stream()
-                        .filter(r -> r.getClass() != GenericAuthorizationRealm.class)
-                        .filter(r -> r.supports(authenticationToken))
-                        .findFirst();
-
-        if (realm.isPresent()) {
-            return doSingleRealmAuthentication(realm.get(), token);
-        } else {
-            return doMultiRealmAuthentication(getRealms(), token);
-        }
+    public String getMsg() {
+        return Locale.SIMPLIFIED_CHINESE
+                        .getLanguage()
+                        .equals(LocaleContextHolder.getLocale().getLanguage())
+                ? this.zhMsg
+                : this.enMsg;
     }
 }

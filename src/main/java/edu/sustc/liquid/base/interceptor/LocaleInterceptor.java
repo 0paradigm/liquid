@@ -24,9 +24,12 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.interceptor;
+package edu.sustc.liquid.base.interceptor;
 
 import edu.sustc.liquid.base.constants.Constants;
+import java.util.Locale;
+import java.util.Objects;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
@@ -53,12 +56,22 @@ public class LocaleInterceptor implements HandlerInterceptor {
             @NotNull HttpServletRequest request,
             @NotNull HttpServletResponse response,
             @NotNull Object handler) {
-        if (WebUtils.getCookie(request, Constants.LOCALE_INDICATOR_NAME) != null) {
+
+        Cookie localeCookie = WebUtils.getCookie(request, Constants.LOCALE_INDICATOR_NAME);
+        if (Objects.nonNull(localeCookie)) {
+            Locale localeCookie0 = StringUtils.parseLocale(localeCookie.getValue());
+            if (Objects.nonNull(localeCookie0)) {
+                LocaleContextHolder.setLocale(localeCookie0);
+            }
             return true;
         }
-        String locale = request.getHeader(Constants.LOCALE_INDICATOR_NAME);
-        if (locale != null) {
-            LocaleContextHolder.setLocale(StringUtils.parseLocale(locale));
+
+        Locale localeHeader =
+                StringUtils.parseLocale(request.getHeader(Constants.LOCALE_INDICATOR_NAME));
+        if (Objects.nonNull(localeHeader)) {
+            LocaleContextHolder.setLocale(localeHeader);
+            response.addCookie(
+                    new Cookie(Constants.LOCALE_INDICATOR_NAME, localeHeader.getLanguage()));
         }
         return true;
     }

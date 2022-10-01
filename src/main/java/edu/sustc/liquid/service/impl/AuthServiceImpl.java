@@ -27,6 +27,8 @@
 package edu.sustc.liquid.service.impl;
 
 import edu.sustc.liquid.auth.UserToken;
+import edu.sustc.liquid.auth.exceptions.MissingCredentialFieldException;
+import edu.sustc.liquid.dto.LoginCredentials;
 import edu.sustc.liquid.service.AuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
@@ -40,7 +42,9 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     @Override
-    public Subject login(UserToken token) throws ShiroException {
+    public Subject login(LoginCredentials credentials)
+            throws ShiroException, MissingCredentialFieldException {
+        UserToken token = handleCredentials(credentials);
         Subject subject = SecurityUtils.getSubject();
         subject.login(token);
 
@@ -49,5 +53,16 @@ public class AuthServiceImpl implements AuthService {
         } else {
             throw new AuthorizationException();
         }
+    }
+
+    private UserToken handleCredentials(LoginCredentials c) throws MissingCredentialFieldException {
+        UserToken token = new UserToken();
+        token =
+                switch (c.getType()) {
+                    case PASSWORD -> token.password(c.getLogin(), c.getPassword());
+                    case PHONE_CAPTCHA -> token.phoneCaptcha(c.getPhone(), c.getCaptcha());
+                    default -> token; // TODO
+                };
+        return token.remember(Boolean.TRUE.equals(c.getRemember()));
     }
 }

@@ -26,11 +26,14 @@
 
 package edu.sustc.liquid.auth;
 
-import java.util.Objects;
+import edu.sustc.liquid.auth.exceptions.MissingCredentialFieldException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.util.StringUtils;
+import org.springframework.lang.Nullable;
 
 /**
  * Pass to Shiro, select auth type from multi realms.
@@ -39,15 +42,22 @@ import org.apache.shiro.authc.UsernamePasswordToken;
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class UserToken extends UsernamePasswordToken {
 
-    private LoginType loginType;
+    private LoginType type;
+
+    private String login;
 
     private String phone;
     private String captcha;
 
-    /** Sets whether remember this user for the session. */
+    /**
+     * Sets whether remember this user for the session.
+     *
+     * @hidden for test
+     */
     public UserToken remember(boolean remember) {
         this.setRememberMe(remember);
         return this;
@@ -59,12 +69,16 @@ public class UserToken extends UsernamePasswordToken {
      * @param login username or email
      * @param password website password
      */
-    public UserToken password(String login, String password) {
-        this.loginType = LoginType.PASSWORD;
-        this.setUsername(login);
-        if (Objects.isNull(password)) {
-            password = "";
+    public UserToken password(@Nullable String login, @Nullable String password)
+            throws MissingCredentialFieldException {
+        if (!StringUtils.hasText(login)) {
+            throw new MissingCredentialFieldException("Login field is necessary", "账号为必填项");
         }
+        if (!StringUtils.hasText(password)) {
+            throw new MissingCredentialFieldException("Password is necessary", "密码不得为空");
+        }
+        this.type = LoginType.PASSWORD;
+        this.setUsername(login);
         this.setPassword(password.toCharArray());
         return this;
     }
@@ -75,8 +89,15 @@ public class UserToken extends UsernamePasswordToken {
      * @param phone phone number
      * @param captcha captcha received
      */
-    public UserToken phoneCaptcha(String phone, String captcha) {
-        this.loginType = LoginType.PHONE_CAPTCHA;
+    public UserToken phoneCaptcha(@Nullable String phone, @Nullable String captcha)
+            throws MissingCredentialFieldException {
+        if (!StringUtils.hasText(phone)) {
+            throw new MissingCredentialFieldException("Phone number is necessary", "手机号为必填项");
+        }
+        if (!StringUtils.hasText(captcha)) {
+            throw new MissingCredentialFieldException("SMS captcha code is necessary", "验证码不得为空");
+        }
+        this.type = LoginType.PHONE_CAPTCHA;
         this.phone = phone;
         this.captcha = captcha;
         return this;

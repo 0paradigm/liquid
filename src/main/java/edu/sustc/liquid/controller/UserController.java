@@ -30,7 +30,7 @@ import edu.sustc.liquid.base.constants.ServiceStatus;
 import edu.sustc.liquid.dao.UserDao;
 import edu.sustc.liquid.dao.entity.User;
 import edu.sustc.liquid.dto.Result;
-import edu.sustc.liquid.exceptions.ApiException;
+import edu.sustc.liquid.exceptions.annotations.WrapsException;
 import edu.sustc.liquid.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -48,14 +48,14 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 /**
- * Testing swagger.
+ * Fetch and modify user info. Register user.
  *
  * @author hezean
  */
-@Api(value = "this class is only for testing swagger")
+@Api
 @Slf4j
 @RestController
-@RequestMapping("/api/demo")
+@RequestMapping("/api/user")
 public class UserController {
 
     @Autowired UserDao userDao;
@@ -78,7 +78,7 @@ public class UserController {
     })
     @PostMapping(value = "/hello")
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
+    @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<String> hello(
             @RequestParam(value = "name") String name,
             @ApiIgnore @RequestBody(required = false) String ts) {
@@ -103,7 +103,7 @@ public class UserController {
     })
     @PostMapping(value = "/user")
     @ResponseStatus(HttpStatus.OK)
-    @ApiException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
+    @WrapsException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
     public Result<User> getUserNamedAs(@RequestParam(value = "name") String name) {
         log.debug("User {}", name);
         return Result.success(userDao.getByNameAndUpdate(name));

@@ -45,9 +45,10 @@ public enum ServiceStatus {
     SUCCESS(0, "success", "成功"),
 
     NOT_AUTHENTICATED(100, "Not authenticated", "账号未认证"),
-    ACCOUNT_NOT_FOUND(101, "Account {0} not found", "未找到对应账号：{0}"),
+    ACCOUNT_NOT_FOUND(101, "Account '{0}' not exists", "账号不存在：{0}"),
     INCORRECT_CREDENTIAL(102, "Incorrect username or password", "账号密码不匹配"),
-    ERROR_LOGGING(103, "Error logging in, please try again", "服务端异常，请重试"),
+    MISSING_CREDENTIAL(103, "{0}", "{0}"),
+    ERROR_LOGGING(104, "Error logging in, please try again", "服务端异常，请重试"),
 
     INTERNAL_SERVER_ERROR_ARGS(10000, "internal server error: {0}", "服务端异常: {0}"),
 

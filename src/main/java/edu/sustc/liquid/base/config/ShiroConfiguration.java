@@ -28,7 +28,8 @@ package edu.sustc.liquid.base.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.sustc.liquid.auth.MultiRealmAuthenticator;
-import edu.sustc.liquid.auth.RestAuthorizationFilter;
+import edu.sustc.liquid.auth.filter.NoRedirectLogoutFilter;
+import edu.sustc.liquid.auth.filter.RestAuthorizationFilter;
 import edu.sustc.liquid.auth.realm.GenericAuthorizationRealm;
 import edu.sustc.liquid.auth.realm.UserPasswordRealm;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.Filter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.mgt.RememberMeManager;
@@ -58,6 +60,7 @@ import org.springframework.core.io.ResourceLoader;
  *
  * @author hezean
  */
+@Slf4j
 @Configuration
 public class ShiroConfiguration {
 
@@ -113,11 +116,15 @@ public class ShiroConfiguration {
         return realm;
     }
 
+    private static final EhCacheManager CACHE_MANAGER_INSTANCE = new EhCacheManager();
+
+    static {
+        CACHE_MANAGER_INSTANCE.setCacheManagerConfigFile("classpath:auth/ehcache.xml");
+    }
+
     @Bean
     public EhCacheManager ehCacheManager() {
-        EhCacheManager cacheManager = new EhCacheManager();
-        cacheManager.setCacheManagerConfigFile("classpath:auth/ehcache.xml");
-        return cacheManager;
+        return CACHE_MANAGER_INSTANCE;
     }
 
     /**
@@ -138,7 +145,7 @@ public class ShiroConfiguration {
 
         Map<String, Filter> filters = new LinkedHashMap<>();
         filters.put("authc", new RestAuthorizationFilter());
-        filters.put("logout", new RestAuthorizationFilter());
+        filters.put("logout", new NoRedirectLogoutFilter());
 
         bean.setFilters(filters);
 
@@ -153,6 +160,7 @@ public class ShiroConfiguration {
 
         Map<String, String> map = new LinkedHashMap<>();
         rc.stream().sequential().forEach(i -> map.put(i.get("path"), i.get("auth")));
+        log.info("Shiro config: {}", map);
 
         bean.setFilterChainDefinitionMap(map);
         return bean;

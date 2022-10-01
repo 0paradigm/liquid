@@ -3,6 +3,12 @@
 
 <mapper namespace="edu.sustc.liquid.dao.mapper.UserMapper">
 
+    <delete id="deleteById">
+        DELETE
+        FROM `t_ds_user`
+        WHERE `id` = #{id}
+    </delete>
+
     <select id="findByNameOrMail" resultType="edu.sustc.liquid.dao.entity.User">
         SELECT *
         FROM `t_ds_user`

@@ -31,6 +31,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import edu.sustc.liquid.dao.annotation.Unique;
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -48,7 +49,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 @ToString
 @TableName("t_ds_user")
-public class User {
+public class User implements Serializable {
 
     /** system generated primary key. */
     @TableId(value = "id", type = IdType.AUTO)

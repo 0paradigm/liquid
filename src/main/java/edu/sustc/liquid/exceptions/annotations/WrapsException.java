@@ -24,28 +24,23 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.interceptor;
+package edu.sustc.liquid.exceptions.annotations;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.HandlerInterceptor;
+import edu.sustc.liquid.base.constants.ServiceStatus;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@Component
-public class CrossOriginInterceptor implements HandlerInterceptor {
-    @Override
-    public boolean preHandle(
-            @NotNull HttpServletRequest request,
-            HttpServletResponse response,
-            @NotNull Object handler) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "*");
-        response.setHeader("Access-Control-Max-Age", "3600");
-        response.setHeader(
-                "Access-Control-Allow-Headers",
-                "Origin, X-Requested-With, Content-Type, Accept, token");
-        response.setHeader("Access-Control-Allow-Credentials", "true");
-        return true;
-    }
+/**
+ * Exceptions may be thrown by controllers, wraps real Java exceptions.
+ *
+ * @author hezean
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface WrapsException {
+
+    @SuppressWarnings("checkstyle:MissingJavadocMethod")
+    ServiceStatus value();
 }

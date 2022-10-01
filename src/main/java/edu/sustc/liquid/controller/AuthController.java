@@ -26,11 +26,11 @@
 
 package edu.sustc.liquid.controller;
 
-import edu.sustc.liquid.auth.UserToken;
+import edu.sustc.liquid.auth.exceptions.MissingCredentialFieldException;
 import edu.sustc.liquid.base.constants.ServiceStatus;
 import edu.sustc.liquid.dto.LoginCredentials;
 import edu.sustc.liquid.dto.Result;
-import edu.sustc.liquid.exceptions.ApiException;
+import edu.sustc.liquid.exceptions.annotations.WrapsException;
 import edu.sustc.liquid.service.AuthService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -39,7 +39,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -80,37 +79,29 @@ public class AuthController {
         @ApiResponse(code = 406, message = "Wrong credentials"),
         @ApiResponse(code = 400, message = "General errors")
     })
-    @ApiException(ServiceStatus.ERROR_LOGGING)
+    @WrapsException(ServiceStatus.ERROR_LOGGING)
     @PostMapping("/login")
     public ResponseEntity<Result<Map<String, Serializable>>> login(
             @RequestBody LoginCredentials credentials) {
         Result<Map<String, Serializable>> errResult;
         try {
-            UserToken token = handleCredential(credentials);
-            Subject subject = authService.login(token);
+            Subject subject = authService.login(credentials);
             log.info(
                     "User '{}' logged in via '{}'",
-                    token.getUsername(),
-                    token.getLoginType().getIdentifier());
+                    credentials.getLogin(),
+                    credentials.getType().getIdentifier());
             return new ResponseEntity<>(
                     Result.success(Map.of("token", subject.getSession().getId())), HttpStatus.OK);
-        } catch (UnknownAccountException | IncorrectCredentialsException e) {
+        } catch (MissingCredentialFieldException e) {
+            errResult = Result.error(ServiceStatus.MISSING_CREDENTIAL, e.getMsg());
+        } catch (UnknownAccountException e) {
+            errResult = Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
+        } catch (IncorrectCredentialsException e) {
             errResult = Result.error(ServiceStatus.INCORRECT_CREDENTIAL);
         } catch (AuthenticationException e) {
             errResult = Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
         return new ResponseEntity<>(errResult, HttpStatus.NOT_ACCEPTABLE);
-    }
-
-    private UserToken handleCredential(LoginCredentials c) {
-        if (Objects.isNull(c.getType())) {
-            throw new IncorrectCredentialsException();
-        }
-        return switch (c.getType()) {
-            case PASSWORD -> new UserToken().password(c.getLogin(), c.getPassword());
-            case PHONE_CAPTCHA -> new UserToken().phoneCaptcha(c.getPhone(), c.getCaptcha());
-            default -> new UserToken();
-        };
     }
 
     @ApiOperation(value = "logout", notes = "Destroy current token in backend")

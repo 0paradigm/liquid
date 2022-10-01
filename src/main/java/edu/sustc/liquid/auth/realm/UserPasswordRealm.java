@@ -59,7 +59,7 @@ public class UserPasswordRealm extends AuthorizingRealm {
     @Override
     public boolean supports(AuthenticationToken token) {
         if (token instanceof UserToken tok) {
-            return tok.getLoginType() == LoginType.PASSWORD;
+            return tok.getType() == LoginType.PASSWORD;
         } else {
             return false;
         }
@@ -69,8 +69,8 @@ public class UserPasswordRealm extends AuthorizingRealm {
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken)
             throws AuthenticationException {
         UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
-        String name = token.getUsername();
-        User user = userMapper.findByNameOrMail(name);
+        String login = token.getUsername();
+        User user = userMapper.findByNameOrMail(login);
         if (Objects.isNull(user)) {
             throw new UnknownAccountException();
         }

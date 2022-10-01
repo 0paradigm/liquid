@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ehcache name="shirocache">
+<ehcache name="liquidShiroCache" updateCheck="false" monitoring="autodetect">
 
     <diskStore path="java.io.tmpdir"/>
 
@@ -30,7 +30,7 @@
            statistics="true">
     </cache>
 
-    <cache name="shiro-activeSessionCache"
+    <cache name="activeSessionCache"
            maxEntriesLocalHeap="2000"
            eternal="false"
            timeToIdleSeconds="3600"

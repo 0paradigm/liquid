@@ -24,39 +24,28 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.auth;
+package edu.sustc.liquid.base.interceptor;
 
-import edu.sustc.liquid.auth.realm.GenericAuthorizationRealm;
-import java.util.Optional;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
-import org.apache.shiro.realm.Realm;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
 
-/**
- * Supports selecting auth method.
- *
- * @author hezean
- */
-public class MultiRealmAuthenticator extends ModularRealmAuthenticator {
-
+@Component
+public class CrossOriginInterceptor implements HandlerInterceptor {
     @Override
-    protected AuthenticationInfo doAuthenticate(AuthenticationToken authenticationToken)
-            throws AuthenticationException {
-        assertRealmsConfigured();
-
-        UserToken token = (UserToken) authenticationToken;
-        Optional<Realm> realm =
-                getRealms().stream()
-                        .filter(r -> r.getClass() != GenericAuthorizationRealm.class)
-                        .filter(r -> r.supports(authenticationToken))
-                        .findFirst();
-
-        if (realm.isPresent()) {
-            return doSingleRealmAuthentication(realm.get(), token);
-        } else {
-            return doMultiRealmAuthentication(getRealms(), token);
-        }
+    public boolean preHandle(
+            @NotNull HttpServletRequest request,
+            HttpServletResponse response,
+            @NotNull Object handler) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "*");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader(
+                "Access-Control-Allow-Headers",
+                "Origin, X-Requested-With, Content-Type, Accept, token");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return true;
     }
 }
