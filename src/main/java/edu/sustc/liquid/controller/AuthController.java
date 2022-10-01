@@ -109,7 +109,10 @@ public class AuthController {
     @SuppressWarnings({"rawtypes", "checkstyle:MissingJavadocMethod"})
     public Result logout() {
         SecurityUtils.getSubject().logout();
-        log.info("{} logged out", SecurityUtils.getSubject().getSession().getId());
+        log.info(
+                "[ip: {}, session: {}] logged out",
+                SecurityUtils.getSubject().getSession().getHost(),
+                SecurityUtils.getSubject().getSession().getId());
         return Result.success();
     }
 }

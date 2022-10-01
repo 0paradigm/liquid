@@ -54,9 +54,10 @@ public class RestAuthorizationFilter extends FormAuthenticationFilter {
             throws IOException {
         if (request instanceof HttpServletRequest req) {
             log.info(
-                    "{} access denied for {}",
+                    "[ip: {}, session: {}] access denied for {}",
+                    SecurityUtils.getSubject().getSession().getHost(),
                     SecurityUtils.getSubject().getSession().getId(),
-                    req.getPathInfo());
+                    req.getServletPath());
         }
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         if (response instanceof HttpServletResponse resp) {
