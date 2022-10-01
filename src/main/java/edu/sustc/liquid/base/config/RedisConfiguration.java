@@ -115,7 +115,6 @@ public class RedisConfiguration extends CachingConfigurerSupport {
                     @NotNull RuntimeException exception,
                     @NotNull Cache cache,
                     @NotNull Object key) {
-                log.error(exception.getClass().getName());
                 log.error(
                         "Failure getting from cache: {}, key: {}", cache.getName(), key, exception);
             }

@@ -24,24 +24,40 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.service.impl;
+package edu.sustc.liquid.interceptor;
 
-import edu.sustc.liquid.dao.UserDao;
-import edu.sustc.liquid.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
+import edu.sustc.liquid.base.constants.Constants;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.util.WebUtils;
 
-@Service
-@CacheConfig(cacheNames = "users")
-public class UserServiceImpl implements UserService {
-    @Autowired private UserDao userDao;
+/**
+ * Locale checker for requests.
+ *
+ * <p>Should set the language config as {@code zh_CN} or {@code en_US} in request header
+ * 'Liquid-Language'.
+ *
+ * @author hezean
+ */
+public class LocaleInterceptor implements HandlerInterceptor {
 
     @Override
-    @Cacheable
-    public String greet(String s) {
-        //        User user = userDao.getByNameAndUpdate(s);
-        return " hi!";
+    @SuppressWarnings("java:S3516")
+    public boolean preHandle(
+            @NotNull HttpServletRequest request,
+            @NotNull HttpServletResponse response,
+            @NotNull Object handler) {
+        if (WebUtils.getCookie(request, Constants.LOCALE_INDICATOR_NAME) != null) {
+            return true;
+        }
+        String locale = request.getHeader(Constants.LOCALE_INDICATOR_NAME);
+        if (locale != null) {
+            LocaleContextHolder.setLocale(StringUtils.parseLocale(locale));
+        }
+        return true;
     }
 }
