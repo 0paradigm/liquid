@@ -42,17 +42,20 @@ import org.springframework.context.i18n.LocaleContextHolder;
 @AllArgsConstructor
 @Getter
 public enum ServiceStatus {
-    SUCCESS(0, "success", "成功"),
+    // success + http general errors
+    SUCCESS(0, "Success", "成功"),
+    NOT_FOUND(404, "Page not found", "页面未找到"),
 
-    NOT_AUTHENTICATED(100, "Not authenticated", "账号未认证"),
-    ACCOUNT_NOT_FOUND(101, "Account '{0}' not exists", "账号不存在：{0}"),
-    INCORRECT_CREDENTIAL(102, "Incorrect username or password", "账号密码不匹配"),
-    MISSING_CREDENTIAL(103, "{0}", "{0}"),
-    ERROR_LOGGING(104, "Error logging in, please try again", "服务端异常，请重试"),
+    // account errors
+    NOT_AUTHENTICATED(1000, "Not authenticated", "账号未认证"),
+    ACCOUNT_NOT_FOUND(1001, "Account '{0}' not exists", "账号不存在：{0}"),
+    INCORRECT_CREDENTIAL(1002, "Incorrect username or password", "账号密码不匹配"),
+    MISSING_CREDENTIAL(1003, "{0}", "{0}"),
+    ERROR_LOGGING(1004, "Error logging in, please try again", "服务端异常，请重试"),
 
-    INTERNAL_SERVER_ERROR_ARGS(10000, "internal server error: {0}", "服务端异常: {0}"),
-
-    REQUEST_PARAMS_NOT_VALID_ERROR(10001, "request parameter {0} is not valid", "请求参数[{0}]无效"),
+    // general errors
+    INTERNAL_SERVER_ERROR_ARGS(10000, "Internal server error: {0}", "服务端异常: {0}"),
+    REQUEST_PARAMS_NOT_VALID_ERROR(10001, "Request parameter {0} is not valid", "请求参数[{0}]无效"),
     ;
 
     private final int code;

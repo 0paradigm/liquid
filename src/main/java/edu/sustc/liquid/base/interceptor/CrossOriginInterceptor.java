@@ -32,6 +32,11 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+/**
+ * Adds cors headers.
+ *
+ * @author hezean
+ */
 @Component
 public class CrossOriginInterceptor implements HandlerInterceptor {
     @Override

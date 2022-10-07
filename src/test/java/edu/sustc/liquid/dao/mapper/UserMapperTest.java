@@ -36,7 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @MybatisTest
 @Transactional
-public class UserMapperTest {
+class UserMapperTest {
 
     @Autowired private UserMapper userMapper;
 

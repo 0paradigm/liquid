@@ -38,7 +38,7 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 
 /**
- * Provides an united @code{@link AuthorizingRealm#doGetAuthorizationInfo(PrincipalCollection)}
+ * Provides a united @code{@link AuthorizingRealm#doGetAuthorizationInfo(PrincipalCollection)}
  * implementation for all supported realms, since they share the same logic, and Shiro repeats
  * calling it for all realms.
  *
@@ -60,7 +60,22 @@ public class GenericAuthorizationRealm extends AuthorizingRealm {
             return authInfo;
         }
         User user = (User) Objects.requireNonNull(principal);
+        setPermissionsFor(user, authInfo);
+        log.info(
+                "Authorize succeed for {} via {}, permissions: {}",
+                user.getId(),
+                principals.getRealmNames(),
+                authInfo.getStringPermissions().toString());
+        return authInfo;
+    }
 
+    @Override
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authcToken)
+            throws AuthenticationException {
+        return null;
+    }
+
+    private void setPermissionsFor(User user, SimpleAuthorizationInfo info) {
         //                List<Role> roleList = roleService.findByUserid(userLogin.getId());
         //                if(CollectionUtils.isNotEmpty(roleList)){
         //                    for(Role role : roleList){
@@ -78,18 +93,5 @@ public class GenericAuthorizationRealm extends AuthorizingRealm {
         //                        }
         //                    }
         //                }
-        log.info(
-                "Authorize succeed for {} via {}, permissions: {}",
-                user.getId(),
-                principals.getRealmNames(),
-                authInfo.getStringPermissions().toString());
-
-        return authInfo;
-    }
-
-    @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authcToken)
-            throws AuthenticationException {
-        return null;
     }
 }

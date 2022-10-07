@@ -28,6 +28,7 @@ package edu.sustc.liquid;
 
 import static org.assertj.core.api.Assertions.*;
 
+import edu.sustc.liquid.controller.AuthController;
 import edu.sustc.liquid.controller.UserController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +37,15 @@ import org.springframework.test.annotation.DirtiesContext;
 
 @SpringBootTest
 @DirtiesContext
-class LiquidApplicationTests {
+class LiquidApplicationTest {
+
+    @Autowired AuthController authController;
 
     @Autowired UserController userController;
 
     @Test
     void smokeTest() {
+        assertThat(authController).isNotNull();
         assertThat(userController).isNotNull();
     }
 }

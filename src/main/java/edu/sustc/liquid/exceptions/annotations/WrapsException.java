@@ -31,6 +31,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.springframework.core.annotation.AliasFor;
+import org.springframework.http.HttpStatus;
 
 /**
  * Exceptions may be thrown by controllers, wraps real Java exceptions.
@@ -42,5 +44,13 @@ import java.lang.annotation.Target;
 public @interface WrapsException {
 
     @SuppressWarnings("checkstyle:MissingJavadocMethod")
-    ServiceStatus value();
+    @AliasFor("wrapped")
+    ServiceStatus value() default ServiceStatus.INTERNAL_SERVER_ERROR_ARGS;
+
+    @SuppressWarnings("checkstyle:MissingJavadocMethod")
+    @AliasFor("value")
+    ServiceStatus wrapped() default ServiceStatus.INTERNAL_SERVER_ERROR_ARGS;
+
+    @SuppressWarnings("checkstyle:MissingJavadocMethod")
+    HttpStatus status() default HttpStatus.BAD_REQUEST;
 }

@@ -26,10 +26,10 @@
 
 package edu.sustc.liquid.controller;
 
-import edu.sustc.liquid.auth.exceptions.MissingCredentialFieldException;
 import edu.sustc.liquid.base.constants.ServiceStatus;
 import edu.sustc.liquid.dto.LoginCredentials;
 import edu.sustc.liquid.dto.Result;
+import edu.sustc.liquid.exceptions.InvalidCredentialFieldException;
 import edu.sustc.liquid.exceptions.annotations.WrapsException;
 import edu.sustc.liquid.service.AuthService;
 import io.swagger.annotations.Api;
@@ -92,7 +92,7 @@ public class AuthController {
                     credentials.getType().getIdentifier());
             return new ResponseEntity<>(
                     Result.success(Map.of("token", subject.getSession().getId())), HttpStatus.OK);
-        } catch (MissingCredentialFieldException e) {
+        } catch (InvalidCredentialFieldException e) {
             errResult = Result.error(ServiceStatus.MISSING_CREDENTIAL, e.getMsg());
         } catch (UnknownAccountException e) {
             errResult = Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);

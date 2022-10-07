@@ -26,8 +26,8 @@
 
 package edu.sustc.liquid.service;
 
-import edu.sustc.liquid.auth.exceptions.MissingCredentialFieldException;
 import edu.sustc.liquid.dto.LoginCredentials;
+import edu.sustc.liquid.exceptions.InvalidCredentialFieldException;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.subject.Subject;
 
@@ -44,7 +44,8 @@ public interface AuthService {
      * @param credentials includes login method and related credentials
      * @return subject if successfully logged in
      * @throws ShiroException if not logged in
+     * @throws InvalidCredentialFieldException if the credential is invalid
      */
     Subject login(LoginCredentials credentials)
-            throws ShiroException, MissingCredentialFieldException;
+            throws ShiroException, InvalidCredentialFieldException;
 }

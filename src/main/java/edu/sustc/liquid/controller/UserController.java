@@ -78,7 +78,7 @@ public class UserController {
     })
     @PostMapping(value = "/hello")
     @ResponseStatus(HttpStatus.CREATED)
-    @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
+    //    @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<String> hello(
             @RequestParam(value = "name") String name,
             @ApiIgnore @RequestBody(required = false) String ts) {
@@ -103,9 +103,10 @@ public class UserController {
     })
     @PostMapping(value = "/user")
     @ResponseStatus(HttpStatus.OK)
-    @WrapsException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
+    @WrapsException(
+            value = ServiceStatus.INTERNAL_SERVER_ERROR_ARGS,
+            status = HttpStatus.NOT_ACCEPTABLE)
     public Result<User> getUserNamedAs(@RequestParam(value = "name") String name) {
-        log.debug("User {}", name);
-        return Result.success(userDao.getByNameAndUpdate(name));
+        throw new RuntimeException();
     }
 }

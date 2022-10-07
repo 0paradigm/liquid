@@ -28,8 +28,10 @@ package edu.sustc.liquid.exceptions;
 
 import edu.sustc.liquid.base.constants.ServiceStatus;
 import java.text.MessageFormat;
+import java.util.Locale;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 /**
  * When catching spec exceptions, or throw intentionally, can spec the message and error code.
@@ -42,16 +44,16 @@ public class ServiceException extends RuntimeException {
 
     private Integer code;
 
-    public ServiceException(String message) {
-        super(message);
+    public ServiceException(String enMsg, String zhMsg) {
+        super(getLocaleMsg(enMsg, zhMsg));
     }
 
-    public ServiceException(String message, Exception cause) {
-        super(message, cause);
+    public ServiceException(String enMsg, String zhMsg, Exception cause) {
+        super(getLocaleMsg(enMsg, zhMsg), cause);
     }
 
-    public ServiceException(Integer code, String message) {
-        super(message);
+    public ServiceException(Integer code, String enMsg, String zhMsg) {
+        this(enMsg, zhMsg);
         this.code = code;
     }
 
@@ -63,5 +65,13 @@ public class ServiceException extends RuntimeException {
     public ServiceException(ServiceStatus status, Object... formatter) {
         super(MessageFormat.format(status.getMsg(), formatter));
         this.code = status.getCode();
+    }
+
+    private static String getLocaleMsg(String enMsg, String zhMsg) {
+        return Locale.SIMPLIFIED_CHINESE
+                        .getLanguage()
+                        .equals(LocaleContextHolder.getLocale().getLanguage())
+                ? zhMsg
+                : enMsg;
     }
 }

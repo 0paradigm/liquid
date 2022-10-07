@@ -24,24 +24,40 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.auth.exceptions;
+package edu.sustc.liquid.exceptions.handlers;
 
-import java.util.Locale;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import org.springframework.context.i18n.LocaleContextHolder;
+import edu.sustc.liquid.base.constants.ServiceStatus;
+import edu.sustc.liquid.dto.Result;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-@Getter
-@AllArgsConstructor
-public class MissingCredentialFieldException extends Exception {
-    private final String enMsg;
-    private final String zhMsg;
+/**
+ * Provides united response body for not found resource.
+ *
+ * @author hezean
+ */
+@EnableWebMvc
+@ControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class NotFoundHandler extends ResponseEntityExceptionHandler {
 
-    public String getMsg() {
-        return Locale.SIMPLIFIED_CHINESE
-                        .getLanguage()
-                        .equals(LocaleContextHolder.getLocale().getLanguage())
-                ? this.zhMsg
-                : this.enMsg;
+    @NotNull
+    @Override
+    protected ResponseEntity<Object> handleNoHandlerFoundException(
+            @NotNull NoHandlerFoundException ex,
+            @NotNull HttpHeaders headers,
+            @NotNull HttpStatus status,
+            @NotNull WebRequest request) {
+        return new ResponseEntity<>(
+                Result.error(ServiceStatus.NOT_FOUND), headers, HttpStatus.NOT_FOUND);
     }
 }

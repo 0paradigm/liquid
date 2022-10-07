@@ -37,6 +37,8 @@ import edu.sustc.liquid.dao.entity.User;
 import edu.sustc.liquid.dao.mapper.UserMapper;
 import edu.sustc.liquid.dto.LoginCredentials;
 import edu.sustc.liquid.dto.Result;
+import java.util.Map;
+import javax.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -99,6 +101,10 @@ class AuthControllerTest {
         assertThat(mapper.readValue(res.getResponse().getContentAsString(), Result.class))
                 .extracting("code")
                 .isEqualTo(ServiceStatus.SUCCESS.getCode());
+        assertThat(mapper.readValue(res.getResponse().getContentAsString(), Result.class))
+                .extracting("data")
+                .extracting("token")
+                .isNotNull();
     }
 
     @Test
@@ -166,16 +172,16 @@ class AuthControllerTest {
     }
 
     @Test
-    void testAccessingAuthcApiWithoutLogin() throws Exception {
+    void testAccessingPublicResourcesWithoutLogin() throws Exception {
         MvcResult res =
-                mockMvc.perform(post("/api/test-shiro"))
-                        .andExpect(status().isForbidden())
+                mockMvc.perform(post("/pub/test1nf"))
+                        .andExpect(status().isNotFound())
                         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                         .andReturn();
 
         assertThat(mapper.readValue(res.getResponse().getContentAsString(), Result.class))
                 .extracting("code")
-                .isEqualTo(ServiceStatus.NOT_AUTHENTICATED.getCode());
+                .isEqualTo(ServiceStatus.NOT_FOUND.getCode());
     }
 
     @Test
@@ -189,5 +195,38 @@ class AuthControllerTest {
         assertThat(mapper.readValue(res.getResponse().getContentAsString(), Result.class))
                 .extracting("code")
                 .isEqualTo(ServiceStatus.SUCCESS.getCode());
+    }
+
+    @Test
+    void testLogout() throws Exception {
+        Mockito.when(userMapper.findByNameOrMail("test@liquid.com"))
+                .thenReturn(testUser1__liquid_sa);
+
+        String cred =
+                mapper.writeValueAsString(
+                        new LoginCredentials().password("test@liquid.com", "liquidSaPassword"));
+
+        mockMvc.perform(post("/api/test1nf")).andExpect(status().isForbidden());
+
+        MvcResult res =
+                mockMvc.perform(
+                                post("/auth/login")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(cred))
+                        .andExpect(status().isOk())
+                        .andReturn();
+
+        String token =
+                ((Map<String, String>)
+                                mapper.readValue(
+                                                res.getResponse().getContentAsString(),
+                                                Result.class)
+                                        .getData())
+                        .get("token");
+        Cookie cookie = new Cookie("JSESSIONID", token);
+
+        mockMvc.perform(post("/api/test1nf").cookie(cookie)).andExpect(status().isNotFound());
+        mockMvc.perform(post("/auth/logout").cookie(cookie)).andExpect(status().isOk());
+        mockMvc.perform(post("/api/test1nf").cookie(cookie)).andExpect(status().isForbidden());
     }
 }

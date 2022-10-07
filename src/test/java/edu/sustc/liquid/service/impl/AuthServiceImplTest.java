@@ -24,6 +24,26 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.service;
+package edu.sustc.liquid.service.impl;
 
-public class UserServiceTest {}
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import edu.sustc.liquid.dto.LoginCredentials;
+import edu.sustc.liquid.exceptions.InvalidCredentialFieldException;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class AuthServiceImplTest {
+
+    @InjectMocks private AuthServiceImpl authService;
+
+    @Test
+    void testHandleInvalidCredentials() throws Exception {
+        LoginCredentials credentials = new LoginCredentials();
+        credentials.setType(null);
+        assertThatThrownBy(() -> authService.login(credentials))
+                .isInstanceOf(InvalidCredentialFieldException.class);
+    }
+}

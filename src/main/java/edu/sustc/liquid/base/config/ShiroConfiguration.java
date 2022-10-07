@@ -64,8 +64,10 @@ import org.springframework.core.io.ResourceLoader;
 @Configuration
 public class ShiroConfiguration {
 
+    private static final ObjectMapper mapper = new ObjectMapper();
+
     @Bean
-    public MultiRealmAuthenticator multiRealmAuthenticator() {
+    MultiRealmAuthenticator multiRealmAuthenticator() {
         MultiRealmAuthenticator authenticator = new MultiRealmAuthenticator();
         authenticator.setAuthenticationStrategy(new AtLeastOneSuccessfulStrategy());
         return authenticator;
@@ -82,7 +84,7 @@ public class ShiroConfiguration {
     }
 
     @Bean
-    public DefaultWebSecurityManager securityManager() {
+    DefaultWebSecurityManager securityManager() {
         DefaultWebSecurityManager manager = new DefaultWebSecurityManager();
         manager.setAuthenticator(multiRealmAuthenticator());
 
@@ -98,12 +100,12 @@ public class ShiroConfiguration {
     }
 
     @Bean
-    public RememberMeManager rememberMeManager() {
+    RememberMeManager rememberMeManager() {
         return new CookieRememberMeManager();
     }
 
     @Bean
-    public SessionManager sessionManager() {
+    SessionManager sessionManager() {
         return new DefaultWebSessionManager();
     }
 
@@ -123,7 +125,7 @@ public class ShiroConfiguration {
     }
 
     @Bean
-    public EhCacheManager ehCacheManager() {
+    EhCacheManager ehCacheManager() {
         return CACHE_MANAGER_INSTANCE;
     }
 
@@ -137,8 +139,7 @@ public class ShiroConfiguration {
      */
     @Bean
     @SuppressWarnings("unchecked")
-    public ShiroFilterFactoryBean shiroFilterFactoryBean(
-            ObjectMapper mapper, ResourceLoader resourceLoader) {
+    ShiroFilterFactoryBean shiroFilterFactoryBean(ResourceLoader resourceLoader) {
         ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();
 
         bean.setSecurityManager(securityManager());

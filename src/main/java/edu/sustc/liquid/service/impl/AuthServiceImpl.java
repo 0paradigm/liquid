@@ -27,9 +27,10 @@
 package edu.sustc.liquid.service.impl;
 
 import edu.sustc.liquid.auth.UserToken;
-import edu.sustc.liquid.auth.exceptions.MissingCredentialFieldException;
 import edu.sustc.liquid.dto.LoginCredentials;
+import edu.sustc.liquid.exceptions.InvalidCredentialFieldException;
 import edu.sustc.liquid.service.AuthService;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.ShiroException;
@@ -43,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Subject login(LoginCredentials credentials)
-            throws ShiroException, MissingCredentialFieldException {
+            throws ShiroException, InvalidCredentialFieldException {
         UserToken token = handleCredentials(credentials);
         Subject subject = SecurityUtils.getSubject();
         subject.login(token);
@@ -55,14 +56,23 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private UserToken handleCredentials(LoginCredentials c) throws MissingCredentialFieldException {
+    private UserToken handleCredentials(LoginCredentials c) throws InvalidCredentialFieldException {
         UserToken token = new UserToken();
+
+        // null enum instance could not call ordinal(): NPE
+        if (Objects.isNull(c.getType())) {
+            throw new InvalidCredentialFieldException("Invalid login type", "登录方式设置不正确");
+        }
+
         token =
                 switch (c.getType()) {
                     case PASSWORD -> token.password(c.getLogin(), c.getPassword());
                     case PHONE_CAPTCHA -> token.phoneCaptcha(c.getPhone(), c.getCaptcha());
-                    default -> token; // TODO
+                    default -> null;
                 };
+        if (Objects.isNull(token)) {
+            throw new InvalidCredentialFieldException("Invalid login type", "登录方式设置不正确");
+        }
         return token.remember(Boolean.TRUE.equals(c.getRemember()));
     }
 }

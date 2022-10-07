@@ -24,15 +24,16 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.exceptions;
+package edu.sustc.liquid.exceptions.handlers;
 
 import edu.sustc.liquid.base.constants.ServiceStatus;
 import edu.sustc.liquid.dto.Result;
+import edu.sustc.liquid.exceptions.ServiceException;
 import edu.sustc.liquid.exceptions.annotations.WrapsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.HandlerMethod;
@@ -44,27 +45,29 @@ import org.springframework.web.method.HandlerMethod;
  */
 @RestControllerAdvice
 @Slf4j
-@ResponseBody
-@ResponseStatus(HttpStatus.BAD_REQUEST)
 public class ApiExceptionHandler {
 
     @ExceptionHandler(ServiceException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @SuppressWarnings("rawtypes")
-    public Result exceptionHandler(ServiceException e, HandlerMethod handler) {
+    public Result exceptionHandler(ServiceException e) {
         log.error("ServiceException", e);
         return new Result(e.getCode(), e.getMessage());
     }
 
-    @SuppressWarnings({"rawtypes", "checkstyle:MissingJavadocMethod"})
     @ExceptionHandler(Exception.class)
-    public Result exceptionHandler(Exception e, HandlerMethod handler) {
-        WrapsException ae = handler.getMethodAnnotation(WrapsException.class);
-        if (ae == null) {
+    @SuppressWarnings({"rawtypes", "checkstyle:MissingJavadocMethod"})
+    public ResponseEntity<Result> exceptionHandler(Exception e, HandlerMethod handler) {
+        WrapsException we = handler.getMethodAnnotation(WrapsException.class);
+        if (we == null) {
             log.error(e.getMessage(), e);
-            return Result.error(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS, e.getMessage());
+            return new ResponseEntity<>(
+                    Result.error(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS, e.getMessage()),
+                    HttpStatus.BAD_REQUEST);
         }
-        ServiceStatus stat = ae.value();
-        log.error(stat.getMsg(), e);
-        return Result.error(stat);
+        ServiceStatus wrapped = we.wrapped();
+        log.error(wrapped.getMsg(), e);
+
+        return new ResponseEntity<>(Result.error(wrapped, e), we.status());
     }
 }

@@ -37,9 +37,6 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.authz.AuthorizationInfo;
-import org.apache.shiro.realm.AuthorizingRealm;
-import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -47,7 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author hezean
  */
-public class UserPasswordRealm extends AuthorizingRealm {
+public class UserPasswordRealm extends GenericAuthorizationRealm {
 
     @Autowired private UserMapper userMapper;
 
@@ -75,11 +72,6 @@ public class UserPasswordRealm extends AuthorizingRealm {
             throw new UnknownAccountException();
         }
         return new SimpleAuthenticationInfo(user, user.getPassword(), getName());
-    }
-
-    @Override
-    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        return null;
     }
 
     /** Cleans auth cache after update permissions. */

@@ -32,7 +32,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 
-/** Login controller dto. */
+/**
+ * Login controller dto.
+ *
+ * @author hezean
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

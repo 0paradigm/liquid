@@ -29,7 +29,7 @@ package edu.sustc.liquid.auth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import edu.sustc.liquid.auth.exceptions.MissingCredentialFieldException;
+import edu.sustc.liquid.exceptions.InvalidCredentialFieldException;
 import org.junit.jupiter.api.Test;
 
 class UserTokenTest {
@@ -38,21 +38,22 @@ class UserTokenTest {
     void testPasswordToken() throws Exception {
         assertThat(new UserToken().password("user", "pwd").remember(true)).isNotNull();
         assertThatThrownBy(() -> new UserToken().password("user", ""))
-                .isInstanceOf(MissingCredentialFieldException.class);
+                .isInstanceOf(InvalidCredentialFieldException.class);
         assertThatThrownBy(() -> new UserToken().password("user", null))
-                .isInstanceOf(MissingCredentialFieldException.class);
+                .isInstanceOf(InvalidCredentialFieldException.class);
         assertThatThrownBy(() -> new UserToken().password(null, ""))
-                .isInstanceOf(MissingCredentialFieldException.class);
+                .isInstanceOf(InvalidCredentialFieldException.class);
     }
 
     @Test
     void testPhoneCaptchaToken() throws Exception {
-        assertThat(new UserToken().phoneCaptcha("10000000000000", "a21d")).isNotNull();
-    }
-
-    @Test
-    void testInvalidToken() throws Exception {
-        assertThat(new UserToken()).isNotNull();
+        assertThat(new UserToken().phoneCaptcha("17600001234", "123456")).isNotNull();
+        assertThatThrownBy(() -> new UserToken().phoneCaptcha("10000000000000", "a21d"))
+                .isInstanceOf(InvalidCredentialFieldException.class);
+        assertThatThrownBy(() -> new UserToken().phoneCaptcha("17600001234", "12a"))
+                .isInstanceOf(InvalidCredentialFieldException.class);
+        assertThatThrownBy(() -> new UserToken().phoneCaptcha("10000000000000", "123456"))
+                .isInstanceOf(InvalidCredentialFieldException.class);
     }
 
     @Test

@@ -40,10 +40,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Rollback
 @EnableTransactionManagement
 @DirtiesContext
-public class UserDaoTest {
+class UserDaoTest {
 
     @Autowired private UserDao userDao;
 
     @Test
-    public void testUserDao() {}
+    void testUserDao() {}
 }

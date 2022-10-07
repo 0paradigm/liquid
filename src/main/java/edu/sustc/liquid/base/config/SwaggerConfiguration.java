@@ -72,18 +72,18 @@ public class SwaggerConfiguration {
 
     private static final String LICENSE = "Apache-2.0";
 
-    @Value("${application.artifact:\"liquid\"}")
+    @Value("${application.artifact:liquid}")
     private String appName;
 
-    @Value("${build.version:\"dev\"}")
+    @Value("${build.version:dev}")
     private String buildVersion;
 
-    @Value("${build.timestamp:\"na\"}")
+    @Value("${build.timestamp:na}")
     private String buildTimestamp;
 
     @Bean
     @SuppressWarnings("checkstyle:MissingJavadocMethod")
-    public Docket liquidRestApi() {
+    Docket liquidRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
@@ -124,7 +124,7 @@ public class SwaggerConfiguration {
 
     /** ref: <a href="https://github.com/springfox/springfox/issues/3462">springfox#3462</a>. */
     @Bean
-    public WebMvcEndpointHandlerMapping webEndpointServletHandlerMapping(
+    WebMvcEndpointHandlerMapping webEndpointServletHandlerMapping(
             WebEndpointsSupplier webEndpointsSupplier,
             ServletEndpointsSupplier servletEndpointsSupplier,
             ControllerEndpointsSupplier controllerEndpointsSupplier,

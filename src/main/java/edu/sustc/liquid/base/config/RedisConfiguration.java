@@ -72,7 +72,7 @@ public class RedisConfiguration extends CachingConfigurerSupport {
     }
 
     @Bean
-    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+    CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         return RedisCacheManager.create(connectionFactory);
     }
 
@@ -83,7 +83,7 @@ public class RedisConfiguration extends CachingConfigurerSupport {
      * @return template
      */
     @Bean
-    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
+    RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         mapper.activateDefaultTyping(
