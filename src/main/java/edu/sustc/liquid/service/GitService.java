@@ -2,7 +2,9 @@ package edu.sustc.liquid.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
+import java.util.stream.Stream;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
@@ -68,12 +70,14 @@ public interface GitService {
     /**
      * show diff between two commit.
      *
-     * @param dir       repository path
-     * @param commitId1 commitId1
-     * @param commitId2 commitId1
+     * @param dir          repository path
+     * @param arg          argument of command(b(branch), c(commit))
+     * @param oldObject    object1
+     * @param newObject    object2
+     * @param outputStream outputStream, it's hard to return a String
      * @return result message
      */
-    String diff(File dir, String commitId1, String commitId2);
+    String diff(File dir, char arg, String oldObject, String newObject, OutputStream outputStream);
 
     /**
      * init a repository.
@@ -83,7 +87,7 @@ public interface GitService {
      */
     String init(File dir);
 
-    //TODO: Do it later, can not figure out the usage of api yet
+    //TODO: Do it later
     //String log(File dir);
 
     /**
@@ -98,30 +102,56 @@ public interface GitService {
     /**
      * pull change from remote server.
      *
-     * @param dir repository path
+     * @param dir          repository path
+     * @param remoteServer name of remoteServer
+     * @param remoteBranch name of remoteBranch
      * @return result message
      */
-    String pull(File dir);
+    String pull(File dir, String remoteServer, String remoteBranch);
+
+    /**
+     * push change to remote server.
+     *
+     * @param dir          repository path
+     * @param arg          argument of command(f, d)
+     * @param remote       name of remote server
+     * @param localBranch  name of localBranch
+     * @param remoteBranch name of remoteBranch
+     * @return result message
+     */
+    String push(File dir, char arg, String remote, String localBranch, String remoteBranch);
 
     /**
      * rebase this branch to assigned branch or commit.
      *
-     * @param dir         repository path
-     * @param rebasePoint assigned branch or commit
+     * @param dir          repository path
+     * @param rebaseBranch assigned branch
      * @return result message
      */
-    String rebase(File dir, String rebasePoint);
+    String rebase(File dir, String rebaseBranch);
+
+    /**
+     * remote command.
+     *
+     * @param dir        repository path
+     * @param arg        argument of command(a, r(rm))
+     * @param remoteName name of remote
+     * @param url        remote URL
+     * @return result message
+     */
+    String remote(File dir, char arg, String remoteName, URL url);
 
     /**
      * reset this branch to another position.
      *
-     * @param dir     repository path
-     * @param isSoft  arg soft
-     * @param isMixed arg mixed
-     * @param isHard  arg hard
+     * @param dir        repository path
+     * @param isSoft     arg soft
+     * @param isMixed    arg mixed
+     * @param isHard     arg hard
+     * @param resetPoint resetPoint
      * @return result message
      */
-    String reset(File dir, Boolean isSoft, Boolean isMixed, Boolean isHard);
+    String reset(File dir, Boolean isSoft, Boolean isMixed, Boolean isHard, String resetPoint);
 
     /**
      * revert commit.
@@ -136,28 +166,37 @@ public interface GitService {
      * delete file.
      *
      * @param dir      repository path
+     * @param cache    cache
      * @param fileName fileName to delete
      * @return result message
      */
-    String rm(File dir, String fileName);
+    String rm(File dir, boolean cache, String fileName);
 
     /**
      * stash temporary work.
      *
-     * @param dir   repository path
-     * @param list  list arg
-     * @param apply apply arg
-     * @param drop  drop arg
+     * @param dir repository path
+     * @param arg argument of command(l(list), a(apply), p(pop), d(drop), c(clear))
      * @return result message
      */
-    String stash(File dir, Boolean list, Boolean apply, Boolean drop);
+    String stash(File dir, char arg, String stashName);
+
+    /**
+     * show status of repo.
+     *
+     * @param dir repository path
+     * @return result message
+     */
+    String status(File dir);
 
     /**
      * make tag on a commit.
      *
-     * @param dir repository path
-     * @param tag tag
+     * @param dir     repository path
+     * @param arg     argument of command(a, s(show), d)
+     * @param tag     tag
+     * @param message message
      * @return result message
      */
-    String tag(File dir, String tag);
+    String tag(File dir, char arg, String tag, String message);
 }
