@@ -52,10 +52,10 @@ public class LiquidApplication {
          |_____|_|\\__, |\\__,_|_|\\__,_|
                       |_| :: {} :: {}""";
 
-    @Value("${application.artifact:\"liquid\"}")
+    @Value("${application.artifact:liquid}")
     private String appName;
 
-    @Value("${build.version:\"dev\"}")
+    @Value("${build.version:dev}")
     private String buildVersion;
 
     @Value("${server.port:-1}")

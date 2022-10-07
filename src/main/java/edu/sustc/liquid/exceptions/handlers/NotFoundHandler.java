@@ -24,35 +24,40 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.dao;
+package edu.sustc.liquid.exceptions.handlers;
 
-import edu.sustc.liquid.dao.entity.User;
-// import edu.sustc.liquid.dao.mapper.UserMapper;
-import edu.sustc.liquid.dao.mapper.UserMapper;
-import io.micrometer.core.lang.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import edu.sustc.liquid.base.constants.ServiceStatus;
+import edu.sustc.liquid.dto.Result;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
- * Demo dao.
+ * Provides united response body for not found resource.
  *
  * @author hezean
  */
-@Repository
-@EnableCaching
-public class UserDao {
+@EnableWebMvc
+@ControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class NotFoundHandler extends ResponseEntityExceptionHandler {
 
-    @Autowired UserMapper userMapper;
-
-    @Nullable
-    @Transactional(rollbackFor = Exception.class)
-    public User getByNameAndUpdate(String name) {
-        //        User user = Objects.requireNonNull(userMapper.findByName(name));
-        //        user.setUpdateTime(new Date());
-        //        userMapper.updateById(user);
-        //        return user;
-        return null;
+    @NotNull
+    @Override
+    protected ResponseEntity<Object> handleNoHandlerFoundException(
+            @NotNull NoHandlerFoundException ex,
+            @NotNull HttpHeaders headers,
+            @NotNull HttpStatus status,
+            @NotNull WebRequest request) {
+        return new ResponseEntity<>(
+                Result.error(ServiceStatus.NOT_FOUND), headers, HttpStatus.NOT_FOUND);
     }
 }

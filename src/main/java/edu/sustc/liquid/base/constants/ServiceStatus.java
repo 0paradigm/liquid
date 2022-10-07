@@ -28,9 +28,9 @@ package edu.sustc.liquid.base.constants;
 
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.context.i18n.LocaleContextHolder;
 
 /**
@@ -40,24 +40,30 @@ import org.springframework.context.i18n.LocaleContextHolder;
  * @author hezean
  */
 @AllArgsConstructor
+@Getter
 public enum ServiceStatus {
-    SUCCESS(0, "success", "成功"),
+    // success + http general errors
+    SUCCESS(0, "Success", "成功"),
+    NOT_FOUND(404, "Page not found", "页面未找到"),
 
-    INTERNAL_SERVER_ERROR_ARGS(10000, "internal server error: {0}", "服务端异常: {0}"),
+    // account errors
+    NOT_AUTHENTICATED(1000, "Not authenticated", "账号未认证"),
+    ACCOUNT_NOT_FOUND(1001, "Account '{0}' not exists", "账号不存在：{0}"),
+    INCORRECT_CREDENTIAL(1002, "Incorrect username or password", "账号密码不匹配"),
+    MISSING_CREDENTIAL(1003, "{0}", "{0}"),
+    ERROR_LOGGING(1004, "Error logging in, please try again", "服务端异常，请重试"),
 
-    REQUEST_PARAMS_NOT_VALID_ERROR(10001, "request parameter {0} is not valid", "请求参数[{0}]无效"),
+    // general errors
+    INTERNAL_SERVER_ERROR_ARGS(10000, "Internal server error: {0}", "服务端异常: {0}"),
+    REQUEST_PARAMS_NOT_VALID_ERROR(10001, "Request parameter {0} is not valid", "请求参数[{0}]无效"),
     ;
 
     private final int code;
     private final String enMsg;
     private final String zhMsg;
 
-    public int getCode() {
-        return this.code;
-    }
-
     /**
-     * Gets the prompt message, fit backend i18n.
+     * Gets the prompt message, fit website i18n, fallback as en_US.
      *
      * @return i18n status message
      */
@@ -67,19 +73,6 @@ public enum ServiceStatus {
                         .equals(LocaleContextHolder.getLocale().getLanguage())
                 ? this.zhMsg
                 : this.enMsg;
-    }
-
-    /**
-     * Return messages in all languages.
-     *
-     * @return i18n messages
-     * @deprecated use @code{@link ServiceStatus#getMsg()} instead
-     */
-    @Deprecated
-    public Map<String, String> getMsgI18n() {
-        return Map.of(
-                "zh", this.zhMsg,
-                "en", this.enMsg);
     }
 
     /** Finds ServiceStatus entity by status code. */

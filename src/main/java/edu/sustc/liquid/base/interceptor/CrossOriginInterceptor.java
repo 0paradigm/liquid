@@ -24,35 +24,33 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.dao;
+package edu.sustc.liquid.base.interceptor;
 
-import edu.sustc.liquid.dao.entity.User;
-// import edu.sustc.liquid.dao.mapper.UserMapper;
-import edu.sustc.liquid.dao.mapper.UserMapper;
-import io.micrometer.core.lang.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
- * Demo dao.
+ * Adds cors headers.
  *
  * @author hezean
  */
-@Repository
-@EnableCaching
-public class UserDao {
-
-    @Autowired UserMapper userMapper;
-
-    @Nullable
-    @Transactional(rollbackFor = Exception.class)
-    public User getByNameAndUpdate(String name) {
-        //        User user = Objects.requireNonNull(userMapper.findByName(name));
-        //        user.setUpdateTime(new Date());
-        //        userMapper.updateById(user);
-        //        return user;
-        return null;
+@Component
+public class CrossOriginInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(
+            @NotNull HttpServletRequest request,
+            HttpServletResponse response,
+            @NotNull Object handler) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "*");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader(
+                "Access-Control-Allow-Headers",
+                "Origin, X-Requested-With, Content-Type, Accept, token");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return true;
     }
 }

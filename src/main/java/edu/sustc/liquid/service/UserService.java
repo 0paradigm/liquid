@@ -28,5 +28,5 @@ package edu.sustc.liquid.service;
 
 public interface UserService {
 
-    public String greet(int id);
+    String greet(String s);
 }

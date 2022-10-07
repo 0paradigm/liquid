@@ -30,7 +30,7 @@ import edu.sustc.liquid.base.constants.ServiceStatus;
 import edu.sustc.liquid.dao.UserDao;
 import edu.sustc.liquid.dao.entity.User;
 import edu.sustc.liquid.dto.Result;
-import edu.sustc.liquid.exceptions.ApiException;
+import edu.sustc.liquid.exceptions.annotations.WrapsException;
 import edu.sustc.liquid.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -48,14 +48,14 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 /**
- * Testing swagger.
+ * Fetch and modify user info. Register user.
  *
  * @author hezean
  */
-@Api(value = "this class is only for testing swagger")
-@RestController
-@RequestMapping("/demo")
+@Api
 @Slf4j
+@RestController
+@RequestMapping("/api/user")
 public class UserController {
 
     @Autowired UserDao userDao;
@@ -78,12 +78,12 @@ public class UserController {
     })
     @PostMapping(value = "/hello")
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
+    //    @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<String> hello(
             @RequestParam(value = "name") String name,
             @ApiIgnore @RequestBody(required = false) String ts) {
         log.debug("User {}", name);
-        return Result.success(userService.greet(1));
+        return Result.success(userService.greet(name));
     }
 
     /**
@@ -103,9 +103,10 @@ public class UserController {
     })
     @PostMapping(value = "/user")
     @ResponseStatus(HttpStatus.OK)
-    @ApiException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
+    @WrapsException(
+            value = ServiceStatus.INTERNAL_SERVER_ERROR_ARGS,
+            status = HttpStatus.NOT_ACCEPTABLE)
     public Result<User> getUserNamedAs(@RequestParam(value = "name") String name) {
-        log.debug("User {}", name);
-        return Result.success(userDao.getByNameAndUpdate(name));
+        throw new RuntimeException();
     }
 }

@@ -24,43 +24,28 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.exceptions;
+package edu.sustc.liquid.service;
 
-import edu.sustc.liquid.base.constants.ServiceStatus;
-import edu.sustc.liquid.dto.Result;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.method.HandlerMethod;
+import edu.sustc.liquid.dto.LoginCredentials;
+import edu.sustc.liquid.exceptions.InvalidCredentialFieldException;
+import org.apache.shiro.ShiroException;
+import org.apache.shiro.subject.Subject;
 
 /**
- * Injects state code and i18n message in rest api response.
+ * Authorization service.
  *
  * @author hezean
  */
-@RestControllerAdvice
-@ResponseBody
-@Slf4j
-public class ApiExceptionHandler {
+public interface AuthService {
 
-    @ExceptionHandler(ServiceException.class)
-    @SuppressWarnings("rawtypes")
-    public Result exceptionHandler(ServiceException e, HandlerMethod handler) {
-        log.error("ServiceException", e);
-        return new Result(e.getCode(), e.getMessage());
-    }
-
-    @SuppressWarnings({"rawtypes", "checkstyle:MissingJavadocMethod"})
-    @ExceptionHandler(Exception.class)
-    public Result exceptionHandler(Exception e, HandlerMethod handler) {
-        ApiException ae = handler.getMethodAnnotation(ApiException.class);
-        if (ae == null) {
-            log.error(e.getMessage(), e);
-            return Result.error(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS, e.getMessage());
-        }
-        ServiceStatus stat = ae.value();
-        log.error(stat.getMsg(), e);
-        return Result.error(stat);
-    }
+    /**
+     * Logs in using shiro.
+     *
+     * @param credentials includes login method and related credentials
+     * @return subject if successfully logged in
+     * @throws ShiroException if not logged in
+     * @throws InvalidCredentialFieldException if the credential is invalid
+     */
+    Subject login(LoginCredentials credentials)
+            throws ShiroException, InvalidCredentialFieldException;
 }

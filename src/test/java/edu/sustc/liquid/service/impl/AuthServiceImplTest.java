@@ -24,35 +24,26 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.dao;
+package edu.sustc.liquid.service.impl;
 
-import edu.sustc.liquid.dao.entity.User;
-// import edu.sustc.liquid.dao.mapper.UserMapper;
-import edu.sustc.liquid.dao.mapper.UserMapper;
-import io.micrometer.core.lang.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/**
- * Demo dao.
- *
- * @author hezean
- */
-@Repository
-@EnableCaching
-public class UserDao {
+import edu.sustc.liquid.dto.LoginCredentials;
+import edu.sustc.liquid.exceptions.InvalidCredentialFieldException;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.springframework.boot.test.context.SpringBootTest;
 
-    @Autowired UserMapper userMapper;
+@SpringBootTest
+class AuthServiceImplTest {
 
-    @Nullable
-    @Transactional(rollbackFor = Exception.class)
-    public User getByNameAndUpdate(String name) {
-        //        User user = Objects.requireNonNull(userMapper.findByName(name));
-        //        user.setUpdateTime(new Date());
-        //        userMapper.updateById(user);
-        //        return user;
-        return null;
+    @InjectMocks private AuthServiceImpl authService;
+
+    @Test
+    void testHandleInvalidCredentials() throws Exception {
+        LoginCredentials credentials = new LoginCredentials();
+        credentials.setType(null);
+        assertThatThrownBy(() -> authService.login(credentials))
+                .isInstanceOf(InvalidCredentialFieldException.class);
     }
 }

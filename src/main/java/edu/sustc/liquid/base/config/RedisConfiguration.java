@@ -58,12 +58,11 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Slf4j
 public class RedisConfiguration extends CachingConfigurerSupport {
 
-    @Override
     @Bean
+    @Override
     public KeyGenerator keyGenerator() {
         return (target, method, params) -> {
-            StringBuilder sb = new StringBuilder();
-            sb.append(target.getClass().getName());
+            StringBuilder sb = new StringBuilder(target.getClass().getName());
             sb.append(method.getName());
             for (Object obj : params) {
                 sb.append(obj.toString());
@@ -73,7 +72,7 @@ public class RedisConfiguration extends CachingConfigurerSupport {
     }
 
     @Bean
-    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+    CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         return RedisCacheManager.create(connectionFactory);
     }
 
@@ -84,7 +83,7 @@ public class RedisConfiguration extends CachingConfigurerSupport {
      * @return template
      */
     @Bean
-    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
+    RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         mapper.activateDefaultTyping(

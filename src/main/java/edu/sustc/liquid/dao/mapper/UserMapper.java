@@ -33,7 +33,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
- * Demo mapper.
+ * User mapper.
  *
  * @author hezean
  */
@@ -41,13 +41,11 @@ import org.apache.ibatis.annotations.Param;
 public interface UserMapper extends BaseMapper<User> {
 
     /**
-     * Query by name.
+     * Get first user with target name or mail.
      *
-     * @param name the user's name
-     * @return the first user with that name
+     * @param nameOrMail the user's name or email
+     * @return the first user matched
      */
     @Nullable
-    User findByName(@Param("name") String name);
-
-    void deleteByName(@Param("name") String name);
+    User findByNameOrMail(@Param("name_or_mail") String nameOrMail);
 }

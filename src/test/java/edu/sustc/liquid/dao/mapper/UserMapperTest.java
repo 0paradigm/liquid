@@ -28,6 +28,7 @@ package edu.sustc.liquid.dao.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import edu.sustc.liquid.dao.entity.User;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,14 +36,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 @MybatisTest
 @Transactional
-public class UserMapperTest {
+class UserMapperTest {
 
     @Autowired private UserMapper userMapper;
 
     @Test
     void testSimple() {
-        assertThat(userMapper.findByName("foo")).isNotNull();
-        userMapper.deleteByName("foo");
-        assertThat(userMapper.findByName("foo")).isNull();
+        User user = userMapper.findByNameOrMail("admin");
+        assertThat(user).isNotNull();
+        userMapper.deleteById(user.getId());
+        assertThat(userMapper.findByNameOrMail("admin")).isNull();
+        assertThat(userMapper.findByNameOrMail("foasjcnasdlkvajblvijebo")).isNull();
     }
 }

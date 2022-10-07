@@ -24,35 +24,21 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.dao;
+package edu.sustc.liquid.auth.filter;
 
-import edu.sustc.liquid.dao.entity.User;
-// import edu.sustc.liquid.dao.mapper.UserMapper;
-import edu.sustc.liquid.dao.mapper.UserMapper;
-import io.micrometer.core.lang.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import org.apache.shiro.web.filter.authc.LogoutFilter;
 
 /**
- * Demo dao.
+ * Suppress redirect after logout, provides unified response body.
  *
  * @author hezean
  */
-@Repository
-@EnableCaching
-public class UserDao {
+public class NoRedirectLogoutFilter extends LogoutFilter {
 
-    @Autowired UserMapper userMapper;
-
-    @Nullable
-    @Transactional(rollbackFor = Exception.class)
-    public User getByNameAndUpdate(String name) {
-        //        User user = Objects.requireNonNull(userMapper.findByName(name));
-        //        user.setUpdateTime(new Date());
-        //        userMapper.updateById(user);
-        //        return user;
-        return null;
+    @Override
+    protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception {
+        return true;
     }
 }

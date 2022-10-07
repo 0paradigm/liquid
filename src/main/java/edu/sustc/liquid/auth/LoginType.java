@@ -24,22 +24,46 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid;
+package edu.sustc.liquid.auth;
 
-import static org.assertj.core.api.Assertions.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import edu.sustc.liquid.auth.realm.UserPasswordRealm;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.apache.shiro.realm.AuthorizingRealm;
 
-import edu.sustc.liquid.controller.UserController;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+/**
+ * Supported login methods.
+ *
+ * @author hezean
+ */
+@AllArgsConstructor
+@Getter
+public enum LoginType {
+    PASSWORD("password", UserPasswordRealm.class),
+    GITHUB("github", UserPasswordRealm.class),
+    PHONE_CAPTCHA("phone-captcha", UserPasswordRealm.class),
+    WECHAT("wechat", UserPasswordRealm.class),
+    ;
 
-@SpringBootTest
-class LiquidApplicationTests {
+    private final String identifier;
+    private final Class<? extends AuthorizingRealm> realm;
 
-    @Autowired UserController userController;
+    private static final Map<String, LoginType> NAMES_MAP =
+            Arrays.stream(LoginType.values())
+                    .collect(Collectors.toMap(lt -> lt.identifier, lt -> lt));
 
-    @Test
-    void smokeTest() {
-        assertThat(userController).isNotNull();
+    @JsonCreator
+    public static LoginType forValue(String value) {
+        return NAMES_MAP.get(value);
+    }
+
+    @JsonValue
+    public String toValue() {
+        return identifier;
     }
 }

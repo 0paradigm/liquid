@@ -24,35 +24,28 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.dao;
+package edu.sustc.liquid;
 
-import edu.sustc.liquid.dao.entity.User;
-// import edu.sustc.liquid.dao.mapper.UserMapper;
-import edu.sustc.liquid.dao.mapper.UserMapper;
-import io.micrometer.core.lang.Nullable;
+import static org.assertj.core.api.Assertions.*;
+
+import edu.sustc.liquid.controller.AuthController;
+import edu.sustc.liquid.controller.UserController;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 
-/**
- * Demo dao.
- *
- * @author hezean
- */
-@Repository
-@EnableCaching
-public class UserDao {
+@SpringBootTest
+@DirtiesContext
+class LiquidApplicationTest {
 
-    @Autowired UserMapper userMapper;
+    @Autowired AuthController authController;
 
-    @Nullable
-    @Transactional(rollbackFor = Exception.class)
-    public User getByNameAndUpdate(String name) {
-        //        User user = Objects.requireNonNull(userMapper.findByName(name));
-        //        user.setUpdateTime(new Date());
-        //        userMapper.updateById(user);
-        //        return user;
-        return null;
+    @Autowired UserController userController;
+
+    @Test
+    void smokeTest() {
+        assertThat(authController).isNotNull();
+        assertThat(userController).isNotNull();
     }
 }
