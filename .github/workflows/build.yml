@@ -14,15 +14,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - id: pr_number
-        if: github.event_name == 'pull_request_target'
-        uses: 8BitJonny/gh-get-current-pr@2.1.2
-
-      - name: Checkout PR \#${{ steps.pr_number.outputs.number }}
+      - name: Checkout PR #${{ github.event.number }}
         if: github.event_name == 'pull_request_target'
         uses: dawidd6/action-checkout-pr@v1
         with:
-          pr: ${{ steps.pr_number.outputs.number }}
+          pr: ${{ github.event.number }}
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
