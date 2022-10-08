@@ -1,0 +1,38 @@
+[
+  {
+    "path": "/auth/login",
+    "auth": "anon"
+  },
+  {
+    "path": "/auth/logout",
+    "auth": "logout"
+  },
+  {
+    "path": "/pub/**",
+    "auth": "anon"
+  },
+  {
+    "path": "/api/**",
+    "auth": "authc"
+  },
+  {
+    "path": "/swagger-ui/**",
+    "auth": "anon"
+  },
+  {
+    "path": "/v2/api-docs",
+    "auth": "anon"
+  },
+  {
+    "path": "/swagger-resources/**",
+    "auth": "anon"
+  },
+  {
+    "path": "/webjars/**",
+    "auth": "anon"
+  },
+  {
+    "path": "/**",
+    "auth": "authc"
+  }
+]

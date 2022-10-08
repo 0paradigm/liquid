@@ -24,35 +24,58 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.dao;
+package edu.sustc.liquid.dto;
 
-import edu.sustc.liquid.dao.entity.User;
-// import edu.sustc.liquid.dao.mapper.UserMapper;
-import edu.sustc.liquid.dao.mapper.UserMapper;
-import io.micrometer.core.lang.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import edu.sustc.liquid.auth.LoginType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 /**
- * Demo dao.
+ * Login controller dto.
  *
  * @author hezean
  */
-@Repository
-@EnableCaching
-public class UserDao {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class LoginCredentials {
 
-    @Autowired UserMapper userMapper;
+    private LoginType type;
+    private Boolean remember = true;
 
-    @Nullable
-    @Transactional(rollbackFor = Exception.class)
-    public User getByNameAndUpdate(String name) {
-        //        User user = Objects.requireNonNull(userMapper.findByName(name));
-        //        user.setUpdateTime(new Date());
-        //        userMapper.updateById(user);
-        //        return user;
-        return null;
+    @Nullable private String login;
+    @Nullable private String password;
+
+    @Nullable private String phone;
+    @Nullable private String captcha;
+
+    /**
+     * Uses username or email to log in with general password.
+     *
+     * @param login username or email
+     * @param password website password
+     * @hidden for test
+     */
+    public LoginCredentials password(@Nullable String login, @Nullable String password) {
+        this.type = LoginType.PASSWORD;
+        this.login = login;
+        this.setPassword(password);
+        return this;
+    }
+
+    /**
+     * Uses sms captcha service to log in.
+     *
+     * @param phone phone number
+     * @param captcha captcha received
+     * @hidden for test
+     */
+    public LoginCredentials phoneCaptcha(@Nullable String phone, @Nullable String captcha) {
+        this.type = LoginType.PHONE_CAPTCHA;
+        this.phone = phone;
+        this.captcha = captcha;
+        return this;
     }
 }

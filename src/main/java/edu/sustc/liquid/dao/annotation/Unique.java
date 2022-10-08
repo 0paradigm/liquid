@@ -24,23 +24,19 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.exceptions;
+package edu.sustc.liquid.dao.annotation;
 
-import edu.sustc.liquid.base.constants.ServiceStatus;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Exceptions may be thrown by controllers, wraps real Java exceptions.
+ * This annotation does nothing but reminds the developer that there's a unique constraint in the
+ * field.
  *
  * @author hezean
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface ApiException {
-
-    @SuppressWarnings("checkstyle:MissingJavadocMethod")
-    ServiceStatus value();
-}
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.SOURCE)
+public @interface Unique {}

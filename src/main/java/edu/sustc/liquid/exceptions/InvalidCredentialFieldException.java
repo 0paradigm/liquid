@@ -24,35 +24,36 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.dao;
+package edu.sustc.liquid.exceptions;
 
-import edu.sustc.liquid.dao.entity.User;
-// import edu.sustc.liquid.dao.mapper.UserMapper;
-import edu.sustc.liquid.dao.mapper.UserMapper;
-import io.micrometer.core.lang.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import java.util.Locale;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 /**
- * Demo dao.
+ * Error parsing @code{@link edu.sustc.liquid.dto.LoginCredentials} dto to @code{@link
+ * edu.sustc.liquid.auth.UserToken}.
  *
  * @author hezean
  */
-@Repository
-@EnableCaching
-public class UserDao {
+@Getter
+@AllArgsConstructor
+public class InvalidCredentialFieldException extends Exception {
 
-    @Autowired UserMapper userMapper;
+    private final String enMsg;
+    private final String zhMsg;
 
-    @Nullable
-    @Transactional(rollbackFor = Exception.class)
-    public User getByNameAndUpdate(String name) {
-        //        User user = Objects.requireNonNull(userMapper.findByName(name));
-        //        user.setUpdateTime(new Date());
-        //        userMapper.updateById(user);
-        //        return user;
-        return null;
+    /**
+     * Gets i18n error prompt.
+     *
+     * @return error prompt
+     */
+    public String getMsg() {
+        return Locale.SIMPLIFIED_CHINESE
+                        .getLanguage()
+                        .equals(LocaleContextHolder.getLocale().getLanguage())
+                ? this.zhMsg
+                : this.enMsg;
     }
 }

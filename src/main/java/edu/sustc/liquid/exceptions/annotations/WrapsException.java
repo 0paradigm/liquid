@@ -24,35 +24,33 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.dao;
+package edu.sustc.liquid.exceptions.annotations;
 
-import edu.sustc.liquid.dao.entity.User;
-// import edu.sustc.liquid.dao.mapper.UserMapper;
-import edu.sustc.liquid.dao.mapper.UserMapper;
-import io.micrometer.core.lang.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import edu.sustc.liquid.base.constants.ServiceStatus;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.springframework.core.annotation.AliasFor;
+import org.springframework.http.HttpStatus;
 
 /**
- * Demo dao.
+ * Exceptions may be thrown by controllers, wraps real Java exceptions.
  *
  * @author hezean
  */
-@Repository
-@EnableCaching
-public class UserDao {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface WrapsException {
 
-    @Autowired UserMapper userMapper;
+    @SuppressWarnings("checkstyle:MissingJavadocMethod")
+    @AliasFor("wrapped")
+    ServiceStatus value() default ServiceStatus.INTERNAL_SERVER_ERROR_ARGS;
 
-    @Nullable
-    @Transactional(rollbackFor = Exception.class)
-    public User getByNameAndUpdate(String name) {
-        //        User user = Objects.requireNonNull(userMapper.findByName(name));
-        //        user.setUpdateTime(new Date());
-        //        userMapper.updateById(user);
-        //        return user;
-        return null;
-    }
+    @SuppressWarnings("checkstyle:MissingJavadocMethod")
+    @AliasFor("value")
+    ServiceStatus wrapped() default ServiceStatus.INTERNAL_SERVER_ERROR_ARGS;
+
+    @SuppressWarnings("checkstyle:MissingJavadocMethod")
+    HttpStatus status() default HttpStatus.BAD_REQUEST;
 }
