@@ -24,18 +24,19 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.service.impl;
+package edu.sustc.liquid.service;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import edu.sustc.liquid.dto.LoginCredentials;
 import edu.sustc.liquid.exceptions.InvalidCredentialFieldException;
+import edu.sustc.liquid.service.impl.AuthServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AuthServiceImplTest {
+class AuthServiceTest {
 
     @InjectMocks private AuthServiceImpl authService;
 
