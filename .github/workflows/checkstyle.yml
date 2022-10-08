@@ -16,7 +16,7 @@ jobs:
         if: github.event_name == 'pull_request_target'
         uses: 8BitJonny/gh-get-current-pr@2.1.2
 
-      - name: Checkout pull request
+      - name: Checkout PR \#${{ steps.pr_number.outputs.number }}
         if: github.event_name == 'pull_request_target'
         uses: dawidd6/action-checkout-pr@v1
         with:
