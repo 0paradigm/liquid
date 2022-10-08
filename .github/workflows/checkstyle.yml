@@ -1,7 +1,7 @@
 name: Checkstyle
 
 on:
-  pull_request:
+  pull_request_target:
 
 jobs:
   inspect:
@@ -13,8 +13,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request_target.head.repo.full_name }}
+          ref: ${{ github.event.pull_request_target.head.ref }}
 
       - name: Run check style
         uses: nikitasavinov/checkstyle-action@0.6.0
