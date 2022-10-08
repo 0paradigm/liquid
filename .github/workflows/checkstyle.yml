@@ -8,13 +8,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout ${{ github.event.pull_request.head.ref }} from ${{ github.event.pull_request.head.repo.full_name }}
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: pr_number
+        if: github.event_name == 'pull_request_target'
+        uses: 8BitJonny/gh-get-current-pr@2.1.2
+
+      - name: Checkout pull request
+        if: github.event_name == 'pull_request_target'
+        uses: dawidd6/action-checkout-pr@v1
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.ref }}
+          pr: ${{ steps.pr_number.outputs.number }}
 
       - name: Run check style
         uses: nikitasavinov/checkstyle-action@0.6.0
