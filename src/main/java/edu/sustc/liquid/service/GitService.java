@@ -25,7 +25,7 @@ public interface GitService {
      * @param file file or dir need to be added, maybe null
      * @return result message
      */
-    String add(File dir, char arg, File file);
+    String add(File dir, char arg, File file) throws IOException, GitAPIException;
 
     /**
      * create, delete, rename branch.
@@ -36,7 +36,7 @@ public interface GitService {
      * @param branchName2 branchName for rename
      * @return result message
      */
-    String branch(File dir, char arg, String branchName1, String branchName2);
+    String branch(File dir, char arg, String branchName1, String branchName2)throws IOException, GitAPIException;
 
     /**
      * change branch or version.
@@ -46,7 +46,7 @@ public interface GitService {
      * @param ver branch, commitID, tag
      * @return result message
      */
-    String checkout(File dir, char arg, String ver);
+    String checkout(File dir, char arg, String ver)throws IOException, GitAPIException;
 
     /**
      * clone a repository to local path.
@@ -55,7 +55,7 @@ public interface GitService {
      * @param url remote repo url
      * @return result message
      */
-    String clone(File dir, String url);
+    String clone(File dir, String url)throws IOException, GitAPIException;
 
     /**
      * commit file.
@@ -65,7 +65,7 @@ public interface GitService {
      * @param commitMessage commitMessage
      * @return result message
      */
-    String commit(File dir, char arg, String commitMessage);
+    String commit(File dir, char arg, String commitMessage)throws IOException, GitAPIException;
 
     /**
      * show diff between two commit.
@@ -77,7 +77,7 @@ public interface GitService {
      * @param outputStream outputStream, it's hard to return a String
      * @return result message
      */
-    String diff(File dir, char arg, String oldObject, String newObject, OutputStream outputStream);
+    String diff(File dir, char arg, String oldObject, String newObject, OutputStream outputStream)throws IOException, GitAPIException;
 
     /**
      * init a repository.
@@ -85,7 +85,7 @@ public interface GitService {
      * @param dir repository path
      * @return result message
      */
-    String init(File dir);
+    String init(File dir)throws IOException, GitAPIException;
 
     //TODO: Do it later
     //String log(File dir);
@@ -97,7 +97,7 @@ public interface GitService {
      * @param branchName assigned branch
      * @return result message
      */
-    String merge(File dir, String branchName);
+    String merge(File dir, String branchName)throws IOException, GitAPIException;
 
     /**
      * pull change from remote server.
@@ -107,7 +107,7 @@ public interface GitService {
      * @param remoteBranch name of remoteBranch
      * @return result message
      */
-    String pull(File dir, String remoteServer, String remoteBranch);
+    String pull(File dir, String remoteServer, String remoteBranch)throws IOException, GitAPIException;
 
     /**
      * push change to remote server.
@@ -119,7 +119,7 @@ public interface GitService {
      * @param remoteBranch name of remoteBranch
      * @return result message
      */
-    String push(File dir, char arg, String remote, String localBranch, String remoteBranch);
+    String push(File dir, char arg, String remote, String localBranch, String remoteBranch)throws IOException, GitAPIException;
 
     /**
      * rebase this branch to assigned branch or commit.
@@ -128,7 +128,7 @@ public interface GitService {
      * @param rebaseBranch assigned branch
      * @return result message
      */
-    String rebase(File dir, String rebaseBranch);
+    String rebase(File dir, String rebaseBranch)throws IOException, GitAPIException;
 
     /**
      * remote command.
@@ -139,7 +139,7 @@ public interface GitService {
      * @param url        remote URL
      * @return result message
      */
-    String remote(File dir, char arg, String remoteName, URL url);
+    String remote(File dir, char arg, String remoteName, URL url)throws IOException, GitAPIException;
 
     /**
      * reset this branch to another position.
@@ -151,7 +151,7 @@ public interface GitService {
      * @param resetPoint resetPoint
      * @return result message
      */
-    String reset(File dir, Boolean isSoft, Boolean isMixed, Boolean isHard, String resetPoint);
+    String reset(File dir, Boolean isSoft, Boolean isMixed, Boolean isHard, String resetPoint)throws IOException, GitAPIException;
 
     /**
      * revert commit.
@@ -160,7 +160,7 @@ public interface GitService {
      * @param commitId commitId
      * @return result message
      */
-    String revert(File dir, String commitId);
+    String revert(File dir, String commitId)throws IOException, GitAPIException;
 
     /**
      * delete file.
@@ -170,7 +170,7 @@ public interface GitService {
      * @param fileName fileName to delete
      * @return result message
      */
-    String rm(File dir, boolean cache, String fileName);
+    String rm(File dir, boolean cache, String fileName)throws IOException, GitAPIException;
 
     /**
      * stash temporary work.
@@ -179,7 +179,7 @@ public interface GitService {
      * @param arg argument of command(l(list), a(apply), p(pop), d(drop), c(clear))
      * @return result message
      */
-    String stash(File dir, char arg, String stashName);
+    String stash(File dir, char arg, String stashName)throws IOException, GitAPIException;
 
     /**
      * show status of repo.
@@ -187,7 +187,7 @@ public interface GitService {
      * @param dir repository path
      * @return result message
      */
-    String status(File dir);
+    String status(File dir)throws IOException, GitAPIException;
 
     /**
      * make tag on a commit.
@@ -198,5 +198,5 @@ public interface GitService {
      * @param message message
      * @return result message
      */
-    String tag(File dir, char arg, String tag, String message);
+    String tag(File dir, char arg, String tag, String message)throws IOException, GitAPIException;
 }
