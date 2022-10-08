@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - run: |
+          echo $(github.event.pull_request_target.head.ref)
+          echo $(github.event.pull_request_target.head.repo.full_name)
+
       - name: Checkout
         uses: actions/checkout@v3
         env:
