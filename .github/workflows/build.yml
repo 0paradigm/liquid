@@ -10,11 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - run: |
-          echo $(github.event.pull_request_target.head.ref)
-          echo $(github.event.pull_request_target.head.repo.full_name)
-
-      - name: Checkout
+      - name: Checkout ${{ github.event.pull_request_target.head.ref }} from ${{ github.event.pull_request_target.head.repo.full_name }}
         uses: actions/checkout@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
