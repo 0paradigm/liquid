@@ -1,4 +1,5 @@
 ---
+
 name: Bug report
 about: Create a report to help us improve Liquid
 title: "[Module Name] Bug Title"
@@ -7,19 +8,19 @@ assignees: ''
 
 ---
 
-## Bug description
+### Bug description
 
 <!-- Copy of error log, screenshot, etc. -->
 
+### Expected behavior
 
-## Expected behavior
-
-
-## How to reproduce
+### How to reproduce
 
 <!--
 1. Run command `...`
 2. Go to ...
 -->
 
-## *Additional Information*
+### *Additional Information*
+
+<!-- optional -->

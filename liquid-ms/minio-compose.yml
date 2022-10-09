@@ -1,0 +1,17 @@
+version: "3.3"
+# docker-compose -f minio-compose.yml up -d
+
+services:
+  minio:
+    image: minio/minio
+    ports:
+      - "8090:9000"
+    volumes:
+      - minio_storage:/data
+    environment:
+      MINIO_ACCESS_KEY: liquid
+      MINIO_SECRET_KEY: liquid_MS_minio
+    command: server /data
+
+volumes:
+  minio_storage: { }

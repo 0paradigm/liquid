@@ -1,8 +1,12 @@
 document:
-  - any: ['docs/**/*']
   - '**/*.md'
   - '**/*.rst'
-  - 'README.md'
 
 ci:
-  - any: ['.github/**/*']
+  - '.github/**/*'
+
+backend:
+  - 'liquid-backend/**/*'
+
+media-server:
+  - 'liquid-ms/**/*'
