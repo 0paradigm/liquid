@@ -26,6 +26,7 @@
 
 package edu.sustc.liquid.base.config;
 
+import edu.sustc.liquid.base.constants.Constants;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -95,7 +96,8 @@ public class SwaggerConfiguration {
     }
 
     private List<SecurityScheme> securitySchemes() {
-        return List.of(new ApiKey("x-auth-token", "x-auth-token", "header"));
+        return List.of(
+                new ApiKey(Constants.JWT_TOKEN_HEADER, Constants.JWT_TOKEN_HEADER, "header"));
     }
 
     private List<SecurityContext> securityContexts() {
@@ -110,7 +112,8 @@ public class SwaggerConfiguration {
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
         List<SecurityReference> securityReferences = new ArrayList<>();
-        securityReferences.add(new SecurityReference("Authorization", authorizationScopes));
+        securityReferences.add(
+                new SecurityReference(Constants.JWT_TOKEN_HEADER, authorizationScopes));
         return securityReferences;
     }
 

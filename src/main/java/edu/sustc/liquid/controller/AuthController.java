@@ -26,7 +26,9 @@
 
 package edu.sustc.liquid.controller;
 
+import edu.sustc.liquid.auth.jwt.JwtUtils;
 import edu.sustc.liquid.base.constants.ServiceStatus;
+import edu.sustc.liquid.dao.entity.User;
 import edu.sustc.liquid.dto.LoginCredentials;
 import edu.sustc.liquid.dto.Result;
 import edu.sustc.liquid.exceptions.InvalidCredentialFieldException;
@@ -65,6 +67,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     @Autowired AuthService authService;
+    @Autowired JwtUtils jwtUtils;
 
     @SuppressWarnings("checkstyle:MissingJavadocMethod")
     @ApiOperation(value = "login", notes = "Specify login method and provide credentials")
@@ -90,8 +93,13 @@ public class AuthController {
                     "User '{}' logged in via '{}'",
                     credentials.getLogin(),
                     credentials.getType().getIdentifier());
-            return new ResponseEntity<>(
-                    Result.success(Map.of("token", subject.getSession().getId())), HttpStatus.OK);
+            return ResponseEntity.ok(
+                    Result.success(
+                            Map.of(
+                                    "token",
+                                    jwtUtils.createTokenFor(
+                                            ((User) subject.getPrincipal()).getId(),
+                                            credentials.getRemember()))));
         } catch (InvalidCredentialFieldException e) {
             errResult = Result.error(ServiceStatus.MISSING_CREDENTIAL, e.getMsg());
         } catch (UnknownAccountException e) {

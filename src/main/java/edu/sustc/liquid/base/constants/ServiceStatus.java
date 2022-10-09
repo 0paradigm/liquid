@@ -44,7 +44,9 @@ import org.springframework.context.i18n.LocaleContextHolder;
 public enum ServiceStatus {
     // success + http general errors
     SUCCESS(0, "Success", "成功"),
+    BAD_REQUEST(400, "Bad Request: {0}", "无效请求：{0}"),
     NOT_FOUND(404, "Page not found", "页面未找到"),
+    METHOD_NOT_ALLOWED(405, "Method not allowed", "Web 请求方法不允许"),
 
     // account errors
     NOT_AUTHENTICATED(1000, "Not authenticated", "账号未认证"),

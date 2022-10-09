@@ -46,7 +46,7 @@ import org.springframework.lang.Nullable;
 @Setter
 @ToString
 @NoArgsConstructor
-public class UserToken extends UsernamePasswordToken {
+public class ShiroUserLoginToken extends UsernamePasswordToken {
 
     private LoginType type;
 
@@ -54,6 +54,7 @@ public class UserToken extends UsernamePasswordToken {
 
     private static final String PHONE_NUMBER_PATTERN =
             Pattern.compile("^1[3456789]\\d{9}$").pattern();
+
     private static final String PHONE_CAPTCHA_PATTERN = Pattern.compile("^\\d{6}$").pattern();
 
     /**
@@ -61,7 +62,7 @@ public class UserToken extends UsernamePasswordToken {
      *
      * @hidden for test
      */
-    public UserToken remember(boolean remember) {
+    public ShiroUserLoginToken remember(boolean remember) {
         this.setRememberMe(remember);
         return this;
     }
@@ -72,7 +73,7 @@ public class UserToken extends UsernamePasswordToken {
      * @param login username or email
      * @param password website password
      */
-    public UserToken password(@Nullable String login, @Nullable String password)
+    public ShiroUserLoginToken password(@Nullable String login, @Nullable String password)
             throws InvalidCredentialFieldException {
         if (!StringUtils.hasText(login)) {
             throw new InvalidCredentialFieldException("Login field is necessary", "账号为必填项");
@@ -92,7 +93,7 @@ public class UserToken extends UsernamePasswordToken {
      * @param phone phone number
      * @param captcha captcha received
      */
-    public UserToken phoneCaptcha(@Nullable String phone, @Nullable String captcha)
+    public ShiroUserLoginToken phoneCaptcha(@Nullable String phone, @Nullable String captcha)
             throws InvalidCredentialFieldException {
         if (!StringUtils.hasText(phone)) {
             throw new InvalidCredentialFieldException("Phone number is necessary", "手机号为必填项");

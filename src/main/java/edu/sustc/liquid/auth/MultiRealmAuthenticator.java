@@ -46,7 +46,6 @@ public class MultiRealmAuthenticator extends ModularRealmAuthenticator {
             throws AuthenticationException {
         assertRealmsConfigured();
 
-        UserToken token = (UserToken) authenticationToken;
         Optional<Realm> realm =
                 getRealms().stream()
                         .filter(r -> r.getClass() != GenericAuthorizationRealm.class)
@@ -54,9 +53,9 @@ public class MultiRealmAuthenticator extends ModularRealmAuthenticator {
                         .findFirst();
 
         if (realm.isPresent()) {
-            return doSingleRealmAuthentication(realm.get(), token);
+            return doSingleRealmAuthentication(realm.get(), authenticationToken);
         } else {
-            return doMultiRealmAuthentication(getRealms(), token);
+            return doMultiRealmAuthentication(getRealms(), authenticationToken);
         }
     }
 }

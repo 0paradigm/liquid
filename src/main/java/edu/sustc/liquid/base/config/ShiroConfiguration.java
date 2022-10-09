@@ -29,8 +29,9 @@ package edu.sustc.liquid.base.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.sustc.liquid.auth.MultiRealmAuthenticator;
 import edu.sustc.liquid.auth.filter.NoRedirectLogoutFilter;
-import edu.sustc.liquid.auth.filter.RestAuthorizationFilter;
+import edu.sustc.liquid.auth.filter.RestJwtTokenVerifyFilter;
 import edu.sustc.liquid.auth.realm.GenericAuthorizationRealm;
+import edu.sustc.liquid.auth.realm.JwtVerifyRealm;
 import edu.sustc.liquid.auth.realm.UserPasswordRealm;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,6 +80,11 @@ public class ShiroConfiguration {
     }
 
     @Bean
+    AuthorizingRealm jwtVerifyRealm() {
+        return enableCached(new JwtVerifyRealm());
+    }
+
+    @Bean
     AuthorizingRealm genericAuthorizationRealm() {
         return enableCached(new GenericAuthorizationRealm());
     }
@@ -91,6 +97,7 @@ public class ShiroConfiguration {
         List<Realm> realms = new LinkedList<>();
         realms.add(genericAuthorizationRealm());
         realms.add(userPasswordRealm());
+        realms.add(jwtVerifyRealm());
 
         manager.setRealms(realms);
         manager.setRememberMeManager(rememberMeManager());
@@ -145,7 +152,7 @@ public class ShiroConfiguration {
         bean.setSecurityManager(securityManager());
 
         Map<String, Filter> filters = new LinkedHashMap<>();
-        filters.put("authc", new RestAuthorizationFilter());
+        filters.put("authc", new RestJwtTokenVerifyFilter());
         filters.put("logout", new NoRedirectLogoutFilter());
 
         bean.setFilters(filters);

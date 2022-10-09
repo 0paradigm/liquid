@@ -26,7 +26,7 @@
 
 package edu.sustc.liquid.service.impl;
 
-import edu.sustc.liquid.auth.UserToken;
+import edu.sustc.liquid.auth.ShiroUserLoginToken;
 import edu.sustc.liquid.dto.LoginCredentials;
 import edu.sustc.liquid.exceptions.InvalidCredentialFieldException;
 import edu.sustc.liquid.service.AuthService;
@@ -45,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Subject login(LoginCredentials credentials)
             throws ShiroException, InvalidCredentialFieldException {
-        UserToken token = handleCredentials(credentials);
+        ShiroUserLoginToken token = handleCredentials(credentials);
         Subject subject = SecurityUtils.getSubject();
         subject.login(token);
 
@@ -56,8 +56,9 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private UserToken handleCredentials(LoginCredentials c) throws InvalidCredentialFieldException {
-        UserToken token = new UserToken();
+    private ShiroUserLoginToken handleCredentials(LoginCredentials c)
+            throws InvalidCredentialFieldException {
+        ShiroUserLoginToken token = new ShiroUserLoginToken();
 
         // null enum instance could not call ordinal(): NPE
         if (Objects.isNull(c.getType())) {

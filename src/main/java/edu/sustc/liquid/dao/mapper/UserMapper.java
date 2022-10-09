@@ -31,6 +31,7 @@ import edu.sustc.liquid.dao.entity.User;
 import io.micrometer.core.lang.Nullable;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.cache.annotation.EnableCaching;
 
 /**
  * User mapper.
@@ -38,10 +39,20 @@ import org.apache.ibatis.annotations.Param;
  * @author hezean
  */
 @Mapper
+@EnableCaching
 public interface UserMapper extends BaseMapper<User> {
 
     /**
-     * Get first user with target name or mail.
+     * Gets user by id.
+     *
+     * @param id liquid id
+     * @return the user, null if id is invalid
+     */
+    @Nullable
+    User findById(@Nullable @Param("id") Integer id);
+
+    /**
+     * Gets first user with target name or mail.
      *
      * @param nameOrMail the user's name or email
      * @return the first user matched
