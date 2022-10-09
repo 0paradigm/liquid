@@ -32,13 +32,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.sustc.liquid.base.constants.Constants;
 import edu.sustc.liquid.base.constants.ServiceStatus;
 import edu.sustc.liquid.dao.entity.User;
 import edu.sustc.liquid.dao.mapper.UserMapper;
 import edu.sustc.liquid.dto.LoginCredentials;
 import edu.sustc.liquid.dto.Result;
 import java.util.Map;
-import javax.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -83,7 +83,7 @@ class AuthControllerTest {
 
     @Test
     void testPasswordLoginSuccessfully() throws Exception {
-        Mockito.when(userMapper.findByNameOrMail("test@liquid.com"))
+        Mockito.when(userMapper.findByNameOrMail(testUser1__liquid_sa.getEmail()))
                 .thenReturn(testUser1__liquid_sa);
 
         String cred =
@@ -109,7 +109,7 @@ class AuthControllerTest {
 
     @Test
     void testPasswordLoginWrongPassword() throws Exception {
-        Mockito.when(userMapper.findByNameOrMail("test@liquid.com"))
+        Mockito.when(userMapper.findByNameOrMail(testUser1__liquid_sa.getEmail()))
                 .thenReturn(testUser1__liquid_sa);
 
         String cred =
@@ -131,7 +131,7 @@ class AuthControllerTest {
 
     @Test
     void testPasswordLoginAccountNotFound() throws Exception {
-        Mockito.when(userMapper.findByNameOrMail("test@liquid.com"))
+        Mockito.when(userMapper.findByNameOrMail(testUser1__liquid_sa.getEmail()))
                 .thenReturn(testUser1__liquid_sa);
 
         String cred =
@@ -153,7 +153,7 @@ class AuthControllerTest {
 
     @Test
     void testPasswordLoginInvalidPassword() throws Exception {
-        Mockito.when(userMapper.findByNameOrMail("test@liquid.com"))
+        Mockito.when(userMapper.findByNameOrMail(testUser1__liquid_sa.getEmail()))
                 .thenReturn(testUser1__liquid_sa);
 
         String cred = mapper.writeValueAsString(new LoginCredentials().password(null, "p"));
@@ -197,9 +197,12 @@ class AuthControllerTest {
                 .isEqualTo(ServiceStatus.SUCCESS.getCode());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void testLogout() throws Exception {
-        Mockito.when(userMapper.findByNameOrMail("test@liquid.com"))
+        Mockito.when(userMapper.findByNameOrMail(testUser1__liquid_sa.getEmail()))
+                .thenReturn(testUser1__liquid_sa);
+        Mockito.when(userMapper.findById(testUser1__liquid_sa.getId()))
                 .thenReturn(testUser1__liquid_sa);
 
         String cred =
@@ -223,10 +226,12 @@ class AuthControllerTest {
                                                 Result.class)
                                         .getData())
                         .get("token");
-        Cookie cookie = new Cookie("JSESSIONID", token);
 
-        mockMvc.perform(post("/api/test1nf").cookie(cookie)).andExpect(status().isNotFound());
-        mockMvc.perform(post("/auth/logout").cookie(cookie)).andExpect(status().isOk());
-        mockMvc.perform(post("/api/test1nf").cookie(cookie)).andExpect(status().isForbidden());
+        mockMvc.perform(post("/api/test1nf").header(Constants.JWT_TOKEN_HEADER, token))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(post("/auth/logout").header(Constants.JWT_TOKEN_HEADER, token))
+                .andExpect(status().isOk());
+        // clear the token by frontend
+        mockMvc.perform(post("/api/test1nf")).andExpect(status().isForbidden());
     }
 }

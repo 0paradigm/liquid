@@ -3,6 +3,12 @@
 
 <mapper namespace="edu.sustc.liquid.dao.mapper.UserMapper">
 
+    <select id="findById" resultType="edu.sustc.liquid.dao.entity.User">
+        SELECT *
+        FROM `t_ds_user`
+        WHERE `id` = #{id}
+    </select>
+
     <delete id="deleteById">
         DELETE
         FROM `t_ds_user`
@@ -14,8 +20,7 @@
         FROM `t_ds_user`
         WHERE `login` = #{name_or_mail}
            OR `email` = #{name_or_mail}
-        ORDER BY `id`
-        LIMIT 1
+        ORDER BY `id` LIMIT 1
     </select>
 
 </mapper>

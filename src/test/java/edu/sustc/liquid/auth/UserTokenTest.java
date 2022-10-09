@@ -36,28 +36,28 @@ class UserTokenTest {
 
     @Test
     void testPasswordToken() throws Exception {
-        assertThat(new UserToken().password("user", "pwd").remember(true)).isNotNull();
-        assertThatThrownBy(() -> new UserToken().password("user", ""))
+        assertThat(new ShiroUserLoginToken().password("user", "pwd").remember(true)).isNotNull();
+        assertThatThrownBy(() -> new ShiroUserLoginToken().password("user", ""))
                 .isInstanceOf(InvalidCredentialFieldException.class);
-        assertThatThrownBy(() -> new UserToken().password("user", null))
+        assertThatThrownBy(() -> new ShiroUserLoginToken().password("user", null))
                 .isInstanceOf(InvalidCredentialFieldException.class);
-        assertThatThrownBy(() -> new UserToken().password(null, ""))
+        assertThatThrownBy(() -> new ShiroUserLoginToken().password(null, ""))
                 .isInstanceOf(InvalidCredentialFieldException.class);
     }
 
     @Test
     void testPhoneCaptchaToken() throws Exception {
-        assertThat(new UserToken().phoneCaptcha("17600001234", "123456")).isNotNull();
-        assertThatThrownBy(() -> new UserToken().phoneCaptcha("10000000000000", "a21d"))
+        assertThat(new ShiroUserLoginToken().phoneCaptcha("17600001234", "123456")).isNotNull();
+        assertThatThrownBy(() -> new ShiroUserLoginToken().phoneCaptcha("10000000000000", "a21d"))
                 .isInstanceOf(InvalidCredentialFieldException.class);
-        assertThatThrownBy(() -> new UserToken().phoneCaptcha("17600001234", "12a"))
+        assertThatThrownBy(() -> new ShiroUserLoginToken().phoneCaptcha("17600001234", "12a"))
                 .isInstanceOf(InvalidCredentialFieldException.class);
-        assertThatThrownBy(() -> new UserToken().phoneCaptcha("10000000000000", "123456"))
+        assertThatThrownBy(() -> new ShiroUserLoginToken().phoneCaptcha("10000000000000", "123456"))
                 .isInstanceOf(InvalidCredentialFieldException.class);
     }
 
     @Test
     void testRememberToken() throws Exception {
-        assertThat(new UserToken().remember(true).isRememberMe()).isTrue();
+        assertThat(new ShiroUserLoginToken().remember(true).isRememberMe()).isTrue();
     }
 }

@@ -26,57 +26,48 @@
 
 package edu.sustc.liquid.auth.realm;
 
-import edu.sustc.liquid.auth.LoginType;
-import edu.sustc.liquid.auth.ShiroUserLoginToken;
+import edu.sustc.liquid.auth.jwt.JwtToken;
+import edu.sustc.liquid.auth.jwt.JwtUtils;
 import edu.sustc.liquid.dao.entity.User;
 import edu.sustc.liquid.dao.mapper.UserMapper;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
-import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Liquid account sign in. Username / Email Address + Password
+ * Confirms JWT token in header and set the @code{@link User} as principle.
  *
  * @author hezean
  */
-public class UserPasswordRealm extends GenericAuthorizationRealm {
+@Slf4j
+public class JwtVerifyRealm extends GenericAuthorizationRealm {
 
-    @Autowired private UserMapper userMapper;
+    @Autowired JwtUtils jwtUtils;
+
+    @Autowired UserMapper userMapper;
 
     @Override
     public String getName() {
-        return LoginType.PASSWORD.getIdentifier();
+        return "jwt-token";
     }
 
     @Override
     public boolean supports(AuthenticationToken token) {
-        if (token instanceof ShiroUserLoginToken tok) {
-            return tok.getType() == LoginType.PASSWORD;
-        } else {
-            return false;
-        }
+        return token instanceof JwtToken;
     }
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken)
             throws AuthenticationException {
-        UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
-        String login = token.getUsername();
-        User user = userMapper.findByNameOrMail(login);
-        if (Objects.isNull(user)) {
-            throw new UnknownAccountException();
+        String token = (String) authenticationToken.getCredentials();
+        User user = userMapper.findById(jwtUtils.getUserId(token));
+        if (Objects.isNull(user) || !jwtUtils.verify(token)) {
+            throw new AuthenticationException("invalid jwt token");
         }
-        return new SimpleAuthenticationInfo(user, user.getPassword(), getName());
-    }
-
-    /** Cleans auth cache after update permissions. */
-    public void clearAllCache() {
-        getAuthorizationCache().clear();
-        getAuthenticationCache().clear();
+        return new SimpleAuthenticationInfo(user, token, getName());
     }
 }

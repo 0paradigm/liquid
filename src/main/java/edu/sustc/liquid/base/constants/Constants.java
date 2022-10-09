@@ -37,4 +37,7 @@ public final class Constants {
     private Constants() {}
 
     public static final String LOCALE_INDICATOR_NAME = "locale";
+
+    public static final String JWT_USER_ID = "uid";
+    public static final String JWT_TOKEN_HEADER = "Authorization";
 }

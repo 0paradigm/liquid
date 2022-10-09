@@ -24,37 +24,31 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.sustc.liquid.exceptions;
+package edu.sustc.liquid.auth.jwt;
 
-import edu.sustc.liquid.auth.ShiroUserLoginToken;
-import java.util.Locale;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import org.springframework.context.i18n.LocaleContextHolder;
+import lombok.ToString;
+import org.apache.shiro.authc.AuthenticationToken;
 
 /**
- * Error parsing @code{@link edu.sustc.liquid.dto.LoginCredentials} dto to @code{@link
- * ShiroUserLoginToken}.
+ * JWT Token in header.
  *
  * @author hezean
  */
-@Getter
 @AllArgsConstructor
-public class InvalidCredentialFieldException extends Exception {
+@ToString
+public class JwtToken implements AuthenticationToken {
 
-    private final String enMsg;
-    private final String zhMsg;
+    private final String token;
 
-    /**
-     * Gets i18n error prompt.
-     *
-     * @return error prompt
-     */
-    public String getMsg() {
-        return Locale.SIMPLIFIED_CHINESE
-                        .getLanguage()
-                        .equals(LocaleContextHolder.getLocale().getLanguage())
-                ? this.zhMsg
-                : this.enMsg;
+    @Override
+    public Object getPrincipal() {
+        return token;
+    }
+
+    @Override
+    @SuppressWarnings("java:S4144")
+    public Object getCredentials() {
+        return token;
     }
 }
