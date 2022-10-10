@@ -41,7 +41,7 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- resource manager -->
+        <!-- resource-manager -->
         <dependency>
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
@@ -54,11 +54,6 @@
             <artifactId>java-jwt</artifactId>
             <version>3.2.0</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.springframework</groupId>-->
-        <!--            <artifactId>spring-web</artifactId>-->
-        <!--            <version>5.3.23</version>-->
-        <!--        </dependency>-->
 
         <!-- testing -->
         <dependency>
@@ -74,4 +69,70 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.0.0-M4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.40.2</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>liquid-ms-sa-minio</name>
+                                    <external>
+                                        <type>compose</type>
+                                        <basedir>src/main/docker</basedir>
+                                        <composeFile>minio-compose.yml</composeFile>
+                                    </external>
+                                    <run>
+                                        <wait>
+                                            <log>.*MinIO Object Storage Server.*</log>
+                                            <time>60000</time>
+                                        </wait>
+                                    </run>
+                                </image>
+                            </images>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>post-integration-test</id>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>liquid-ms-sa-minio</name>
+                                    <watch>
+                                        <interval>2000</interval>
+                                    </watch>
+                                </image>
+                            </images>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

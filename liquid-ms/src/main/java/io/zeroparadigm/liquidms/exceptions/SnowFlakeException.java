@@ -15,19 +15,19 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquidms.base.constants;
+package io.zeroparadigm.liquidms.exceptions;
+
+import lombok.NoArgsConstructor;
 
 /**
- * General constants for names etc.
+ * SnowFlakeUtils exceptions.
  *
  * @author hezean
  */
-public final class Constants {
+@NoArgsConstructor
+public class SnowFlakeException extends RuntimeException {
 
-    private Constants() {
+    public SnowFlakeException(String message) {
+        super(message);
     }
-
-    public static final String JWT_USER_ID = "uid";
-
-    public static final String MINIO_AVATAR_BUCKET = "liquid-avatar";
 }

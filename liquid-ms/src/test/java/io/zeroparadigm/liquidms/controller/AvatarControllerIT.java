@@ -15,19 +15,18 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquidms.base.constants;
+package io.zeroparadigm.liquidms.controller;
 
-/**
- * General constants for names etc.
- *
- * @author hezean
- */
-public final class Constants {
+import static org.assertj.core.api.Assertions.assertThat;
 
-    private Constants() {
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class AvatarControllerIT {
+
+    @Test
+    void testUploadAvatar() {
+        assertThat(1).isEqualTo(1);
     }
-
-    public static final String JWT_USER_ID = "uid";
-
-    public static final String MINIO_AVATAR_BUCKET = "liquid-avatar";
 }

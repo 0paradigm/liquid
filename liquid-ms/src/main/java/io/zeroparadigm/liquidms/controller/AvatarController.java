@@ -17,11 +17,11 @@
 
 package io.zeroparadigm.liquidms.controller;
 
+import io.zeroparadigm.liquidms.base.constants.Constants;
 import io.zeroparadigm.liquidms.service.MinioService;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,17 +38,14 @@ public class AvatarController {
     @Autowired
     private MinioService minioService;
 
-    @Value("${minio.bucket-name}")
-    private String bucketName;
-
     @PostConstruct
     private void createBucket() {
-        log.info("Creating bucket '{}'", bucketName);
-        minioService.createBucketIfNotExists(bucketName);
+        log.info("Creating bucket '{}'", Constants.MINIO_AVATAR_BUCKET);
+        minioService.createBucketIfNotExists(Constants.MINIO_AVATAR_BUCKET);
     }
 
     @PostMapping("/upload")
     public String upload(MultipartFile file) {
-        return minioService.upload(file, file.getName(), bucketName);
+        return minioService.upload(file, file.getName(), Constants.MINIO_AVATAR_BUCKET);
     }
 }

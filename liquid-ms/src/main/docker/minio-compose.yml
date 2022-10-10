@@ -1,4 +1,5 @@
-version: "3.3"
+version: "2.4"
+# low version for maven integrate test plugin
 # docker-compose -f minio-compose.yml up -d
 
 services:
@@ -9,8 +10,8 @@ services:
     volumes:
       - minio_storage:/data
     environment:
-      MINIO_ACCESS_KEY: liquid
-      MINIO_SECRET_KEY: liquid_MS_minio
+      MINIO_ROOT_USER: liquid
+      MINIO_ROOT_PASSWORD: liquid_MS_minio
     command: server /data
 
 volumes:

@@ -15,19 +15,11 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquidms.base.constants;
+package io.zeroparadigm.liquidms.base;
 
-/**
- * General constants for names etc.
- *
- * @author hezean
- */
-public final class Constants {
+import org.springframework.boot.test.context.SpringBootTest;
 
-    private Constants() {
-    }
+@SpringBootTest
+public class MinioConnectedTest {
 
-    public static final String JWT_USER_ID = "uid";
-
-    public static final String MINIO_AVATAR_BUCKET = "liquid-avatar";
 }

@@ -17,7 +17,7 @@
 
 package io.zeroparadigm.liquidms.utils;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -48,22 +48,25 @@ class JwtUtilsTest {
 
     @BeforeEach
     void generateToken() throws Exception {
-        Map<String, Object> JWT_HEADERS =
-                Map.of(
-                        "alg", "HS256",
-                        "typ", "JWT");
+        Map<String, Object> JWT_HEADERS = Map.of(
+                "alg", "HS256",
+                "typ", "JWT");
 
         Algorithm algo = Algorithm.HMAC256(secret);
-        token =
-                JWT.create()
-                        .withHeader(JWT_HEADERS)
-                        .withClaim(Constants.JWT_USER_ID, testUser1__liquid_sa__id)
-                        .withIssuedAt(new Date())
-                        .sign(algo);
+        token = JWT.create()
+                .withHeader(JWT_HEADERS)
+                .withClaim(Constants.JWT_USER_ID, testUser1__liquid_sa__id)
+                .withIssuedAt(new Date())
+                .sign(algo);
     }
 
     @Test
     void testVerifyToken() throws Exception {
         assertThat(jwtUtils.verify(token)).isTrue();
+    }
+
+    @Test
+    void testGetUserId() throws Exception {
+        assertThat(jwtUtils.getUserId(token)).isEqualTo(testUser1__liquid_sa__id);
     }
 }

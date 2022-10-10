@@ -17,13 +17,22 @@
 
 package io.zeroparadigm.liquidms.utils;
 
+import io.zeroparadigm.liquidms.exceptions.SnowFlakeException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * SnowFlake for naming un-specify-named files.
+ *
+ * @author hezean
+ */
 @Component
 public class SnowFlakeUtils {
 
-    private static final long START_STAMP = 1480166465631L;
+    /**
+     * Oct. 1st, 2022 (GTM+8)
+     */
+    private static final long START_STAMP = 1664553600000L;
 
     private static final long SEQUENCE_BIT = 12;
     private static final long DATACENTER_BIT = 3;
@@ -60,7 +69,7 @@ public class SnowFlakeUtils {
     public synchronized long getNextId() {
         long currStamp = System.currentTimeMillis();
         if (currStamp < lastStamp) {
-            throw new RuntimeException("clock moved backwards");
+            throw new SnowFlakeException("clock moved backwards");
         }
         if (currStamp == lastStamp) {
             sequence = (sequence + 1) & MAX_SEQUENCE;

@@ -32,11 +32,11 @@ public class MinioConfiguration {
     @Value("${minio.endpoint}")
     private String endPoint;
 
-    @Value("${minio.access-key}")
-    private String accessKey;
+    @Value("${minio.root-user}")
+    private String rootUser;
 
-    @Value("${minio.secret-key}")
-    private String secretKey;
+    @Value("${minio.root-password}")
+    private String rootPassword;
 
     @Value("${minio.timeout}")
     private long timeout;
@@ -45,7 +45,7 @@ public class MinioConfiguration {
     MinioClient minioClient() {
         return MinioClient.builder()
                 .endpoint(endPoint)
-                .credentials(accessKey, secretKey)
+                .credentials(rootUser, rootPassword)
                 .httpClient(
                         new OkHttpClient.Builder()
                                 .callTimeout(timeout, TimeUnit.MILLISECONDS)
