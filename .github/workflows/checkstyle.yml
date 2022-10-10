@@ -20,6 +20,6 @@ jobs:
         uses: nikitasavinov/checkstyle-action@0.6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          checkstyle_config: misc/checkstyle.xml
+          checkstyle_config: 'misc/checkstyle.xml'
           filter_mode: diff_context
           reporter: github-pr-review
