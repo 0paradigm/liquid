@@ -1,194 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>edu.sustc</groupId>
-    <artifactId>liquid</artifactId>
-
-    <name>liquid</name>
-    <description>Low In Quality, Unrivaled In Despair</description>
-    <version>0.0.1-SNAPSHOT</version>
-
-    <properties>
-        <java.version>17</java.version>
-    </properties>
-
-    <profiles>
-        <profile>
-            <id>dev</id>
-            <properties>
-                <springProfiles>dev</springProfiles>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-        <profile>
-            <id>production</id>
-            <properties>
-                <springProfiles>prod</springProfiles>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>doc</id>
-            <properties>
-                <springProfiles>doc</springProfiles>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>h2</id>
-            <properties>
-                <springProfiles>h2</springProfiles>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-        <profile>
-            <id>mysql</id>
-            <properties>
-                <springProfiles>mysql</springProfiles>
-            </properties>
-        </profile>
-
-    </profiles>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.7.3</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
-    <dependencies>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>3.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-boot-starter</artifactId>
-            <version>3.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>3.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
-        </dependency>
+    <groupId>io.zeroparadigm.liquid</groupId>
+    <artifactId>liquid</artifactId>
+    <version>dev-SNAPSHOT</version>
 
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-mysql</artifactId>
-        </dependency>
+    <packaging>pom</packaging>
+    <name>${project.artifactId}</name>
+    <description>Liquid is a GitHub-like code hosting platform.</description>
 
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus</artifactId>
-            <version>3.5.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.5.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-generator</artifactId>
-            <version>3.5.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter</artifactId>
-            <version>2.2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter-test</artifactId>
-            <version>2.2.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.30</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-            <version>2.7.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
-            <version>2.7.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.auth0</groupId>
-            <artifactId>java-jwt</artifactId>
-            <version>3.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>jquery-i18n-properties</artifactId>
-            <version>1.2.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-spring</artifactId>
-            <version>1.9.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-ehcache</artifactId>
-            <version>1.9.1</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>4.8.0</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <modules>
+        <module>liquid-backend</module>
+        <module>liquid-ms</module>
+    </modules>
+
+    <properties>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.zeroparadigm.liquid</groupId>
+                <artifactId>liquid-backend</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.zeroparadigm.liquid</groupId>
+                <artifactId>liquid-ms</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
@@ -208,24 +78,23 @@
                 <executions>
                     <execution>
                         <id>concatMavenProfiles</id>
-                        <phase>initialize</phase>
                         <goals>
                             <goal>execute</goal>
                         </goals>
+                        <phase>initialize</phase>
                         <configuration>
                             <scripts>
-                                <script><![CDATA[
-                                def value = ""
+                                <script><![CDATA[def value = ""
                                 (project.activeProfiles).each{ profile -> value += profile.properties.springProfiles + "," }
-                                project.properties.setProperty('spring.profiles.active', value.substring(0, value.length() - 1))
-                                log.info 'set spring.profiles.active = ' + project.properties['spring.profiles.active']
-                            ]]></script>
+                                if (value.length() > 0) {
+                                    project.properties.setProperty('spring.profiles.active', value.substring(0, value.length() - 1))
+                                }
+                                log.info 'set spring.profiles.active = ' + project.properties['spring.profiles.active']]]></script>
                             </scripts>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -238,38 +107,62 @@
                     </excludes>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <skip>false</skip>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
                 <version>2.25.0</version>
                 <configuration>
-                    <formats>
-                        <format>
-                            <includes>
-                                <include>*.md</include>
-                                <include>.gitignore</include>
-                            </includes>
-                            <trimTrailingWhitespace/>
-                            <endWithNewline/>
-                            <indent>
-                                <tabs>true</tabs>
-                                <spacesPerTab>4</spacesPerTab>
-                            </indent>
-                        </format>
-                    </formats>
-
                     <java>
-                        <googleJavaFormat>
-                            <version>1.15.0</version>
-                            <style>AOSP</style>
-                            <reflowLongStrings>true</reflowLongStrings>
-                        </googleJavaFormat>
-
+                        <eclipse>
+                            <file>misc/liquid-spotless-formatter.xml</file>
+                        </eclipse>
+                        <removeUnusedImports />
+                        <replaceRegex>
+                            <name>Remove wildcard imports</name>
+                            <searchRegex>import\s+[^\*\s]+\*;(\r\n|\r|\n)</searchRegex>
+                            <replacement>$1</replacement>
+                        </replaceRegex>
                         <licenseHeader>
-                            <file>${project.basedir}/misc/license-header</file>
+                            <file>misc/license-header</file>
                         </licenseHeader>
                     </java>
+                    <pom>
+                        <sortPom>
+                            <encoding>UTF-8</encoding>
+                            <nrOfIndentSpace>4</nrOfIndentSpace>
+                            <keepBlankLines>true</keepBlankLines>
+                            <indentBlankLines>false</indentBlankLines>
+                            <indentSchemaLocation>true</indentSchemaLocation>
+                            <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
+                            <sortModules>false</sortModules>
+                            <sortExecutions>false</sortExecutions>
+                            <predefinedSortOrder>custom_1</predefinedSortOrder>
+                            <expandEmptyElements>false</expandEmptyElements>
+                            <sortProperties>false</sortProperties>
+                        </sortPom>
+                        <replace>
+                            <name>Leading blank line</name>
+                            <search>project</search>
+                            <replacement>project</replacement>
+                        </replace>
+                    </pom>
+                    <markdown>
+                        <includes>
+                            <include>**/*.md</include>
+                        </includes>
+                        <flexmark />
+                    </markdown>
                 </configuration>
             </plugin>
         </plugins>

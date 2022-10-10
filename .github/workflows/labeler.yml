@@ -1,0 +1,23 @@
+name: Adds Labels
+
+on:
+  pull_request_target:
+
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout ${{ github.ref }}
+        uses: actions/checkout@v3
+
+      - name: Label in PR
+        uses: actions/labeler@v4
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/conf/labeler.yml
+          sync-labels: true
