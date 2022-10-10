@@ -5,6 +5,10 @@ document:
 ci:
   - '.github/**/*'
 
+deploy:
+  - '**/Dockerfile'
+  - '**/*compose.yml'
+
 backend:
   - 'liquid-backend/**/*'
 
