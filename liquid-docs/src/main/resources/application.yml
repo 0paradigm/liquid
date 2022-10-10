@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: @project.artifactId@
+
+build:
+  version: @project.version@
+
+server:
+  port: @liquid_eureka.port@
+
+eureka:
+  instance:
+    hostname: localhost
+  server:
+    enable-self-preservation: true
+  client:
+    register-with-eureka: false
+    fetch-registry: false

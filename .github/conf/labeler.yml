@@ -9,8 +9,11 @@ deploy:
   - '**/Dockerfile'
   - '**/*compose.yml'
 
-backend:
-  - 'liquid-backend/**/*'
+micro-services:
+  - 'liquid-eureka/**/*'
+
+service:
+  - 'liquid-service/**/*'
 
 media-server:
-  - 'liquid-ms/**/*'
+  - 'liquid-media/**/*'

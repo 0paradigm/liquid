@@ -29,32 +29,43 @@
 
     <groupId>io.zeroparadigm.liquid</groupId>
     <artifactId>liquid</artifactId>
-    <version>dev-SNAPSHOT</version>
+    <version>${revision}</version>
 
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Liquid is a GitHub-like code hosting platform.</description>
 
     <modules>
-        <module>liquid-backend</module>
-        <module>liquid-ms</module>
+        <module>liquid-eureka</module>
+        <module>liquid-service</module>
+        <module>liquid-media</module>
     </modules>
 
     <properties>
         <java.version>17</java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <revision>dev-SNAPSHOT</revision>
+
+        <liquid_eureka.port>8001</liquid_eureka.port>
+        <liquid_service.port>8002</liquid_service.port>
+        <liquid_media.port>8003</liquid_media.port>
+        <liquid_media.minio>8004</liquid_media.minio>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>io.zeroparadigm.liquid</groupId>
-                <artifactId>liquid-backend</artifactId>
+                <artifactId>liquid-eureka</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.zeroparadigm.liquid</groupId>
-                <artifactId>liquid-ms</artifactId>
+                <artifactId>liquid-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.zeroparadigm.liquid</groupId>
+                <artifactId>liquid-media</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
@@ -86,9 +97,12 @@
                             <scripts>
                                 <script><![CDATA[def value = ""
                                 (project.activeProfiles).each{ profile -> value += profile.properties.springProfiles + "," }
-                                if (value.length() > 0) {
-                                    project.properties.setProperty('spring.profiles.active', value.substring(0, value.length() - 1))
-                                }
+                                project.properties.setProperty(
+                                    'spring.profiles.active',
+                                    value.length() > 0
+                                      ? value.substring(0, value.length() - 1)
+                                      : ''
+                                )
                                 log.info 'set spring.profiles.active = ' + project.properties['spring.profiles.active']]]></script>
                             </scripts>
                         </configuration>
@@ -114,7 +128,7 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <encoding>UTF-8</encoding>
                     <skip>false</skip>
                 </configuration>
             </plugin>
