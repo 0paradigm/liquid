@@ -1,4 +1,21 @@
-package edu.sustc.liquid.service;
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.zeroparadigm.liquid.service;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,16 +24,14 @@ import java.net.URL;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 /**
- * Provide packed git function.
+ * Provides packed git function.
  *
- * @author Lizinan
- * @version 0.0.1
+ * @author buzzy0423
  */
-
 public interface GitService {
 
     /**
-     * add changed file.
+     * Adds changed file.
      *
      * @param dir  repository path
      * @param arg  argument of command(u, A, f)
@@ -34,8 +49,7 @@ public interface GitService {
      * @param branchName2 branchName for rename
      * @return result message
      */
-    String branch(File dir, char arg, String branchName1, String branchName2)
-        throws IOException, GitAPIException;
+    String branch(File dir, char arg, String branchName1, String branchName2) throws IOException, GitAPIException;
 
     /**
      * change branch or version.
@@ -76,8 +90,8 @@ public interface GitService {
      * @param outputStream outputStream, it's hard to return a String
      * @return result message
      */
-    String diff(File dir, char arg, String oldObject, String newObject, OutputStream outputStream)
-        throws IOException, GitAPIException;
+    String diff(File dir, char arg, String oldObject, String newObject,
+                OutputStream outputStream) throws IOException, GitAPIException;
 
     /**
      * init a repository.
@@ -87,8 +101,8 @@ public interface GitService {
      */
     String init(File dir) throws IOException, GitAPIException;
 
-    //TODO: Do it later
-    //String log(File dir);
+    // TODO: Do it later
+    // String log(File dir);
 
     /**
      * merge this branch to assigned branch.
@@ -107,8 +121,7 @@ public interface GitService {
      * @param remoteBranch name of remoteBranch
      * @return result message
      */
-    String pull(File dir, String remoteServer, String remoteBranch)
-        throws IOException, GitAPIException;
+    String pull(File dir, String remoteServer, String remoteBranch) throws IOException, GitAPIException;
 
     /**
      * push change to remote server.
@@ -120,8 +133,8 @@ public interface GitService {
      * @param remoteBranch name of remoteBranch
      * @return result message
      */
-    String push(File dir, char arg, String remote, String localBranch, String remoteBranch)
-        throws IOException, GitAPIException;
+    String push(File dir, char arg, String remote, String localBranch,
+                String remoteBranch) throws IOException, GitAPIException;
 
     /**
      * rebase this branch to assigned branch or commit.
@@ -141,8 +154,7 @@ public interface GitService {
      * @param url        remote URL
      * @return result message
      */
-    String remote(File dir, char arg, String remoteName, URL url)
-        throws IOException, GitAPIException;
+    String remote(File dir, char arg, String remoteName, URL url) throws IOException, GitAPIException;
 
     /**
      * reset this branch to another position.
@@ -154,8 +166,8 @@ public interface GitService {
      * @param resetPoint resetPoint
      * @return result message
      */
-    String reset(File dir, Boolean isSoft, Boolean isMixed, Boolean isHard, String resetPoint)
-        throws IOException, GitAPIException;
+    String reset(File dir, Boolean isSoft, Boolean isMixed, Boolean isHard,
+                 String resetPoint) throws IOException, GitAPIException;
 
     /**
      * revert commit.

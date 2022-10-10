@@ -1,6 +1,23 @@
-package edu.sustc.liquid.service.impl;
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import edu.sustc.liquid.service.GitService;
+package io.zeroparadigm.liquid.service.impl;
+
+import io.zeroparadigm.liquid.service.GitService;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,24 +46,9 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Provide packed git function.
- *
- * @author buzzy0423
- * @version 0.0.1
- */
-
 public class GitServiceImpl implements GitService {
-    //FIXME: Authentic need to be added, or do it in user controller?
+    // FIXME: Authentic need to be added, or do it in user controller?
 
-    /**
-     * Adds changed file.
-     *
-     * @param dir  repository path
-     * @param arg  argument of command(A)
-     * @param file file or dir need to be added, maybe null
-     * @return result message
-     */
     @Override
     public String add(File dir, char arg, File file) throws IOException, GitAPIException {
         Git git = Git.open(dir);
@@ -58,25 +60,16 @@ public class GitServiceImpl implements GitService {
         return "Success";
     }
 
-    /**
-     * Create, delete, rename branch.
-     *
-     * @param dir         repository path
-     * @param arg         argument of command(a, b, d)
-     * @param branchName1 branchName for create, delete
-     * @param branchName2 branchName for rename
-     * @return result message
-     */
     @Override
-    public String branch(File dir, char arg, String branchName1, String branchName2)
-        throws IOException, GitAPIException {
+    public String branch(File dir, char arg, String branchName1,
+                         String branchName2) throws IOException, GitAPIException {
         Git git = Git.open(dir);
         if (branchName1 == null && branchName2 == null && arg != 'a') {
-            //FIXME: is it right?
+            // FIXME: is it right?
             return git.branchList().call().toString();
         } else if (branchName1 == null && branchName2 == null) {
             return git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()
-                .toString();
+                    .toString();
         } else if (arg == 'b') {
             git.checkout().setCreateBranch(true).setName(branchName1).call();
         } else if (arg == 'd') {
@@ -87,17 +80,8 @@ public class GitServiceImpl implements GitService {
         return "Success";
     }
 
-    /**
-     * Change branch or version.
-     *
-     * @param dir        repository path
-     * @param arg        argument of command(b)
-     * @param branchName branch, commitID, tag
-     * @return result message
-     */
     @Override
-    public String checkout(File dir, char arg, String branchName)
-        throws IOException, GitAPIException {
+    public String checkout(File dir, char arg, String branchName) throws IOException, GitAPIException {
 
         Git git = Git.open(dir);
         if (arg == 'b') {
@@ -108,30 +92,14 @@ public class GitServiceImpl implements GitService {
         return "Success";
     }
 
-    /**
-     * Clone a repository to local path.
-     *
-     * @param dir local path
-     * @param url remote repo url
-     * @return result message
-     */
     @Override
     public String clone(File dir, String url) throws GitAPIException {
         Git.cloneRepository().setDirectory(dir).setURI(url).call();
         return "Success";
     }
 
-    /**
-     * Commit file.
-     *
-     * @param dir           repository path
-     * @param arg           argument of command(a, A(amend))
-     * @param commitMessage commitMessage
-     * @return result message
-     */
     @Override
-    public String commit(File dir, char arg, @NotNull String commitMessage)
-        throws IOException, GitAPIException {
+    public String commit(File dir, char arg, @NotNull String commitMessage) throws IOException, GitAPIException {
         Git git = Git.open(dir);
         if (arg == 'a') {
             git.add().addFilepattern(".").call();
@@ -144,28 +112,19 @@ public class GitServiceImpl implements GitService {
         return null;
     }
 
-    /**
-     * Show diff between two commit.
-     *
-     * @param dir       repository path
-     * @param arg       argument of command(b(branch), c(commit))
-     * @param oldObject object1
-     * @param newObject object2
-     * @return result message
-     */
     @Override
     public String diff(File dir, char arg, String oldObject, String newObject,
                        OutputStream outputStream) throws IOException, GitAPIException {
         Git git = Git.open(dir);
         if (arg == 'b') {
             AbstractTreeIterator oldTreeParser = prepareTreeParser(git.getRepository(),
-                String.format("/refs/heads/%s", oldObject));
+                    String.format("/refs/heads/%s", oldObject));
             AbstractTreeIterator newTreeParser = prepareTreeParser(git.getRepository(),
-                String.format("/refs/heads/%s", newObject));
+                    String.format("/refs/heads/%s", newObject));
             git.diff().setOutputStream(outputStream).setOldTree(oldTreeParser)
-                .setNewTree(newTreeParser).call();
+                    .setNewTree(newTreeParser).call();
         } else if (arg == 'c') {
-            //TODO: how to compare
+            // TODO: how to compare
             git.getRepository();
         } else {
             git.diff().setOutputStream(outputStream).call();
@@ -173,8 +132,7 @@ public class GitServiceImpl implements GitService {
         return null;
     }
 
-    private static AbstractTreeIterator prepareTreeParser(Repository repository, String ref)
-        throws IOException {
+    private static AbstractTreeIterator prepareTreeParser(Repository repository, String ref) throws IOException {
         // from the commit we can build the tree which allows us to construct the TreeParser
         Ref head = repository.exactRef(ref);
         try (RevWalk walk = new RevWalk(repository)) {
@@ -189,10 +147,9 @@ public class GitServiceImpl implements GitService {
         }
     }
 
-    //FIXME: commitId is ObjectId
+    // FIXME: commitId is ObjectId
     private static CanonicalTreeParser prepareCanonicalTreeParser(Repository repository,
-                                                                  ObjectId commitId)
-        throws IOException {
+                                                                  ObjectId commitId) throws IOException {
         try (RevWalk walk = new RevWalk(repository)) {
             RevCommit commit = walk.parseCommit(commitId);
             ObjectId treeId = commit.getTree().getId();
@@ -203,49 +160,27 @@ public class GitServiceImpl implements GitService {
 
     }
 
-    /**
-     * Init a repository.
-     *
-     * @param dir repository path
-     * @return result message
-     */
     @Override
     public String init(File dir) throws GitAPIException {
         Git.init().setDirectory(dir).call();
         return "Success";
     }
 
-    /**
-     * Merge this branch to assigned branch.
-     *
-     * @param dir        repository path
-     * @param branchName assigned branch
-     * @return result message
-     */
     @Override
     public String merge(File dir, String branchName) throws IOException, GitAPIException {
         Git git = Git.open(dir);
         Repository repo = git.getRepository();
         ObjectId mergeBase = repo.resolve(branchName);
         MergeResult merge =
-            git.merge().include(mergeBase).setCommit(true).setMessage("Merged changes").call();
+                git.merge().include(mergeBase).setCommit(true).setMessage("Merged changes").call();
         if (merge.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)) {
             return merge.getConflicts().toString();
         }
         return "Success";
     }
 
-    /**
-     * Pull change from remote server.
-     *
-     * @param dir          repository path
-     * @param remoteServer name of remoteServer, can be null
-     * @param remoteBranch name of remoteBranch, can be null
-     * @return result message
-     */
     @Override
-    public String pull(File dir, String remoteServer, String remoteBranch)
-        throws IOException, GitAPIException {
+    public String pull(File dir, String remoteServer, String remoteBranch) throws IOException, GitAPIException {
         Git git = Git.open(dir);
         PullCommand pullCommand = git.pull();
         if (remoteServer != null) {
@@ -258,20 +193,10 @@ public class GitServiceImpl implements GitService {
         return "Success";
     }
 
-    /**
-     * Push change to remote server.
-     *
-     * @param dir          repository path
-     * @param arg          argument of command(f, d)
-     * @param remote       name of remote server
-     * @param localBranch  name of localBranch
-     * @param remoteBranch name of remoteBranch
-     * @return result message
-     */
     @Override
     public String push(File dir, char arg, @NotNull String remote, @NotNull String localBranch,
                        String remoteBranch) throws IOException, GitAPIException {
-        //FIXME: remoteBranch not considered
+        // FIXME: remoteBranch not considered
         Git git = Git.open(dir);
         PushCommand pushCommand = git.push();
         if (arg == 'f') {
@@ -279,7 +204,7 @@ public class GitServiceImpl implements GitService {
             pushCommand.setRemote(remote).add(localBranch);
         } else if (arg == 'd') {
             RefSpec refSpec = new RefSpec().setSource(null)
-                .setDestination(String.format("refs/heads/%s", remoteBranch));
+                    .setDestination(String.format("refs/heads/%s", remoteBranch));
             pushCommand.setRefSpecs(refSpec).setRemote(remote);
         } else {
             pushCommand.setRemote(remote).add(localBranch);
@@ -288,33 +213,16 @@ public class GitServiceImpl implements GitService {
         return "Success";
     }
 
-    /**
-     * Rebase this branch to assigned branch or commit.
-     *
-     * @param dir          repository path
-     * @param rebaseBranch assigned branch
-     * @return result message
-     */
     @Override
     public String rebase(File dir, String rebaseBranch) throws IOException, GitAPIException {
-        //TODO: allow rebase to commit
+        // TODO: allow rebase to commit
         Git git = Git.open(dir);
         git.rebase().setUpstream(String.format("refs/heads/%s", rebaseBranch)).call();
         return "Success";
     }
 
-    /**
-     * Remote command.
-     *
-     * @param dir        repository path
-     * @param arg        argument of command(a, r(rm))
-     * @param remoteName name of remote
-     * @param url        remote URL
-     * @return result message
-     */
     @Override
-    public String remote(File dir, char arg, String remoteName, URL url)
-        throws IOException, GitAPIException {
+    public String remote(File dir, char arg, String remoteName, URL url) throws IOException, GitAPIException {
         Git git = Git.open(dir);
         if (arg == 'a') {
             git.remoteAdd().setName(remoteName).setUri(new URIish(url)).call();
@@ -325,23 +233,13 @@ public class GitServiceImpl implements GitService {
             StringBuilder tmp = new StringBuilder();
             for (RemoteConfig remoteConfig : remoteConfigs) {
                 tmp.append(remoteConfig.getName()).append(" ")
-                    .append(remoteConfig.getURIs().toString()).append("\n");
+                        .append(remoteConfig.getURIs().toString()).append("\n");
             }
             return tmp.toString();
         }
         return "Success";
     }
 
-    /**
-     * Reset this branch to another position.
-     *
-     * @param dir        repository path
-     * @param isSoft     arg soft
-     * @param isMixed    arg mixed
-     * @param isHard     arg hard
-     * @param resetPoint resetPoint
-     * @return result message
-     */
     @Override
     public String reset(File dir, Boolean isSoft, Boolean isMixed, Boolean isHard,
                         String resetPoint) throws IOException, GitAPIException {
@@ -359,17 +257,10 @@ public class GitServiceImpl implements GitService {
         return "Success";
     }
 
-    /**
-     * Revert commit.
-     *
-     * @param dir      repository path
-     * @param commitId commitId
-     * @return result message
-     */
     @Override
     public String revert(File dir, String commitId) throws IOException, GitAPIException {
         Git git = Git.open(dir);
-        //FIXME: arg of resolve() ??
+        // FIXME: arg of resolve() ??
         ObjectId commit = git.getRepository().resolve(commitId);
         if (commit != null) {
             git.revert().include(commit).call();
@@ -377,14 +268,6 @@ public class GitServiceImpl implements GitService {
         return "Success";
     }
 
-    /**
-     * Delete file.
-     *
-     * @param dir      repository path
-     * @param cache    set cache
-     * @param fileName fileName to delete
-     * @return result message
-     */
     @Override
     public String rm(File dir, boolean cache, String fileName) throws IOException, GitAPIException {
         Git git = Git.open(dir);
@@ -392,13 +275,6 @@ public class GitServiceImpl implements GitService {
         return "Success";
     }
 
-    /**
-     * Stash temporary work.
-     *
-     * @param dir repository path
-     * @param arg argument of command(l(list), a(apply), d(drop), c(clear))
-     * @return result message
-     */
     @Override
     public String stash(File dir, char arg, String stashName) throws IOException, GitAPIException {
         Git git = Git.open(dir);
@@ -407,7 +283,7 @@ public class GitServiceImpl implements GitService {
             StringBuilder stringBuilder = new StringBuilder();
             for (RevCommit rev : commits) {
                 stringBuilder.append(rev).append(": ").append(rev.getFullMessage())
-                    .append("\n");
+                        .append("\n");
             }
             return stringBuilder.toString();
         } else if (arg == 'a') {
@@ -423,36 +299,21 @@ public class GitServiceImpl implements GitService {
         return "Success";
     }
 
-    /**
-     * Show status of repo.
-     *
-     * @param dir repository path
-     * @return result message
-     */
     public String status(File dir) throws IOException, GitAPIException {
         Git git = Git.open(dir);
         Status status = git.status().call();
         return status.toString();
     }
 
-    /**
-     * Make tag on a commit.
-     *
-     * @param dir repository path
-     * @param arg argument of command(a, d)
-     * @param tag tag
-     * @return result message
-     */
     @Override
-    public String tag(File dir, char arg, String tag, String message)
-        throws IOException, GitAPIException {
+    public String tag(File dir, char arg, String tag, String message) throws IOException, GitAPIException {
         Git git = Git.open(dir);
         if (arg == 'a') {
             git.tag().setName(tag).setMessage(message).setForceUpdate(true).call();
         } else if (arg == 'd') {
             git.tagDelete().setTags(tag).call();
         } else if (tag == null) {
-            //FIXME: need to be tested
+            // FIXME: need to be tested
             List<Ref> list = git.tagList().call();
             return list.toString();
         } else {
