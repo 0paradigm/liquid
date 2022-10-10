@@ -1,0 +1,14 @@
+version: "3.3"
+
+services:
+  liquid-backend:
+    image: liquid-backend:latest
+    ports:
+      - "8125:8125"
+
+# TODO: design docker compose (@hezean, 2022-10-10)
+
+
+networks:
+  liquid:
+    driver: bridge

@@ -1,8 +1,16 @@
 document:
-  - any: ['docs/**/*']
   - '**/*.md'
   - '**/*.rst'
-  - 'README.md'
 
 ci:
-  - any: ['.github/**/*']
+  - '.github/**/*'
+
+deploy:
+  - '**/Dockerfile'
+  - '**/*compose.yml'
+
+backend:
+  - 'liquid-backend/**/*'
+
+media-server:
+  - 'liquid-ms/**/*'
