@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  liquid-nacos:
+    container_name: liquid-nacos
+    image: nacos/nacos-server:v2.1.1
+    env_file:
+      - ./env/liquid-nacos.env
+    volumes:
+      - ./logs/liquid-nacos:/home/nacos/logs
+    networks:
+      - liquid
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+      - "9849:9849"
+    depends_on:
+      liquid-nacos-db:
+        condition: service_healthy
+
+  liquid-nacos-db:
+    container_name: liquid-nacos-db
+    build:
+      context: ./image/nacos-mysql8
+      dockerfile: ./Dockerfile
+    env_file:
+      - ./env/liquid-nacos-db.env
+    volumes:
+      - liquid-nacos-db:/var/lib/mysql
+    networks:
+      - liquid
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+
+networks:
+  liquid:
+    driver: bridge
+
+volumes:
+  liquid-nacos-db: { }

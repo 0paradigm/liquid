@@ -26,7 +26,7 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>liquid-service</artifactId>
+    <artifactId>liquid-core</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
 
@@ -76,6 +76,7 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-mysql</artifactId>
+            <version>9.4.0</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -191,7 +192,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <repository>${artifactId}</repository>
+                    <repository>${project.artifactId}</repository>
                     <tag>${project.version}</tag>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>

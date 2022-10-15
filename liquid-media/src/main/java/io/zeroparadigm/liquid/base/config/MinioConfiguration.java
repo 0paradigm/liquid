@@ -22,11 +22,13 @@ import java.util.concurrent.TimeUnit;
 import lombok.Data;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Data
 @Configuration
+@RefreshScope
 public class MinioConfiguration {
 
     @Value("${minio.endpoint}")

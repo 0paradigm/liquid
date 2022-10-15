@@ -21,10 +21,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.3</version>
-        <relativePath />
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-parent</artifactId>
+        <version>2021.0.4</version>
+        <relativePath/>
     </parent>
 
     <groupId>io.zeroparadigm.liquid</groupId>
@@ -36,28 +36,35 @@
     <description>Liquid is a GitHub-like code hosting platform.</description>
 
     <modules>
-        <module>liquid-eureka</module>
-        <module>liquid-service</module>
+        <module>liquid-core</module>
         <module>liquid-media</module>
     </modules>
 
     <properties>
         <java.version>17</java.version>
-        <revision>dev-SNAPSHOT</revision>
-
-        <liquid_eureka.port>8001</liquid_eureka.port>
-        <liquid_service.port>8002</liquid_service.port>
+        <revision>0.0.2-SNAPSHOT</revision>
+        <liquid_nacos.addr>127.0.0.1:8848</liquid_nacos.addr>
+        <liquid_core.port>8002</liquid_core.port>
         <liquid_media.port>8003</liquid_media.port>
-        <liquid_media.minio>8004</liquid_media.minio>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>io.zeroparadigm.liquid</groupId>
-                <artifactId>liquid-eureka</artifactId>
-                <version>${project.version}</version>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2021.0.4</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>2.2.9.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <dependency>
                 <groupId>io.zeroparadigm.liquid</groupId>
                 <artifactId>liquid-service</artifactId>
@@ -73,6 +80,16 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <delimiters>
+                        <delimiter>@</delimiter>
+                    </delimiters>
+                    <useDefaultDelimiters>false</useDefaultDelimiters>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
@@ -141,7 +158,7 @@
                         <eclipse>
                             <file>misc/liquid-spotless-formatter.xml</file>
                         </eclipse>
-                        <removeUnusedImports />
+                        <removeUnusedImports/>
                         <replaceRegex>
                             <name>Remove wildcard imports</name>
                             <searchRegex>import\s+[^\*\s]+\*;(\r\n|\r|\n)</searchRegex>
@@ -175,7 +192,7 @@
                         <includes>
                             <include>**/*.md</include>
                         </includes>
-                        <flexmark />
+                        <flexmark/>
                     </markdown>
                 </configuration>
             </plugin>
