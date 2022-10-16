@@ -39,6 +39,7 @@
         <module>liquid-common</module>
         <module>liquid-core</module>
         <module>liquid-media</module>
+        <module>liquid-gateway</module>
     </modules>
 
     <profiles>
@@ -63,6 +64,7 @@
         <java.version>17</java.version>
         <liquid_core.port>8002</liquid_core.port>
         <liquid_media.port>8003</liquid_media.port>
+        <liquid_gateway.port>8004</liquid_gateway.port>
     </properties>
 
     <dependencyManagement>
@@ -70,6 +72,11 @@
             <dependency>
                 <groupId>io.zeroparadigm.liquid</groupId>
                 <artifactId>liquid-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.zeroparadigm.liquid</groupId>
+                <artifactId>liquid-gateway</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
