@@ -1,0 +1,44 @@
+2022-10-15 18:38:49,498 INFO [dump-task] add task. groupKey=minio.yml+DEFAULT_GROUP+liquid-media, taskKey=minio.yml+DEFAULT_GROUP+liquid-media+false+null
+
+2022-10-15 19:22:10,006 INFO [dump-task] add task. groupKey=minio.yml+DEFAULT_GROUP+liquid-media, taskKey=minio.yml+DEFAULT_GROUP+liquid-media+false+null
+
+2022-10-15 19:22:24,716 INFO [dump-task] add task. groupKey=liquid-media.yml+DEFAULT_GROUP+liquid-media, taskKey=liquid-media.yml+DEFAULT_GROUP+liquid-media+false+null
+
+2022-10-15 19:27:19,430 INFO [dump-task] add task. groupKey=liquid-media.yml+DEFAULT_GROUP+liquid-media, taskKey=liquid-media.yml+DEFAULT_GROUP+liquid-media+false+null
+
+2022-10-15 19:27:33,883 INFO [dump-task] add task. groupKey=liquid-media.yaml+DEFAULT_GROUP+liquid-media, taskKey=liquid-media.yaml+DEFAULT_GROUP+liquid-media+false+null
+
+2022-10-15 19:31:52,761 INFO [dump-task] add task. groupKey=liquid-media-default.yaml+DEFAULT_GROUP+liquid-media, taskKey=liquid-media-default.yaml+DEFAULT_GROUP+liquid-media+false+null
+
+2022-10-15 19:39:13,347 INFO [dump-task] add task. groupKey=liquid-media-.yaml+DEFAULT_GROUP+liquid-media, taskKey=liquid-media-.yaml+DEFAULT_GROUP+liquid-media+false+null
+
+2022-10-15 19:42:43,325 INFO [dump-task] add task. groupKey=liquid-media.yaml+liquid-media, taskKey=liquid-media.yaml+liquid-media++false+null
+
+2022-10-15 21:12:51,269 INFO [dump-task] add task. groupKey=liquid-media.yaml+liquid-media, taskKey=liquid-media.yaml+liquid-media++false+null
+
+2022-10-15 21:18:02,681 INFO [dump-task] add task. groupKey=liquid-media.yaml+liquid-media, taskKey=liquid-media.yaml+liquid-media++false+null
+
+2022-10-15 21:22:42,427 INFO [dump-task] add task. groupKey=liquid-media.yaml+liquid-media, taskKey=liquid-media.yaml+liquid-media++false+null
+
+2022-10-15 21:45:26,247 INFO [dump-task] add task. groupKey=liquid-media.yaml+liquid-media, taskKey=liquid-media.yaml+liquid-media++false+null
+
+2022-10-15 21:46:20,952 INFO [dump-task] add task. groupKey=liquid-media.yaml+liquid-media, taskKey=liquid-media.yaml+liquid-media++false+null
+
+2022-10-15 22:18:42,556 INFO [dump-all-ok] liquid-media.yaml+DEFAULT_GROUP, 1665833254000, length=114, md5=3e77ba637cb312be5231de41de1a836e
+
+2022-10-15 22:18:42,561 INFO [dump-all-ok] liquid-media-default.yaml+DEFAULT_GROUP, 1665833513000, length=114, md5=3e77ba637cb312be5231de41de1a836e
+
+2022-10-15 22:18:42,564 INFO [dump-all-ok] liquid-media-.yaml+DEFAULT_GROUP, 1665833953000, length=114, md5=3e77ba637cb312be5231de41de1a836e
+
+2022-10-15 22:18:42,566 INFO [dump-all-ok] liquid-media.yaml+liquid-media, 1665841581000, length=116, md5=961d536aa81f6a73a4e401fa2eb32932
+
+2022-10-15 22:20:29,702 INFO [dump-task] add task. groupKey=liquid-media.yaml+liquid-media, taskKey=liquid-media.yaml+liquid-media++false+null
+
+2022-10-15 23:28:46,275 INFO [dump-all-ok] liquid-media.yaml+DEFAULT_GROUP, 1665833254000, length=114, md5=3e77ba637cb312be5231de41de1a836e
+
+2022-10-15 23:28:46,279 INFO [dump-all-ok] liquid-media-default.yaml+DEFAULT_GROUP, 1665833513000, length=114, md5=3e77ba637cb312be5231de41de1a836e
+
+2022-10-15 23:28:46,281 INFO [dump-all-ok] liquid-media-.yaml+DEFAULT_GROUP, 1665833953000, length=114, md5=3e77ba637cb312be5231de41de1a836e
+
+2022-10-15 23:28:46,285 INFO [dump-all-ok] liquid-media.yaml+liquid-media, 1665843629000, length=116, md5=69d365faa757a4efd934ea2a58bb97ee
+

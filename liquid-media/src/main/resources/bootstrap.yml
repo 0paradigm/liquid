@@ -1,14 +1,28 @@
 spring:
   application:
-    name: ${SERVICE_NAME:@project.artifactId@}
+    name: @project.artifactId@
   cloud:
     nacos:
       discovery:
         server-addr: ${NACOS_ADDR:@liquid_nacos.addr@}
+        group: ${SERVICE_NAME:@project.artifactId@}
       config:
         server-addr: ${NACOS_ADDR:@liquid_nacos.addr@}
+        namespace: liquid
         group: ${SERVICE_NAME:@project.artifactId@}
+        name: ${CONFIG_NAME:@project.artifactId@}
         file-extension: yaml
 
 server:
   port: ${SERVICE_PORT:@liquid_media.port@}
+
+dubbo:
+  application:
+    name: @project.artifactId@
+  registry:
+    address: nacos://${NACOS_ADDR:@liquid_nacos.addr@}
+  scan:
+    base-packages: io.zeroparadigm.liquid.service.impl
+  protocol:
+    name: dubbo
+    port: -1

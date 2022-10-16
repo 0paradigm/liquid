@@ -24,26 +24,43 @@
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-parent</artifactId>
         <version>2021.0.4</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <groupId>io.zeroparadigm.liquid</groupId>
     <artifactId>liquid</artifactId>
-    <version>${revision}</version>
+    <version>dev-SNAPSHOT</version>
 
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Liquid is a GitHub-like code hosting platform.</description>
 
     <modules>
+        <module>liquid-common</module>
         <module>liquid-core</module>
         <module>liquid-media</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>docker</id>
+            <properties>
+                <liquid_nacos.addr>liquid-nacos:8848</liquid_nacos.addr>
+            </properties>
+        </profile>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <liquid_nacos.addr>http://127.0.0.1:8848</liquid_nacos.addr>
+            </properties>
+        </profile>
+    </profiles>
+
     <properties>
         <java.version>17</java.version>
-        <revision>0.0.2-SNAPSHOT</revision>
-        <liquid_nacos.addr>127.0.0.1:8848</liquid_nacos.addr>
         <liquid_core.port>8002</liquid_core.port>
         <liquid_media.port>8003</liquid_media.port>
     </properties>
@@ -51,9 +68,32 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>io.zeroparadigm.liquid</groupId>
+                <artifactId>liquid-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.zeroparadigm.liquid</groupId>
+                <artifactId>liquid-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.zeroparadigm.liquid</groupId>
+                <artifactId>liquid-media</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>2021.0.4</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>2.7.3</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -64,19 +104,34 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
-            <dependency>
-                <groupId>io.zeroparadigm.liquid</groupId>
-                <artifactId>liquid-service</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.zeroparadigm.liquid</groupId>
-                <artifactId>liquid-media</artifactId>
-                <version>${project.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -88,54 +143,6 @@
                         <delimiter>@</delimiter>
                     </delimiters>
                     <useDefaultDelimiters>false</useDefaultDelimiters>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.gmavenplus</groupId>
-                <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.13.1</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-all</artifactId>
-                        <version>3.0.9</version>
-                        <type>pom</type>
-                        <scope>runtime</scope>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <id>concatMavenProfiles</id>
-                        <goals>
-                            <goal>execute</goal>
-                        </goals>
-                        <phase>initialize</phase>
-                        <configuration>
-                            <scripts>
-                                <script><![CDATA[def value = ""
-                                (project.activeProfiles).each{ profile -> value += profile.properties.springProfiles + "," }
-                                project.properties.setProperty(
-                                    'spring.profiles.active',
-                                    value.length() > 0
-                                      ? value.substring(0, value.length() - 1)
-                                      : ''
-                                )
-                                log.info 'set spring.profiles.active = ' + project.properties['spring.profiles.active']]]></script>
-                            </scripts>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -158,7 +165,7 @@
                         <eclipse>
                             <file>misc/liquid-spotless-formatter.xml</file>
                         </eclipse>
-                        <removeUnusedImports/>
+                        <removeUnusedImports />
                         <replaceRegex>
                             <name>Remove wildcard imports</name>
                             <searchRegex>import\s+[^\*\s]+\*;(\r\n|\r|\n)</searchRegex>
@@ -192,7 +199,7 @@
                         <includes>
                             <include>**/*.md</include>
                         </includes>
-                        <flexmark/>
+                        <flexmark />
                     </markdown>
                 </configuration>
             </plugin>

@@ -1,15 +1,11 @@
 spring:
-  application:
-    name: @project.artifactId@
-  profiles:
-    active: @spring.profiles.active@
   mvc:
     throw-exception-if-no-handler-found: true
     pathmatch:
       matching-strategy: ant_path_matcher
   web:
     resources:
-      add-mappings: true
+      add-mappings: false
   jpa:
     properties:
       hibernate:
@@ -20,7 +16,35 @@ spring:
     cache-duration: 3600
     encoding: UTF-8
 
-server:
-  port: @liquid_service.port@
-  servlet:
-    context-path: /api
+  redis:
+    host: localhost
+    port: 16379
+    database: 0
+    password:
+    timeout: 1200
+    jedis:
+      pool:
+        enabled: true
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:13306/liquid-mysql?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: liquid
+
+  flyway:
+    locations: classpath:db/migration
+    fail-on-missing-locations: true
+
+logging:
+  file:
+    path: classpath:logs
+    name: liquid-core.log
+
+build:
+  version: @project.version@
+  timestamp: @maven.build.timestamp@

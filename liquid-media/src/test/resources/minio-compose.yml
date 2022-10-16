@@ -17,21 +17,22 @@
 version: "2.4"
 
 services:
-  minio:
+  liquid-minio:
     image: minio/minio
+    hostname: liquid-minio
     ports:
-      - "8090:8090"
       - "9000:9000"
     volumes:
       - minio_disk0:/data0
-      - minio_disk1:/data1
-      - minio_disk2:/data2
     environment:
       MINIO_ROOT_USER: liquid
       MINIO_ROOT_PASSWORD: liquid_media_minio
-    command: server /data0 /disk1 /disk2
+    command: server /data0 --address=:9000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 20s
+      retries: 3
 
 volumes:
   minio_disk0: { }
-  minio_disk1: { }
-  minio_disk2: { }

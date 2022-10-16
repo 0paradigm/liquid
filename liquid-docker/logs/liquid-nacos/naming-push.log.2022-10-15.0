@@ -1,0 +1,62 @@
+2022-10-15 17:06:40,826 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=1}
+
+2022-10-15 17:06:41,300 INFO [PUSH-SUCC] 54ms, all delay time 583ms, SLA 474ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=1}, originalSize=1, DataSize=1, target=10.25.104.159
+
+2022-10-15 17:07:19,079 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=3}
+
+2022-10-15 17:07:19,632 INFO [PUSH-SUCC] 55ms, all delay time 580ms, SLA 580ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=3}, originalSize=1, DataSize=1, target=10.25.104.159
+
+2022-10-15 17:36:42,201 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=1}
+
+2022-10-15 17:36:42,855 INFO [PUSH-SUCC] 76ms, all delay time 679ms, SLA 685ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=1}, originalSize=1, DataSize=1, target=10.25.104.159
+
+2022-10-15 18:05:43,311 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=3}
+
+2022-10-15 18:05:43,701 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=3}
+
+2022-10-15 18:05:44,098 INFO [PUSH-SUCC] 374ms, all delay time 1119ms, SLA 634ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=3}, originalSize=1, DataSize=1, target=10.25.104.159
+
+2022-10-15 18:36:22,057 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=5}
+
+2022-10-15 18:36:22,675 INFO [PUSH-SUCC] 125ms, all delay time 676ms, SLA 686ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=5}, originalSize=1, DataSize=1, target=10.25.104.159
+
+2022-10-15 19:16:50,630 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=7}
+
+2022-10-15 19:16:51,336 INFO [PUSH-SUCC] 172ms, all delay time 727ms, SLA 730ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=7}, originalSize=1, DataSize=1, target=10.25.104.159
+
+2022-10-15 21:09:35,422 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=1}
+
+2022-10-15 21:09:35,885 INFO [PUSH-SUCC] 36ms, all delay time 560ms, SLA 462ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=1}, originalSize=1, DataSize=1, target=10.25.104.159
+
+2022-10-15 21:19:59,099 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=3}
+
+2022-10-15 21:19:59,626 INFO [PUSH-SUCC] 49ms, all delay time 604ms, SLA 529ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=3}, originalSize=1, DataSize=1, target=10.25.104.159
+
+2022-10-15 21:42:37,839 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=1}
+
+2022-10-15 21:42:38,404 INFO [PUSH-SUCC] 56ms, all delay time 646ms, SLA 565ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=1}, originalSize=1, DataSize=1, target=10.25.104.159
+
+2022-10-15 21:45:49,065 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=3}
+
+2022-10-15 21:45:49,569 INFO [PUSH-SUCC] 56ms, all delay time 591ms, SLA 504ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=3}, originalSize=1, DataSize=1, target=10.25.104.159
+
+2022-10-15 21:46:39,617 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=5}
+
+2022-10-15 21:46:40,117 INFO [PUSH-SUCC] 49ms, all delay time 584ms, SLA 500ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=5}, originalSize=1, DataSize=1, target=10.25.104.159
+
+2022-10-15 21:52:10,715 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=1}
+
+2022-10-15 21:52:11,265 INFO [PUSH-SUCC] 55ms, all delay time 655ms, SLA 550ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=1}, originalSize=1, DataSize=1, target=10.25.104.159
+
+2022-10-15 22:07:18,032 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=3}
+
+2022-10-15 22:07:18,615 INFO [PUSH-SUCC] 58ms, all delay time 656ms, SLA 585ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=3}, originalSize=1, DataSize=1, target=10.25.104.159
+
+2022-10-15 22:19:27,426 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=1}
+
+2022-10-15 22:19:27,891 INFO [PUSH-SUCC] 56ms, all delay time 583ms, SLA 466ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=1}, originalSize=1, DataSize=1, target=10.25.104.159
+
+2022-10-15 22:20:48,463 INFO [PUSH] Task merge for Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=3}
+
+2022-10-15 22:20:48,968 INFO [PUSH-SUCC] 48ms, all delay time 576ms, SLA 505ms, Service{namespace='public', group='DEFAULT_GROUP', name='liquid-media', ephemeral=true, revision=3}, originalSize=1, DataSize=1, target=10.25.104.159
+

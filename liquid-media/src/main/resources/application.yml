@@ -11,11 +11,6 @@ spring:
     multipart:
       max-file-size: 200MB
       max-request-size: 200MB
-  jpa:
-    properties:
-      hibernate:
-        jdbc:
-          time_zone: UTC
 
 management:
   endpoints:
@@ -25,7 +20,7 @@ management:
 
 logging:
   file:
-    path: logs
+    path: classpath:logs
     name: liquid-media.log
 
 snowflake:

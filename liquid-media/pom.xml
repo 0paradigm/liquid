@@ -23,7 +23,7 @@
     <parent>
         <groupId>io.zeroparadigm.liquid</groupId>
         <artifactId>liquid</artifactId>
-        <version>${revision}</version>
+        <version>dev-SNAPSHOT</version>
     </parent>
 
     <artifactId>liquid-media</artifactId>
@@ -33,10 +33,6 @@
     <dependencies>
         <!-- spring-cloud -->
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-bootstrap</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
@@ -45,12 +41,20 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo</artifactId>
+            <version>3.1.1</version>
         </dependency>
         <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-spring-boot-starter</artifactId>
+            <version>3.1.1</version>
+        </dependency>
+
+        <!-- liquid -->
+        <dependency>
+            <groupId>io.zeroparadigm.liquid</groupId>
+            <artifactId>liquid-common</artifactId>
         </dependency>
 
         <!-- api-docs -->
@@ -64,36 +68,47 @@
         <dependency>
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
-            <version>8.2.1</version>
-            <!-- FIXME: upgrade this dependency when available: currently okhttp has dependency conflict -->
+            <version>8.4.5</version>
         </dependency>
-
-        <!-- testing -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- misc -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.10.0</version>
         </dependency>
     </dependencies>
 
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+                <directory>src/main/resources</directory>
             </resource>
         </resources>
         <plugins>
             <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>dockerfile-maven-plugin</artifactId>
                 <version>1.4.13</version>
+                <configuration>
+                    <repository>${project.artifactId}</repository>
+                    <tag>latest</tag>
+                    <buildArgs>
+                        <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+                        <PORT>${liquid_media.port}</PORT>
+                    </buildArgs>
+                </configuration>
                 <executions>
                     <execution>
                         <id>package</id>
@@ -102,14 +117,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <repository>${project.artifactId}</repository>
-                    <tag>${project.version}</tag>
-                    <buildArgs>
-                        <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
-                        <PORT>${liquid_media.port}</PORT>
-                    </buildArgs>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -139,7 +146,7 @@
                         <configuration>
                             <images>
                                 <image>
-                                    <name>liquid-media-sa-minio</name>
+                                    <name>liquid-media-minio</name>
                                     <external>
                                         <type>compose</type>
                                         <basedir>src/test/resources</basedir>
@@ -163,7 +170,7 @@
                         <configuration>
                             <images>
                                 <image>
-                                    <name>liquid-media-sa-minio</name>
+                                    <name>liquid-media-minio</name>
                                     <watch>
                                         <interval>2000</interval>
                                     </watch>
