@@ -18,6 +18,7 @@
 package io.zeroparadigm.liquid.common.dao;
 
 import io.zeroparadigm.liquid.core.base.config.DaoConfiguration;
+import io.zeroparadigm.liquid.core.dao.UserDao;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

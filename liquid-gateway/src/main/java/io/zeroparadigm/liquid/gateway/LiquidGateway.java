@@ -15,23 +15,22 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.common;
+package io.zeroparadigm.liquid.gateway;
 
-import static org.assertj.core.api.Assertions.*;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
-import io.zeroparadigm.liquid.core.controller.UserController;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+/**
+ * Liquid code hosting platform (gateway).
+ *
+ * @author buzzy0423
+ */
+@SpringBootApplication
+@EnableDiscoveryClient
+public class LiquidGateway {
 
-@SpringBootTest
-class LiquidCoreTest {
-
-    @Autowired
-    UserController userController;
-
-    @Test
-    void smokeTest() {
-        assertThat(userController).isNotNull();
+    public static void main(String[] args) {
+        SpringApplication.run(LiquidGateway.class, args);
     }
 }

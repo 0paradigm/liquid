@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid;
+package io.zeroparadigm.liquid.core;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,12 +29,39 @@ import org.springframework.context.event.EventListener;
 /**
  * Liquid code hosting platform (media).
  *
- * @author buzzy_0423
+ * @author hezean
+ * @author buzzy0423
  */
 @SpringBootApplication
 @EnableDiscoveryClient
-public class GatewayApplication {
+@EnableDubbo
+@Slf4j
+public class LiquidCore {
+
+    private static final String BANNER = """
+            Liquid Media running on port {}
+              _     _             _     _
+             | |   (_) __ _ _   _(_) __| |
+             | |   | |/ _` | | | | |/ _` |
+             | |___| | (_| | |_| | | (_| |
+             |_____|_|\\__, |\\__,_|_|\\__,_|
+                          |_| :: {} :: {}""";
+
+    @Value("${spring.application.name:liquid-media}")
+    private String appName;
+
+    @Value("${build.version:dev}")
+    private String version;
+
+    @Value("${server.port:-1}")
+    private int serverPort;
+
+    @EventListener
+    public void run(ApplicationReadyEvent readyEvent) {
+        log.info(BANNER, serverPort, appName, version);
+    }
+
     public static void main(String[] args) {
-        SpringApplication.run(GatewayApplication.class, args);
+        SpringApplication.run(LiquidCore.class, args);
     }
 }

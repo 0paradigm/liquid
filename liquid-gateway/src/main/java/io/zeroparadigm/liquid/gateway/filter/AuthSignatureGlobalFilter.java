@@ -1,4 +1,4 @@
-package io.zeroparadigm.liquid.filter;
+package io.zeroparadigm.liquid.gateway.filter;
 
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 /**
  * 全局过滤器，进行统一的URL过滤及权限认证
  *
- * @author buzzy_0423
+ * @author buzzy0423
  */
 @Configuration
 public class AuthSignatureGlobalFilter implements GlobalFilter, Ordered {

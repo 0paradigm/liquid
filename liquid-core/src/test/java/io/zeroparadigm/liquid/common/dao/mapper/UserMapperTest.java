@@ -19,7 +19,8 @@ package io.zeroparadigm.liquid.common.dao.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.zeroparadigm.liquid.common.dao.entity.User;
+import io.zeroparadigm.liquid.core.dao.entity.User;
+import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;

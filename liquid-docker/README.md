@@ -25,4 +25,4 @@ The following third-party consoles are exposed, you are free to manage them manu
 ### MINIO
 > high performance distributed storge
 
-- web console: access [ip:9001](http://localhost:9000) with the default user `liquid`, password `liquid`
+- web console: access [ip:9001](http://localhost:9000) with the default user `liquid`, password `liquid_media_minio`
