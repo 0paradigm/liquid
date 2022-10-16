@@ -38,6 +38,7 @@
     <modules>
         <module>liquid-core</module>
         <module>liquid-media</module>
+        <module>liquid-gateway</module>
     </modules>
 
     <properties>
@@ -46,6 +47,7 @@
         <liquid_nacos.addr>127.0.0.1:8848</liquid_nacos.addr>
         <liquid_core.port>8002</liquid_core.port>
         <liquid_media.port>8003</liquid_media.port>
+        <liquid_gateway.port>8004</liquid_gateway.port>
     </properties>
 
     <dependencyManagement>
@@ -73,6 +75,11 @@
             <dependency>
                 <groupId>io.zeroparadigm.liquid</groupId>
                 <artifactId>liquid-media</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.zeroparadigm.liquid</groupId>
+                <artifactId>liquid-gateway</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
