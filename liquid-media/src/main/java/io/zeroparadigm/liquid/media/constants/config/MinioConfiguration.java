@@ -48,14 +48,14 @@ public class MinioConfiguration {
     @Bean
     MinioClient minioClient() {
         log.info("Building Minio client [endpoint: {}, user: {}, timeout: {}ms]",
-            endPoint, rootUser, timeout);
+                endPoint, rootUser, timeout);
         return MinioClient.builder()
-            .endpoint(endPoint)
-            .credentials(rootUser, rootPassword)
-            .httpClient(
-                new OkHttpClient.Builder()
-                    .callTimeout(timeout, TimeUnit.MILLISECONDS)
-                    .build())
-            .build();
+                .endpoint(endPoint)
+                .credentials(rootUser, rootPassword)
+                .httpClient(
+                        new OkHttpClient.Builder()
+                                .callTimeout(timeout, TimeUnit.MILLISECONDS)
+                                .build())
+                .build();
     }
 }

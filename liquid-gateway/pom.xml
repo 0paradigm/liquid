@@ -41,6 +41,12 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!-- liquid-api -->
+        <dependency>
+            <groupId>io.zeroparadigm.liquid</groupId>
+            <artifactId>liquid-common</artifactId>
+        </dependency>
+
         <!-- gateway -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -62,8 +68,8 @@
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+                <directory>src/main/resources</directory>
             </resource>
         </resources>
         <plugins>
@@ -71,14 +77,6 @@
                 <groupId>com.spotify</groupId>
                 <artifactId>dockerfile-maven-plugin</artifactId>
                 <version>1.4.13</version>
-                <executions>
-                    <execution>
-                        <id>package</id>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <repository>${project.artifactId}</repository>
                     <tag>${project.version}</tag>
@@ -87,6 +85,14 @@
                         <PORT>${liquid_gateway.port}</PORT>
                     </buildArgs>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>package</id>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

@@ -15,30 +15,24 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.common.dao.mapper;
+package io.zeroparadigm.liquid.media;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.zeroparadigm.liquid.core.dao.entity.User;
-import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
+import io.zeroparadigm.liquid.media.LiquidMedia;
 import org.junit.jupiter.api.Test;
-import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 
-@MybatisTest
-@Transactional
-class UserMapperTest {
+@SpringBootTest(classes = LiquidMedia.class)
+class LiquidMediaIT {
 
     @Autowired
-    private UserMapper userMapper;
+    ApplicationContext ctx;
 
     @Test
-    void testSimple() {
-        User user = userMapper.findByNameOrMail("admin");
-        assertThat(user).isNotNull();
-        userMapper.deleteById(user.getId());
-        assertThat(userMapper.findByNameOrMail("admin")).isNull();
-        assertThat(userMapper.findByNameOrMail("foasjcnasdlkvajblvijebo")).isNull();
+    void contextLoads() {
+        assertThat(ctx).isNotNull();
     }
 }

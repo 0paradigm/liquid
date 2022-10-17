@@ -17,9 +17,13 @@
 
 package io.zeroparadigm.liquid.gateway;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.context.event.EventListener;
 
 /**
  * Liquid code hosting platform (gateway).
@@ -28,7 +32,31 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  */
 @SpringBootApplication
 @EnableDiscoveryClient
+@Slf4j
 public class LiquidGateway {
+
+    private static final String BANNER = """
+            Liquid Gateway running on port {}
+              _     _             _     _
+             | |   (_) __ _ _   _(_) __| |
+             | |   | |/ _` | | | | |/ _` |
+             | |___| | (_| | |_| | | (_| |
+             |_____|_|\\__, |\\__,_|_|\\__,_|
+                          |_| :: {} :: {}""";
+
+    @Value("${spring.application.name:liquid-gateway}")
+    private String appName;
+
+    @Value("${build.version:dev}")
+    private String version;
+
+    @Value("${server.port:-1}")
+    private int serverPort;
+
+    @EventListener
+    public void run(ApplicationReadyEvent readyEvent) {
+        log.info(BANNER, serverPort, appName, version);
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(LiquidGateway.class, args);

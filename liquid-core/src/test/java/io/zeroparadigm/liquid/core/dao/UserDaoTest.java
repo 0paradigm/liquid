@@ -15,14 +15,28 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.common.controller;
+package io.zeroparadigm.liquid.core.dao;
 
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import io.zeroparadigm.liquid.core.base.config.DaoConfiguration;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@SpringBootTest(classes = DaoConfiguration.class)
+@EnableTransactionManagement
+@Transactional
+@Rollback
 @DirtiesContext
-class UserControllerTest {
+class UserDaoTest {
+
+    @Autowired
+    private UserDao userDao;
+
+    @Test
+    void testUserDao() {
+    }
 }

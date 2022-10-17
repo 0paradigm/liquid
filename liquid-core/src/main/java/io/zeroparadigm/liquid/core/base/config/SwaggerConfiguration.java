@@ -1,157 +1,158 @@
-///*
-// * Licensed to the Apache Software Foundation (ASF) under one or more
-// * contributor license agreements.  See the NOTICE file distributed with
-// * this work for additional information regarding copyright ownership.
-// * The ASF licenses this file to You under the Apache License, Version 2.0
-// * (the "License"); you may not use this file except in compliance with
-// * the License.  You may obtain a copy of the License at
-// *
-// *    http://www.apache.org/licenses/LICENSE-2.0
-// *
-// * Unless required by applicable law or agreed to in writing, software
-// * distributed under the License is distributed on an "AS IS" BASIS,
-// * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// * See the License for the specific language governing permissions and
-// * limitations under the License.
-// */
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.zeroparadigm.liquid.core.base.config;
+
 //
-//package io.zeroparadigm.liquid.base.config;
+// import io.zeroparadigm.liquid.base.constants.Constants;
+// import java.util.ArrayList;
+// import java.util.Collection;
+// import java.util.List;
+// import org.springframework.beans.factory.annotation.Value;
+// import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
+// import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
+// import org.springframework.boot.actuate.autoconfigure.web.server.ManagementPortType;
+// import org.springframework.boot.actuate.endpoint.ExposableEndpoint;
+// import org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver;
+// import org.springframework.boot.actuate.endpoint.web.EndpointMapping;
+// import org.springframework.boot.actuate.endpoint.web.EndpointMediaTypes;
+// import org.springframework.boot.actuate.endpoint.web.ExposableWebEndpoint;
+// import org.springframework.boot.actuate.endpoint.web.WebEndpointsSupplier;
+// import org.springframework.boot.actuate.endpoint.web.annotation.ControllerEndpointsSupplier;
+// import org.springframework.boot.actuate.endpoint.web.annotation.ServletEndpointsSupplier;
+// import org.springframework.boot.actuate.endpoint.web.servlet.WebMvcEndpointHandlerMapping;
+// import org.springframework.context.annotation.Bean;
+// import org.springframework.context.annotation.Configuration;
+// import org.springframework.core.env.Environment;
+// import org.springframework.util.StringUtils;
+// import springfox.documentation.builders.ApiInfoBuilder;
+// import springfox.documentation.builders.PathSelectors;
+// import springfox.documentation.builders.RequestHandlerSelectors;
+// import springfox.documentation.service.ApiInfo;
+// import springfox.documentation.service.ApiKey;
+// import springfox.documentation.service.AuthorizationScope;
+// import springfox.documentation.service.SecurityReference;
+// import springfox.documentation.service.SecurityScheme;
+// import springfox.documentation.spi.DocumentationType;
+// import springfox.documentation.spi.service.contexts.SecurityContext;
+// import springfox.documentation.spring.web.plugins.Docket;
+// import springfox.documentation.swagger2.annotations.EnableSwagger2;
 //
-//import io.zeroparadigm.liquid.base.constants.Constants;
-//import java.util.ArrayList;
-//import java.util.Collection;
-//import java.util.List;
-//import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
-//import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
-//import org.springframework.boot.actuate.autoconfigure.web.server.ManagementPortType;
-//import org.springframework.boot.actuate.endpoint.ExposableEndpoint;
-//import org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver;
-//import org.springframework.boot.actuate.endpoint.web.EndpointMapping;
-//import org.springframework.boot.actuate.endpoint.web.EndpointMediaTypes;
-//import org.springframework.boot.actuate.endpoint.web.ExposableWebEndpoint;
-//import org.springframework.boot.actuate.endpoint.web.WebEndpointsSupplier;
-//import org.springframework.boot.actuate.endpoint.web.annotation.ControllerEndpointsSupplier;
-//import org.springframework.boot.actuate.endpoint.web.annotation.ServletEndpointsSupplier;
-//import org.springframework.boot.actuate.endpoint.web.servlet.WebMvcEndpointHandlerMapping;
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.core.env.Environment;
-//import org.springframework.util.StringUtils;
-//import springfox.documentation.builders.ApiInfoBuilder;
-//import springfox.documentation.builders.PathSelectors;
-//import springfox.documentation.builders.RequestHandlerSelectors;
-//import springfox.documentation.service.ApiInfo;
-//import springfox.documentation.service.ApiKey;
-//import springfox.documentation.service.AuthorizationScope;
-//import springfox.documentation.service.SecurityReference;
-//import springfox.documentation.service.SecurityScheme;
-//import springfox.documentation.spi.DocumentationType;
-//import springfox.documentation.spi.service.contexts.SecurityContext;
-//import springfox.documentation.spring.web.plugins.Docket;
-//import springfox.documentation.swagger2.annotations.EnableSwagger2;
-//
-///**
+/// **
 // * Rest API docs generated by Swagger.
 // *
 // * @author hezean
 // */
-//@Configuration
-//@EnableSwagger2
-//public class SwaggerConfiguration {
+// @Configuration
+// @EnableSwagger2
+// public class SwaggerConfiguration {
 //
-//    private static final String API_BASE_PACKAGE = "io.zeroparadigm.liquid.controller";
+// private static final String API_BASE_PACKAGE = "io.zeroparadigm.liquid.controller";
 //
-//    private static final String LICENSE = "Apache-2.0";
+// private static final String LICENSE = "Apache-2.0";
 //
-//    @Value("${application.artifact:liquid}")
-//    private String appName;
+// @Value("${application.artifact:liquid}")
+// private String appName;
 //
-//    @Value("${build.version:dev}")
-//    private String buildVersion;
+// @Value("${build.version:dev}")
+// private String buildVersion;
 //
-//    @Value("${build.timestamp:na}")
-//    private String buildTimestamp;
+// @Value("${build.timestamp:na}")
+// private String buildTimestamp;
 //
-//    @Bean
-//    @SuppressWarnings("checkstyle:MissingJavadocMethod")
-//    Docket liquidRestApi() {
-//        return new Docket(DocumentationType.SWAGGER_2)
-//                .apiInfo(apiInfo())
-//                .select()
-//                .apis(RequestHandlerSelectors.basePackage(API_BASE_PACKAGE))
-//                .paths(PathSelectors.any())
-//                .build()
-//                .securitySchemes(securitySchemes())
-//                .securityContexts(securityContexts());
-//    }
+// @Bean
+// @SuppressWarnings("checkstyle:MissingJavadocMethod")
+// Docket liquidRestApi() {
+// return new Docket(DocumentationType.SWAGGER_2)
+// .apiInfo(apiInfo())
+// .select()
+// .apis(RequestHandlerSelectors.basePackage(API_BASE_PACKAGE))
+// .paths(PathSelectors.any())
+// .build()
+// .securitySchemes(securitySchemes())
+// .securityContexts(securityContexts());
+// }
 //
-//    private List<SecurityScheme> securitySchemes() {
-//        return List.of(
-//                new ApiKey(Constants.JWT_TOKEN_HEADER, Constants.JWT_TOKEN_HEADER, "header"));
-//    }
+// private List<SecurityScheme> securitySchemes() {
+// return List.of(
+// new ApiKey(Constants.JWT_TOKEN_HEADER, Constants.JWT_TOKEN_HEADER, "header"));
+// }
 //
-//    private List<SecurityContext> securityContexts() {
-//        List<SecurityContext> securityContexts = new ArrayList<>();
-//        securityContexts.add(SecurityContext.builder().securityReferences(defaultAuth()).build());
-//        return securityContexts;
-//    }
+// private List<SecurityContext> securityContexts() {
+// List<SecurityContext> securityContexts = new ArrayList<>();
+// securityContexts.add(SecurityContext.builder().securityReferences(defaultAuth()).build());
+// return securityContexts;
+// }
 //
-//    private List<SecurityReference> defaultAuth() {
-//        AuthorizationScope authorizationScope =
-//                new AuthorizationScope("global", "liquid user token");
-//        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
-//        authorizationScopes[0] = authorizationScope;
-//        List<SecurityReference> securityReferences = new ArrayList<>();
-//        securityReferences.add(
-//                new SecurityReference(Constants.JWT_TOKEN_HEADER, authorizationScopes));
-//        return securityReferences;
-//    }
+// private List<SecurityReference> defaultAuth() {
+// AuthorizationScope authorizationScope =
+// new AuthorizationScope("global", "liquid user token");
+// AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+// authorizationScopes[0] = authorizationScope;
+// List<SecurityReference> securityReferences = new ArrayList<>();
+// securityReferences.add(
+// new SecurityReference(Constants.JWT_TOKEN_HEADER, authorizationScopes));
+// return securityReferences;
+// }
 //
-//    private ApiInfo apiInfo() {
-//        return new ApiInfoBuilder()
-//                .title(appName)
-//                .license(LICENSE)
-//                .version(String.format("%s+%s", buildVersion, buildTimestamp))
-//                .build();
-//    }
+// private ApiInfo apiInfo() {
+// return new ApiInfoBuilder()
+// .title(appName)
+// .license(LICENSE)
+// .version(String.format("%s+%s", buildVersion, buildTimestamp))
+// .build();
+// }
 //
-//    /** ref: <a href="https://github.com/springfox/springfox/issues/3462">springfox#3462</a>. */
-//    @Bean
-//    WebMvcEndpointHandlerMapping webEndpointServletHandlerMapping(
-//                                                                  WebEndpointsSupplier webEndpointsSupplier,
-//                                                                  ServletEndpointsSupplier servletEndpointsSupplier,
-//                                                                  ControllerEndpointsSupplier controllerEndpointsSupplier,
-//                                                                  EndpointMediaTypes endpointMediaTypes,
-//                                                                  CorsEndpointProperties corsProperties,
-//                                                                  WebEndpointProperties webEndpointProperties,
-//                                                                  Environment environment) {
-//        List<ExposableEndpoint<?>> allEndpoints = new ArrayList<>();
-//        Collection<ExposableWebEndpoint> webEndpoints = webEndpointsSupplier.getEndpoints();
-//        allEndpoints.addAll(webEndpoints);
-//        allEndpoints.addAll(servletEndpointsSupplier.getEndpoints());
-//        allEndpoints.addAll(controllerEndpointsSupplier.getEndpoints());
+// /** ref: <a href="https://github.com/springfox/springfox/issues/3462">springfox#3462</a>. */
+// @Bean
+// WebMvcEndpointHandlerMapping webEndpointServletHandlerMapping(
+// WebEndpointsSupplier webEndpointsSupplier,
+// ServletEndpointsSupplier servletEndpointsSupplier,
+// ControllerEndpointsSupplier controllerEndpointsSupplier,
+// EndpointMediaTypes endpointMediaTypes,
+// CorsEndpointProperties corsProperties,
+// WebEndpointProperties webEndpointProperties,
+// Environment environment) {
+// List<ExposableEndpoint<?>> allEndpoints = new ArrayList<>();
+// Collection<ExposableWebEndpoint> webEndpoints = webEndpointsSupplier.getEndpoints();
+// allEndpoints.addAll(webEndpoints);
+// allEndpoints.addAll(servletEndpointsSupplier.getEndpoints());
+// allEndpoints.addAll(controllerEndpointsSupplier.getEndpoints());
 //
-//        String basePath = webEndpointProperties.getBasePath();
-//        EndpointMapping endpointMapping = new EndpointMapping(basePath);
-//        boolean shouldRegisterLinksMapping =
-//                this.shouldRegisterLinksMapping(webEndpointProperties, environment, basePath);
-//        return new WebMvcEndpointHandlerMapping(
-//                endpointMapping,
-//                webEndpoints,
-//                endpointMediaTypes,
-//                corsProperties.toCorsConfiguration(),
-//                new EndpointLinksResolver(allEndpoints, basePath),
-//                shouldRegisterLinksMapping,
-//                null);
-//    }
+// String basePath = webEndpointProperties.getBasePath();
+// EndpointMapping endpointMapping = new EndpointMapping(basePath);
+// boolean shouldRegisterLinksMapping =
+// this.shouldRegisterLinksMapping(webEndpointProperties, environment, basePath);
+// return new WebMvcEndpointHandlerMapping(
+// endpointMapping,
+// webEndpoints,
+// endpointMediaTypes,
+// corsProperties.toCorsConfiguration(),
+// new EndpointLinksResolver(allEndpoints, basePath),
+// shouldRegisterLinksMapping,
+// null);
+// }
 //
-//    private boolean shouldRegisterLinksMapping(
-//                                               WebEndpointProperties webEndpointProperties, Environment environment,
-//                                               String basePath) {
-//        return webEndpointProperties.getDiscovery().isEnabled()
-//                && (StringUtils.hasText(basePath)
-//                        || ManagementPortType.get(environment)
-//                                .equals(ManagementPortType.DIFFERENT));
-//    }
-//}
+// private boolean shouldRegisterLinksMapping(
+// WebEndpointProperties webEndpointProperties, Environment environment,
+// String basePath) {
+// return webEndpointProperties.getDiscovery().isEnabled()
+// && (StringUtils.hasText(basePath)
+// || ManagementPortType.get(environment)
+// .equals(ManagementPortType.DIFFERENT));
+// }
+// }

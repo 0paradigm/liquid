@@ -27,7 +27,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.event.EventListener;
 
 /**
- * Liquid code hosting platform (media).
+ * Liquid code hosting platform (core).
  *
  * @author hezean
  * @author buzzy0423
@@ -39,7 +39,7 @@ import org.springframework.context.event.EventListener;
 public class LiquidCore {
 
     private static final String BANNER = """
-            Liquid Media running on port {}
+            Liquid Core running on port {}
               _     _             _     _
              | |   (_) __ _ _   _(_) __| |
              | |   | |/ _` | | | | |/ _` |
@@ -47,7 +47,7 @@ public class LiquidCore {
              |_____|_|\\__, |\\__,_|_|\\__,_|
                           |_| :: {} :: {}""";
 
-    @Value("${spring.application.name:liquid-media}")
+    @Value("${spring.application.name:liquid-core}")
     private String appName;
 
     @Value("${build.version:dev}")

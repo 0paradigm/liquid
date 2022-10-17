@@ -15,18 +15,31 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.common.controller;
+package io.zeroparadigm.liquid.core.dao.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.zeroparadigm.liquid.core.dao.entity.User;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest
-class AvatarControllerIT {
+@MybatisTest
+@Transactional
+@DirtiesContext
+class UserMapperTest {
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Test
-    void testUploadAvatar() {
-        assertThat(1).isEqualTo(2);
+    void testSimple() {
+        User user = userMapper.findByNameOrMail("liquid-official");
+        assertThat(user).isNotNull();
+        userMapper.deleteById(user.getId());
+        assertThat(userMapper.findByNameOrMail("liquid-official")).isNull();
+        assertThat(userMapper.findByNameOrMail("foasjcnasdlkvajblvijebo")).isNull();
     }
 }

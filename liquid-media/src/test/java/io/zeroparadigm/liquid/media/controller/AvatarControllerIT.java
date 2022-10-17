@@ -15,23 +15,18 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.common;
+package io.zeroparadigm.liquid.media.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 
 @SpringBootTest
-class LiquidMediaIT {
-
-    @Autowired
-    ApplicationContext ctx;
+class AvatarControllerIT {
 
     @Test
-    void contextLoads() {
-        assertThat(ctx).isNotNull();
+    void testUploadAvatar() {
+        assertThat(1).isEqualTo(2);
     }
 }

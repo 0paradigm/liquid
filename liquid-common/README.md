@@ -8,8 +8,9 @@ This module contains:
 ---
 
 ***Remember to reinstall this module into your maven local repository once it has been modified***,
-you can therefore run/test single service modules. 
+you can therefore run/test single service modules.
 
 ```shell
 mvn clean install -pl liquid-common
 ```
+

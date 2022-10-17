@@ -14,18 +14,3 @@ management:
     web:
       exposure:
         include: '*'
-
-logging:
-  file:
-    path: classpath:logs
-    name: liquid-media.log
-
-snowflake:
-  datacenter-id: 1
-  machine-id: 1
-
-minio:
-  endpoint: "http://localhost:9000"
-  root-user: liquid
-  root-password: liquid_media_minio
-  timeout: 10000

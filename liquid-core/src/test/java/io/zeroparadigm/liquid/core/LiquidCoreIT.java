@@ -15,29 +15,25 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.common.dao;
+package io.zeroparadigm.liquid.core;
 
-import io.zeroparadigm.liquid.core.base.config.DaoConfiguration;
-import io.zeroparadigm.liquid.core.dao.UserDao;
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest(classes = DaoConfiguration.class)
-@Transactional
-@Rollback
-@EnableTransactionManagement
+@SpringBootTest(classes = LiquidCore.class)
 @DirtiesContext
-class UserDaoTest {
+class LiquidCoreIT {
 
     @Autowired
-    private UserDao userDao;
+    ApplicationContext ctx;
 
     @Test
-    void testUserDao() {
+    void contextLoads() {
+        assertThat(ctx).isNotNull();
     }
 }

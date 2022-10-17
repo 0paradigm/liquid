@@ -27,7 +27,8 @@ public final class Common {
     private Common() {
     }
 
-    public static final String MINIO_AVATAR_BUCKET = "liquid-avatar";
-
+    public static final String REQUEST_AUTH_HEADER = "Authorization";
     public static final String LOCALE_INDICATOR_NAME = "locale";
+
+    public static final String MINIO_AVATAR_BUCKET = "liquid-avatar";
 }

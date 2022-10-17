@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.core.dao.datasource;
+package io.zeroparadigm.liquid.core.base.datasource;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
@@ -87,10 +87,10 @@ public class BatisConnectionFactory {
         log.info("Datasource type: {}", databaseType);
 
         sqlSessionFactoryBean.setGlobalConfig(globalConfig);
-        sqlSessionFactoryBean.setTypeAliasesPackage("io.zeroparadigm.liquid.dao.entity");
+        sqlSessionFactoryBean.setTypeAliasesPackage("io.zeroparadigm.liquid.core.dao.entity");
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         sqlSessionFactoryBean.setMapperLocations(
-                resolver.getResources("io/zeroparadigm/liquid/dao/mapper/*Mapper.xml"));
+                resolver.getResources("io/zeroparadigm/liquid/core/dao/mapper/*Mapper.xml"));
         sqlSessionFactoryBean.setDatabaseIdProvider(databaseIdProvider());
         return sqlSessionFactoryBean.getObject();
     }

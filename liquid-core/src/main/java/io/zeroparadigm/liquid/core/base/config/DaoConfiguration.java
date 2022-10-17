@@ -19,7 +19,6 @@ package io.zeroparadigm.liquid.core.base.config;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -29,7 +28,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan(basePackages = "io.zeroparadigm.liquid.dao")
-@MapperScan(basePackages = "io.zeroparadigm.liquid.dao.mapper")
+@MapperScan(basePackages = "io.zeroparadigm.liquid.core.dao.mapper")
 public class DaoConfiguration {
 }

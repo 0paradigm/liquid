@@ -25,13 +25,10 @@ import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.dto.Result;
 import io.zeroparadigm.liquid.core.exceptions.annotations.WrapsException;
 import io.zeroparadigm.liquid.core.service.UserService;
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,7 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
  *
  * @author hezean
  */
-//@Api
+// @Api
 @Slf4j
 @RestController
 @RequestMapping("/api/user")
@@ -63,10 +60,11 @@ public class UserController {
      * @param name person name
      * @return a greeting message
      */
-//    @ApiOperation(value = "hello", notes = "says hello to the person")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "name", value = "USER_NAME", required = true, dataTypeClass = String.class, example = "chris")
-//    })
+    // @ApiOperation(value = "hello", notes = "says hello to the person")
+    // @ApiImplicitParams({
+    // @ApiImplicitParam(name = "name", value = "USER_NAME", required = true, dataTypeClass = String.class, example =
+    // "chris")
+    // })
     @PostMapping(value = "/hello")
     @ResponseStatus(HttpStatus.CREATED)
     // @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
@@ -83,10 +81,11 @@ public class UserController {
      * @param name person name
      * @return first user
      */
-//    @ApiOperation(value = "getUserNamedAs", notes = "queries the first user with that name")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "name", value = "user's name", required = true, dataTypeClass = String.class, example = "foo")
-//    })
+    // @ApiOperation(value = "getUserNamedAs", notes = "queries the first user with that name")
+    // @ApiImplicitParams({
+    // @ApiImplicitParam(name = "name", value = "user's name", required = true, dataTypeClass = String.class, example =
+    // "foo")
+    // })
     @PostMapping(value = "/user")
     @ResponseStatus(HttpStatus.OK)
     @WrapsException(value = ServiceStatus.INTERNAL_SERVER_ERROR_ARGS, status = HttpStatus.NOT_ACCEPTABLE)
@@ -94,14 +93,8 @@ public class UserController {
         throw new RuntimeException();
     }
 
-
-
-
-    @DubboReference
-    private MinioService minioService;
-
     @PostMapping("/upload")
     public String upload(MultipartFile file) {
-        return minioService.upload(file, file.getName(), Common.MINIO_AVATAR_BUCKET);
+        return userService.getMinioService().upload(file, file.getName(), Common.MINIO_AVATAR_BUCKET);
     }
 }

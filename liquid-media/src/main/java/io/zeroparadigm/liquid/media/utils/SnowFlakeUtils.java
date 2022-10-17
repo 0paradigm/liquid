@@ -52,8 +52,8 @@ public class SnowFlakeUtils {
     private long lastStamp = -1L;
 
     public SnowFlakeUtils(
-                          @Value("${snowflake.datacenter-id}") long datacenterId,
-                          @Value("${snowflake.machine-id}") long machineId) {
+                          @Value("${snowflake.datacenter-id:1}") long datacenterId,
+                          @Value("${snowflake.machine-id:1}") long machineId) {
         if (datacenterId > MAX_DATACENTER_NUM || datacenterId < 0) {
             throw new IllegalArgumentException(
                     "datacenterId can't be greater than MAX_DATACENTER_NUM or less than 0");

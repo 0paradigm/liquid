@@ -18,11 +18,14 @@ sh liquid-docker-standalone.sh  # see the prompts printed
 The following third-party consoles are exposed, you are free to manage them manually.
 
 ### Nacos
+
 > service discovery, configuration and management
 
 - web console: access [ip:8001/nacos](http://localhost:8001/nacos) with the default user `liquid`, password `liquid`
 
 ### MINIO
+
 > high performance distributed storge
 
 - web console: access [ip:9001](http://localhost:9000) with the default user `liquid`, password `liquid_media_minio`
+

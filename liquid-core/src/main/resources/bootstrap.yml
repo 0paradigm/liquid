@@ -12,11 +12,16 @@ spring:
         file-extension: yaml
 
 server:
-  port: ${SERVICE_PORT:@liquid_media.port@}
+  port: ${SERVICE_PORT:@liquid_core.port@}
 
 dubbo:
+  application:
+    name: @project.artifactId@
+  registry:
+    address: nacos://${NACOS_ADDR:@liquid_nacos.addr@}
+    group: liquid-rpc
   scan:
-    base-packages: io.zeroparadigm.liquid.service.impl
+    base-packages: io.zeroparadigm.liquid.core.service.impl
   protocol:
     name: dubbo
     port: -1

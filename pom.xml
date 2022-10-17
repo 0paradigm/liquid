@@ -30,41 +30,29 @@
     <groupId>io.zeroparadigm.liquid</groupId>
     <artifactId>liquid</artifactId>
     <version>dev-SNAPSHOT</version>
-
     <packaging>pom</packaging>
+
     <name>${project.artifactId}</name>
     <description>Liquid is a GitHub-like code hosting platform.</description>
 
     <modules>
         <module>liquid-common</module>
+        <module>liquid-gateway</module>
         <module>liquid-core</module>
         <module>liquid-media</module>
-        <module>liquid-gateway</module>
     </modules>
-
-    <profiles>
-        <profile>
-            <id>docker</id>
-            <properties>
-                <liquid_nacos.addr>liquid-nacos:8848</liquid_nacos.addr>
-            </properties>
-        </profile>
-        <profile>
-            <id>dev</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <liquid_nacos.addr>http://127.0.0.1:8848</liquid_nacos.addr>
-            </properties>
-        </profile>
-    </profiles>
 
     <properties>
         <java.version>17</java.version>
+
+        <liquid_nacos.namespace>liquid</liquid_nacos.namespace>
+        <liquid_nacos.group>liquid-service</liquid_nacos.group>
+        <liquid_dubbo.namespace>liquid-dubbo</liquid_dubbo.namespace>
+        <liquid_dubbo.group>liquid-rpc</liquid_dubbo.group>
+
+        <liquid_gateway.port>8001</liquid_gateway.port>
         <liquid_core.port>8002</liquid_core.port>
         <liquid_media.port>8003</liquid_media.port>
-        <liquid_gateway.port>8004</liquid_gateway.port>
     </properties>
 
     <dependencyManagement>
@@ -138,6 +126,24 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>4.8.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.12.18</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.6.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -145,6 +151,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.0</version>
                 <configuration>
                     <delimiters>
                         <delimiter>@</delimiter>
@@ -213,4 +220,21 @@
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>docker</id>
+            <properties>
+                <liquid_nacos.addr>liquid-nacos:8848</liquid_nacos.addr>
+            </properties>
+        </profile>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <liquid_nacos.addr>127.0.0.1:8848</liquid_nacos.addr>
+            </properties>
+        </profile>
+    </profiles>
 </project>

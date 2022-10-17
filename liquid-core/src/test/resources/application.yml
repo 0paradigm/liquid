@@ -1,0 +1,19 @@
+spring:
+  flyway:
+    locations: classpath:db/migration
+    fail-on-missing-locations: true
+  jpa:
+    show-sql: true
+  datasource:
+    url: jdbc:h2:mem:liquid-core-test;MODE=MySQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: liquid
+    password: liquid
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+
+mybatis:
+  mapper-locations: classpath:io/zeroparadigm/liquid/core/dao/mapper/*Mapper.xml
