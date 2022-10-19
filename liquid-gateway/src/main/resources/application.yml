@@ -45,9 +45,9 @@ spring:
           enabled: true
       routes:
         - id: spring-cloud-alibaba-gateway     #将/provider1/开头的请求转发到provider1
-          uri: lb://spring-cloud-alibaba-gateway
+          uri: lb://liquid-media
           predicates:
-            - Path=/resources/**
+            - Path=/test/**
           filters:
             - StripPrefix=1               #表明前缀/provider1需要截取掉
     nacos:
@@ -56,3 +56,7 @@ spring:
       locator:
         enable: true
         lower-case-service-id: true
+
+    loadbalancer:
+      ribbon:
+        enabled: F

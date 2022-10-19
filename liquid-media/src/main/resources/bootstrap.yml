@@ -22,8 +22,7 @@ dubbo:
     name: @project.artifactId@
   registry:
     protocol: nacos
-    address: ${NACOS_ADDR:@liquid_nacos.addr@}
-    parameters[namespace]: @liquid_dubbo.namespace@
+    address: ${NACOS_ADDR:@liquid_nacos.addr@}?namespace=@liquid_dubbo.namespace@
     group: @liquid_dubbo.group@
   scan:
     base-packages: io.zeroparadigm.liquid.media.service.impl

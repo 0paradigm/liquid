@@ -5,9 +5,13 @@ spring:
     nacos:
       discovery:
         server-addr: ${NACOS_ADDR:@liquid_nacos.addr@}
+        namespace: @liquid_nacos.namespace@
+        group: 'liquid-service'
       config:
         server-addr: ${NACOS_ADDR:@liquid_nacos.addr@}
-        group: ${SERVICE_NAME:@project.artifactId@}
+        namespace: @liquid_nacos.namespace@
+        group: @liquid_nacos.group@
+        name: ${CONFIG_NAME:@project.artifactId@}
         file-extension: yaml
 
 server:

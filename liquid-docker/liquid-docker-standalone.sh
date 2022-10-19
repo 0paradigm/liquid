@@ -44,7 +44,6 @@ done
 for arg in "$@"
 do
   [[ $arg == "start" ]] \
-  && docker-compose -f "$BASEDIR"/docker-compose.yml down \
   && docker-compose -f "$BASEDIR"/docker-compose.yml up -d \
   && echo "===>> liquid backend services started" \
   && exit 0 \
