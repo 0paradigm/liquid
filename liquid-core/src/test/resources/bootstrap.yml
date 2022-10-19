@@ -1,3 +1,10 @@
 spring:
   application:
     name: liquid-core-testing
+
+dubbo:
+  consumer:
+    scope: local
+    check: false
+  registry:
+    address: N/A

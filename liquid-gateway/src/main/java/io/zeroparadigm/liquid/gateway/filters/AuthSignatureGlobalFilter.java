@@ -38,8 +38,8 @@ public class AuthSignatureGlobalFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String accessToken = exchange.getRequest()
-            .getHeaders()
-            .getFirst(Common.REQUEST_AUTH_HEADER);
+                .getHeaders()
+                .getFirst(Common.REQUEST_AUTH_HEADER);
         if (Objects.isNull(accessToken)) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();

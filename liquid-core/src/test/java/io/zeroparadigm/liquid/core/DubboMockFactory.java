@@ -15,35 +15,22 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.core.service.impl;
+package io.zeroparadigm.liquid.core;
 
 import io.zeroparadigm.liquid.common.api.media.MinioService;
-import io.zeroparadigm.liquid.core.dao.UserDao;
-import io.zeroparadigm.liquid.core.service.UserService;
-import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
+import org.apache.dubbo.config.annotation.DubboService;
+import org.mockito.Mockito;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
-@Service
-@CacheConfig(cacheNames = "users")
-public class UserServiceImpl implements UserService {
+@Component
+public class DubboMockFactory {
 
-    @Autowired
-    private UserDao userDao;
-
-    @DubboReference
-    private MinioService minioService;
-
-    @Override
-    @Cacheable
-    public String greet(String s) {
-        // User user = userDao.getByNameAndUpdate(s);
-        return " hi!";
-    }
-
-    public MinioService getMinioService() {
-        return minioService;
+    @Bean
+    @Primary
+    @DubboService
+    MinioService minioServiceMock() {
+        return Mockito.mock(MinioService.class);
     }
 }

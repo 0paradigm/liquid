@@ -17,7 +17,6 @@
 
 package io.zeroparadigm.liquid.core.controller;
 
-import io.zeroparadigm.liquid.common.api.media.MinioService;
 import io.zeroparadigm.liquid.common.constants.Common;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.core.dao.UserDao;
@@ -26,7 +25,6 @@ import io.zeroparadigm.liquid.core.dto.Result;
 import io.zeroparadigm.liquid.core.exceptions.annotations.WrapsException;
 import io.zeroparadigm.liquid.core.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;

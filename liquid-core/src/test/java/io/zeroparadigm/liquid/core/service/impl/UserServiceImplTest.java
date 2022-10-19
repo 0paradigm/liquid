@@ -17,33 +17,35 @@
 
 package io.zeroparadigm.liquid.core.service.impl;
 
-import io.zeroparadigm.liquid.common.api.media.MinioService;
-import io.zeroparadigm.liquid.core.dao.UserDao;
-import io.zeroparadigm.liquid.core.service.UserService;
-import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
-@Service
-@CacheConfig(cacheNames = "users")
-public class UserServiceImpl implements UserService {
+import io.zeroparadigm.liquid.common.api.media.MinioService;
+import io.zeroparadigm.liquid.core.LiquidCore;
+import io.zeroparadigm.liquid.core.DubboMockFactory;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+@SpringBootTest(classes = {LiquidCore.class, DubboMockFactory.class})
+@AutoConfigureMockMvc
+class UserServiceImplTest {
+
+    @InjectMocks
+    @Autowired
+    UserServiceImpl userService;
 
     @Autowired
-    private UserDao userDao;
+    @MockBean
+    MinioService minioService;
 
-    @DubboReference
-    private MinioService minioService;
-
-    @Override
-    @Cacheable
-    public String greet(String s) {
-        // User user = userDao.getByNameAndUpdate(s);
-        return " hi!";
-    }
-
-    public MinioService getMinioService() {
-        return minioService;
+    @Test
+    void testA() {
+        given(minioService.upload(null, null, "a"))
+                .willReturn("ok");
+        assertThat(userService.getMinioService().upload(null, null, "a")).isEqualTo("ok");
     }
 }
