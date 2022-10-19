@@ -6,11 +6,12 @@ ci:
   - '.github/**/*'
 
 deploy:
+  - 'liquid-docker'
   - '**/Dockerfile'
   - '**/*compose.yml'
 
-backend:
-  - 'liquid-backend/**/*'
+core:
+  - 'liquid-core/**/*'
 
-media-server:
-  - 'liquid-ms/**/*'
+media:
+  - 'liquid-media/**/*'

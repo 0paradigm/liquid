@@ -1,0 +1,122 @@
+version: "2.4"
+
+services:
+  liquid-nacos:
+    image: nacos/nacos-server:v2.1.1
+    env_file:
+      - ./env/liquid-nacos.env
+    volumes:
+      - ./logs/liquid-nacos:/home/nacos/logs
+    networks:
+      - liquid
+    ports:
+      - "8848:8848"  # nacos web console
+      - "9848:9848"  # nacos rpc
+      - "9849:9849"  # nacos rpc
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8848/nacos/actuator/health" ]
+      interval: 10s
+      timeout: 60s
+      retries: 5
+    depends_on:
+      liquid-nacos-ds:
+        condition: service_healthy
+
+  liquid-nacos-ds:
+    build:
+      context: image/liquid-nacos-mysql8
+      dockerfile: ./Dockerfile
+    env_file:
+      - ./env/liquid-nacos-ds.env
+    volumes:
+      - liquid-nacos-ds:/var/lib/mysql
+    networks:
+      - liquid
+    ports:
+      - "3306:3306"  # mysql connection
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+
+  liquid-core:
+    image: liquid-core
+    networks:
+      - liquid
+    ports:
+      - "8002:8002"  # liquid-core rest api  # FIXME: should delete and let gateway do the job
+    env_file:
+      - env/liquid-core.env
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8002/actuator/health" ]
+      interval: 10s
+      timeout: 20s
+      retries: 3
+    depends_on:
+      liquid-nacos:
+        condition: service_healthy
+      liquid-core-ds:
+        condition: service_healthy
+
+  liquid-core-ds:
+    image: mariadb:10.9.3
+    networks:
+      - liquid
+    ports:
+      - "13306:13306"  # mariadb connection
+    env_file:
+      - env/liquid-core-ds.env
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+
+  liquid-media:
+    image: liquid-media
+    networks:
+      - liquid
+    ports:
+      - "8003:8003"  # liquid media api  # FIXME: should delete and let gateway do the job
+    env_file:
+      - env/liquid-media.env
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8003/actuator/health" ]
+      interval: 10s
+      timeout: 20s
+      retries: 3
+    depends_on:
+      liquid-nacos:
+        condition: service_healthy
+      liquid-minio:
+        condition: service_healthy
+
+  liquid-minio:
+    image: minio/minio
+    networks:
+      - liquid
+    ports:
+      - "9000:9000"  # minio api
+      - "9001:9001"  # minio web console
+    volumes:
+      - liquid-minio-disk0:/data0
+    env_file:
+      - env/liquid-minio.env
+    command: server /data0 --address=:9000 --console-address=:9001
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+
+
+networks:
+  liquid:
+    driver: bridge
+
+volumes:
+  liquid-nacos-ds: { }
+  liquid-minio-disk0: { }

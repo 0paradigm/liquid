@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: ${SERVICE_NAME:@project.artifactId@}
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:@liquid_nacos.addr@}
+        namespace: @liquid_nacos.namespace@
+        group: 'liquid-service'
+      config:
+        server-addr: ${NACOS_ADDR:@liquid_nacos.addr@}
+        namespace: @liquid_nacos.namespace@
+        group: @liquid_nacos.group@
+        name: ${CONFIG_NAME:@project.artifactId@}
+        file-extension: yaml
+
+server:
+  port: ${SERVICE_PORT:@liquid_oauth2.port@}

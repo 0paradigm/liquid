@@ -1,0 +1,50 @@
+spring:
+  mvc:
+    throw-exception-if-no-handler-found: true
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  web:
+    resources:
+      add-mappings: false
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          time-zone: UTC
+  messages:
+    basename: static.i18n.message
+    cache-duration: 3600
+    encoding: UTF-8
+
+  redis:
+    host: localhost
+    port: 16379
+    database: 0
+    password:
+    timeout: 1200
+    jedis:
+      pool:
+        enabled: true
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:13306/liquid?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: liquid
+
+  flyway:
+    locations: classpath:db/migration
+    fail-on-missing-locations: true
+
+logging:
+  file:
+    path: classpath:logs
+    name: liquid-core.log
+
+build:
+  version: @project.version@
+  timestamp: @maven.build.timestamp@

@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: ${SERVICE_NAME:@project.artifactId@}
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:@liquid_nacos.addr@}
+        group: ${SERVICE_NAME:@project.artifactId@}
+      config:
+        server-addr: ${NACOS_ADDR:@liquid_nacos.addr@}
+        group: ${SERVICE_NAME:@project.artifactId@}
+        file-extension: yaml
+
+server:
+  port: ${SERVICE_PORT:@liquid_core.port@}
+
+dubbo:
+  application:
+    name: @project.artifactId@
+  registry:
+    address: nacos://${NACOS_ADDR:@liquid_nacos.addr@}
+    group: liquid-rpc
+    parameters[namespace]: @liquid_dubbo.namespace@
+  scan:
+    base-packages: io.zeroparadigm.liquid.core.service.impl
+  protocol:
+    name: dubbo
+    port: -1
