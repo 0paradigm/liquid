@@ -1,4 +1,4 @@
-version: "3.9"
+version: "2.4"
 
 services:
   liquid-nacos:
@@ -16,8 +16,8 @@ services:
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8848/nacos/actuator/health" ]
       interval: 10s
-      timeout: 20s
-      retries: 3
+      timeout: 60s
+      retries: 5
     depends_on:
       liquid-nacos-ds:
         condition: service_healthy
