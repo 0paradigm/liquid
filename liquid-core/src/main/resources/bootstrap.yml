@@ -20,9 +20,14 @@ dubbo:
   registry:
     address: nacos://${NACOS_ADDR:@liquid_nacos.addr@}
     group: liquid-rpc
-    parameters[namespace]: @liquid_dubbo.namespace@
   scan:
     base-packages: io.zeroparadigm.liquid.core.service.impl
   protocol:
     name: dubbo
     port: -1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

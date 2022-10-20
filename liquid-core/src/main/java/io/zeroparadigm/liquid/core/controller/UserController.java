@@ -17,7 +17,7 @@
 
 package io.zeroparadigm.liquid.core.controller;
 
-import io.zeroparadigm.liquid.common.constants.Common;
+import io.zeroparadigm.liquid.common.constants.StorageConsts;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.core.dao.UserDao;
 import io.zeroparadigm.liquid.core.dao.entity.User;
@@ -93,6 +93,6 @@ public class UserController {
 
     @PostMapping("/upload")
     public String upload(MultipartFile file) {
-        return userService.getMinioService().upload(file, file.getName(), Common.MINIO_AVATAR_BUCKET);
+        return userService.getMinioService().upload(file, file.getName(), StorageConsts.MINIO_AVATAR_BUCKET);
     }
 }

@@ -15,15 +15,12 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.common.api.media;
-
-import org.springframework.stereotype.Service;
+package io.zeroparadigm.liquid.common.constants;
 
 /**
- * Avatar resources, image procession supported.
- *
  * @author hezean
  */
-@Service
-public interface AvatarService {
+public class StorageConsts {
+
+    public static final String MINIO_AVATAR_BUCKET = "liquid-avatar";
 }

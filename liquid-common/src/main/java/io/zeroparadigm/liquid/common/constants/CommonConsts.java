@@ -22,13 +22,11 @@ package io.zeroparadigm.liquid.common.constants;
  *
  * @author hezean
  */
-public final class Common {
+public final class CommonConsts {
 
-    private Common() {
+    private CommonConsts() {
     }
 
     public static final String REQUEST_AUTH_HEADER = "Authorization";
     public static final String LOCALE_INDICATOR_NAME = "locale";
-
-    public static final String MINIO_AVATAR_BUCKET = "liquid-avatar";
 }

@@ -17,7 +17,7 @@
 
 package io.zeroparadigm.liquid.gateway.filters;
 
-import io.zeroparadigm.liquid.common.constants.Common;
+import io.zeroparadigm.liquid.common.constants.CommonConsts;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -41,7 +41,7 @@ public class AuthSignatureGlobalFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String accessToken = exchange.getRequest()
                 .getHeaders()
-                .getFirst(Common.REQUEST_AUTH_HEADER);
+                .getFirst(CommonConsts.REQUEST_AUTH_HEADER);
         if (Objects.isNull(accessToken)) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
