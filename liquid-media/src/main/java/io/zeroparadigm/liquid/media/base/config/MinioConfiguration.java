@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.media.constants.config;
+package io.zeroparadigm.liquid.media.base.config;
 
 import io.minio.MinioClient;
 import java.util.concurrent.TimeUnit;

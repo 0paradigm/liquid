@@ -103,6 +103,13 @@
             <version>2.7.4</version>
         </dependency>
 
+        <!-- docs -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-micro-spring-boot-starter</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+
         <!-- testing -->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>

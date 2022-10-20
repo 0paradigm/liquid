@@ -1,12 +1,12 @@
 spring:
   application:
-    name: ${SERVICE_NAME:@project.artifactId@}
+    name: @project.artifactId@
   cloud:
     nacos:
       discovery:
         server-addr: ${NACOS_ADDR:@liquid_nacos.addr@}
         namespace: @liquid_nacos.namespace@
-        group: 'liquid-service'
+        group: @liquid_nacos.group@
       config:
         server-addr: ${NACOS_ADDR:@liquid_nacos.addr@}
         namespace: @liquid_nacos.namespace@
@@ -15,4 +15,4 @@ spring:
         file-extension: yaml
 
 server:
-  port: ${SERVICE_PORT:@liquid_oauth2.port@}
+  port: ${SERVICE_PORT:@liquid_gateway.port@}

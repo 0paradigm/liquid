@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.core.base.config;
+package io.zeroparadigm.liquid.core.base.docs;
 
 import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import java.util.ArrayList;
@@ -66,17 +66,13 @@ public class SwaggerConfiguration {
     @Value("${build.version:dev}")
     private String buildVersion;
 
-    @Value("${build.timestamp:na}")
-    private String buildTimestamp;
-
     @Bean
     @SuppressWarnings("checkstyle:MissingJavadocMethod")
-    Docket liquidRestApi() {
+    Docket liquidCoreApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors.basePackage(API_BASE_PACKAGE))
-                .paths(PathSelectors.any())
                 .build();
     }
 
@@ -84,7 +80,7 @@ public class SwaggerConfiguration {
         return new ApiInfoBuilder()
                 .title(appName)
                 .license(LICENSE)
-                .version(String.format("%s+%s", buildVersion, buildTimestamp))
+                .version(buildVersion)
                 .build();
     }
 

@@ -17,6 +17,10 @@
 
 package io.zeroparadigm.liquid.core.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import io.zeroparadigm.liquid.common.constants.StorageConsts;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.core.dao.UserDao;
@@ -41,7 +45,7 @@ import org.springframework.web.multipart.MultipartFile;
  *
  * @author hezean
  */
-// @Api
+ @Api
 @Slf4j
 @RestController
 @RequestMapping("/api/user")
@@ -58,11 +62,11 @@ public class UserController {
      * @param name person name
      * @return a greeting message
      */
-    // @ApiOperation(value = "hello", notes = "says hello to the person")
-    // @ApiImplicitParams({
-    // @ApiImplicitParam(name = "name", value = "USER_NAME", required = true, dataTypeClass = String.class, example =
-    // "chris")
-    // })
+     @ApiOperation(value = "hello", notes = "says hello to the person")
+     @ApiImplicitParams({
+     @ApiImplicitParam(name = "name", value = "USER_NAME", required = true, dataTypeClass = String.class, example =
+     "chris")
+     })
     @PostMapping(value = "/hello")
     @ResponseStatus(HttpStatus.CREATED)
     // @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
