@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.core.base.docs;
+package io.zeroparadigm.liquid.core.base.config;
 
 import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
@@ -37,13 +39,22 @@ import org.springframework.boot.actuate.endpoint.web.servlet.WebMvcEndpointHandl
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger.web.SecurityConfiguration;
+import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
+import springfox.documentation.swagger.web.SwaggerResourcesProvider;
+import springfox.documentation.swagger.web.UiConfiguration;
+import springfox.documentation.swagger.web.UiConfigurationBuilder;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
@@ -123,5 +134,36 @@ public class SwaggerConfiguration {
                 && (StringUtils.hasText(basePath)
                         || ManagementPortType.get(environment)
                                 .equals(ManagementPortType.DIFFERENT));
+    }
+
+    @RestController
+    public class SwaggerHandler {
+
+        @Autowired(required = false)
+        private SecurityConfiguration securityConfiguration;
+
+        @Autowired(required = false)
+        private UiConfiguration uiConfiguration;
+
+        @Autowired
+        private SwaggerResourcesProvider swaggerResources;
+
+        @GetMapping("/swagger-resources/configuration/security")
+        public Mono<ResponseEntity<SecurityConfiguration>> securityConfiguration() {
+            return Mono.just(ResponseEntity.ok(Optional.ofNullable(securityConfiguration)
+                .orElse(SecurityConfigurationBuilder.builder().build())));
+        }
+
+        @GetMapping("/swagger-resources/configuration/ui")
+        public Mono<ResponseEntity<UiConfiguration>> uiConfiguration() {
+            return Mono.just(new ResponseEntity<>(
+                Optional.ofNullable(uiConfiguration).orElse(UiConfigurationBuilder.builder().build()), HttpStatus.OK));
+        }
+
+        @SuppressWarnings("rawtypes")
+        @GetMapping("/swagger-resources")
+        public Mono<ResponseEntity> swaggerResources() {
+            return Mono.just(ResponseEntity.ok(swaggerResources.get()));
+        }
     }
 }
