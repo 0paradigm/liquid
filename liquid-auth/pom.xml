@@ -1,65 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Licensed to the Apache Software Foundation (ASF) under one
-  or more contributor license agreements.  See the NOTICE file
-  distributed with this work for additional information
-  regarding copyright ownership.  The ASF licenses this file
-  to you under the Apache License, Version 2.0 (the
-  "License"); you may not use this file except in compliance
-  with the License.  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>io.zeroparadigm.liquid</groupId>
         <artifactId>liquid</artifactId>
+        <groupId>io.zeroparadigm.liquid</groupId>
         <version>dev-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>liquid-core</artifactId>
-    <packaging>jar</packaging>
-    <name>${project.artifactId}</name>
+    <artifactId>liquid-auth</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
         <!-- spring-cloud -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <!--<scope>provided</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo</artifactId>
-            <version>3.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-spring-boot-starter</artifactId>
-            <version>3.1.1</version>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-commons</artifactId>
         </dependency>
 
-        <!-- liquid -->
-        <dependency>
-            <groupId>io.zeroparadigm.liquid</groupId>
-            <artifactId>liquid-common</artifactId>
-        </dependency>
 
         <!-- datasource -->
         <dependency>
@@ -103,32 +83,68 @@
             <version>2.7.4</version>
         </dependency>
 
+        <!-- liquid -->
+        <dependency>
+            <groupId>io.zeroparadigm.liquid</groupId>
+            <artifactId>liquid-common</artifactId>
+        </dependency>
+
+        <!--Oauth2.0-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-oauth2</artifactId>
+            <version>2.2.5.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <version>2.6.11</version>
+        </dependency>
+
         <!-- docs -->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-micro-spring-boot-starter</artifactId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
             <version>3.0.3</version>
         </dependency>
 
-        <!-- testing -->
+        <!--lombok-->
         <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter-test</artifactId>
-            <version>2.2.2</version>
-            <scope>test</scope>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo</artifactId>
+            <version>3.1.1</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
     <build>
         <resources>
             <resource>
+                <directory>${basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
+                <includes>
+                    <include>**/application*.yml</include>
+                    <include>**/application*.yaml</include>
+                    <include>**/bootstrap.yml</include>
+                    <include>**/bootstrap.yaml</include>
+                    <include>db/migration/*</include>
+                </includes>
+            </resource>
+            <resource>
                 <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.jks</include>
+                    <include>**/*.ftl</include>
+                    <include>/static/**</include>
+                </includes>
+                <excludes>
+                    <exclude>**/*.yml</exclude>
+                </excludes>
             </resource>
         </resources>
         <plugins>
@@ -148,27 +164,7 @@
                     </excludes>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>dockerfile-maven-plugin</artifactId>
-                <version>1.4.13</version>
-                <configuration>
-                    <repository>${project.artifactId}</repository>
-                    <tag>latest</tag>
-                    <buildArgs>
-                        <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
-                        <PORT>${liquid_core.port}</PORT>
-                    </buildArgs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>package</id>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+
 </project>
