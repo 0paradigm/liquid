@@ -3,7 +3,7 @@ FROM openjdk:17
 ARG JAR_FILE
 ARG PORT
 
-ADD target/${JAR_FILE} /liquid_core.jar
+ADD target/${JAR_FILE} /liquid_auth.jar
 EXPOSE ${PORT}
 
 ENTRYPOINT [ \

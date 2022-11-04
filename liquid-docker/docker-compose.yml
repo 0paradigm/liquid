@@ -135,11 +135,11 @@ services:
     networks:
       - liquid
     ports:
-      - "8002:8002"  # liquid-core rest api
+      - "8004:8004"  # liquid-core rest api
     env_file:
       - env/liquid-auth.env
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8002/actuator/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8004/actuator/health" ]
       interval: 10s
       timeout: 20s
       retries: 3
