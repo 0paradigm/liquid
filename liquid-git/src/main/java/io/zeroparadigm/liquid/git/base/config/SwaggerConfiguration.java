@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.media.base.config;
+package io.zeroparadigm.liquid.git.base.config;
 
 import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import java.util.ArrayList;
@@ -67,7 +67,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableKnife4j
 public class SwaggerConfiguration {
 
-    private static final String API_BASE_PACKAGE = "io.zeroparadigm.liquid.media.controller";
+    private static final String API_BASE_PACKAGE = "io.zeroparadigm.liquid.git.controller";
 
     private static final String LICENSE = "Apache-2.0";
 

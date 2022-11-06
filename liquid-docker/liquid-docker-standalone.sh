@@ -35,7 +35,7 @@ fi
 for arg in "$@"
 do
   [[ $arg == "rebuild" ]] \
-  && docker-compose -f "$BASEDIR"/docker-compose.yml down \
+  && docker-compose -f "$BASEDIR"/docker-compose.yml down --remove-orphans \
   && "$BASEDIR"/../mvnw clean package -f "$BASEDIR"/../pom.xml -Pdocker -Dmaven.test.skip=true \
   && echo "===>> liquid backend build succeed" \
   && break;
@@ -49,7 +49,7 @@ do
   && exit 0 \
   || \
   [[ $arg == "stop" ]] \
-  && docker-compose -f "$BASEDIR"/docker-compose.yml down \
+  && docker-compose -f "$BASEDIR"/docker-compose.yml down --remove-orphans \
   && echo "===>> liquid backend services stopped" \
   && break;
 done

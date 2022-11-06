@@ -15,28 +15,23 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.gateway.docs;
+package io.zeroparadigm.liquid.git;
 
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.swagger.web.SwaggerResource;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 
-/**
- * Polymerize all services' api docs to gateway.
- *
- * @author hezean
- */
-@RestController
-public class SwaggerConfiguration {
+@SpringBootTest(classes = LiquidGit.class)
+class LiquidGitIT {
 
     @Autowired
-    LiquidSwaggerResourcesProvider swaggerProvider;
+    ApplicationContext ctx;
 
-    @RequestMapping("/swagger-resources")
-    public ResponseEntity<List<SwaggerResource>> swaggerResources() {
-        return ResponseEntity.ok(swaggerProvider.get());
+    @Test
+    void contextLoads() {
+        assertThat(ctx).isNotNull();
     }
 }

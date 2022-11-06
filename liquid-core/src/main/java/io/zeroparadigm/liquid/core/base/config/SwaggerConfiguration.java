@@ -151,13 +151,14 @@ public class SwaggerConfiguration {
         @GetMapping("/swagger-resources/configuration/security")
         public Mono<ResponseEntity<SecurityConfiguration>> securityConfiguration() {
             return Mono.just(ResponseEntity.ok(Optional.ofNullable(securityConfiguration)
-                .orElse(SecurityConfigurationBuilder.builder().build())));
+                    .orElse(SecurityConfigurationBuilder.builder().build())));
         }
 
         @GetMapping("/swagger-resources/configuration/ui")
         public Mono<ResponseEntity<UiConfiguration>> uiConfiguration() {
             return Mono.just(new ResponseEntity<>(
-                Optional.ofNullable(uiConfiguration).orElse(UiConfigurationBuilder.builder().build()), HttpStatus.OK));
+                    Optional.ofNullable(uiConfiguration).orElse(UiConfigurationBuilder.builder().build()),
+                    HttpStatus.OK));
         }
 
         @SuppressWarnings("rawtypes")

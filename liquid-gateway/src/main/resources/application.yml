@@ -12,6 +12,18 @@ spring:
         enabled: true
 
       # TODO: use nacos dynamic configuration
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedHeaders: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+
       routes:
         - id: liquid-media
           uri: lb://liquid-media
@@ -23,5 +35,11 @@ spring:
           uri: lb://liquid-core
           predicates:
             - Path=/core/**
+          filters:
+            - StripPrefix=1
+        - id: liquid-git
+          uri: lb://liquid-git
+          predicates:
+            - Path=/git/**
           filters:
             - StripPrefix=1

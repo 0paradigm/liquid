@@ -15,28 +15,24 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.gateway.docs;
+package io.zeroparadigm.liquid.git.service;
 
+import java.io.IOException;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.swagger.web.SwaggerResource;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-/**
- * Polymerize all services' api docs to gateway.
- *
- * @author hezean
- */
-@RestController
-public class SwaggerConfiguration {
+@Service
+public interface GitWebService {
 
-    @Autowired
-    LiquidSwaggerResourcesProvider swaggerProvider;
+    String uploadFile(String owner, String repo, String fromBranch, MultipartFile file, String relPath,
+                      String taskId) throws IOException, GitAPIException;
 
-    @RequestMapping("/swagger-resources")
-    public ResponseEntity<List<SwaggerResource>> swaggerResources() {
-        return ResponseEntity.ok(swaggerProvider.get());
-    }
+    void commit(String owner, String repo, String toBranch, String taskId,
+                @Nullable List<String> addFiles, String message) throws IOException, GitAPIException;
+
+    List<String> listFiles(String owner, String repo, String branchOrCommit,
+                           String relPath) throws IOException, GitAPIException;
 }

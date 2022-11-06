@@ -39,7 +39,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Cacheable
     public String greet(String s) {
-        // User user = userDao.getByNameAndUpdate(s);
         return " hi!";
     }
 

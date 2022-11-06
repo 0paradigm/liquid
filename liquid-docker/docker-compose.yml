@@ -92,6 +92,25 @@ services:
       retries: 5
 
 
+  liquid-git:
+    image: liquid-git
+    networks:
+      - liquid
+    ports:
+      - "8004:8004"  # liquid git api  # FIXME: should delete and let gateway do the job
+#    env_file:
+#      - env/liquid-git.env
+    volumes:
+      - liquid-git-storage:/storage
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8004/actuator/health" ]
+      interval: 10s
+      timeout: 20s
+      retries: 3
+    depends_on:
+      liquid-nacos:
+        condition: service_healthy
+
   liquid-media:
     image: liquid-media
     networks:
@@ -137,3 +156,4 @@ networks:
 volumes:
   liquid-nacos-ds: { }
   liquid-minio-disk0: { }
+  liquid-git-storage: { }

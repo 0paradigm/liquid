@@ -40,6 +40,7 @@
         <module>liquid-gateway</module>
         <module>liquid-core</module>
         <module>liquid-media</module>
+        <module>liquid-git</module>
     </modules>
 
     <properties>
@@ -53,6 +54,7 @@
         <liquid_gateway.port>8001</liquid_gateway.port>
         <liquid_core.port>8002</liquid_core.port>
         <liquid_media.port>8003</liquid_media.port>
+        <liquid_git.port>8004</liquid_git.port>
     </properties>
 
     <dependencyManagement>
@@ -70,6 +72,11 @@
             <dependency>
                 <groupId>io.zeroparadigm.liquid</groupId>
                 <artifactId>liquid-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.zeroparadigm.liquid</groupId>
+                <artifactId>liquid-git</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

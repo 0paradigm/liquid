@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.core.dto;
+package io.zeroparadigm.liquid.common.dto;
 
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import java.text.MessageFormat;

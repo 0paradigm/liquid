@@ -15,28 +15,17 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.gateway.docs;
+package io.zeroparadigm.liquid.git.exceptions;
 
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.swagger.web.SwaggerResource;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
-/**
- * Polymerize all services' api docs to gateway.
- *
- * @author hezean
- */
-@RestController
-public class SwaggerConfiguration {
+public class RepositoryAlreadyExistsException extends GitAPIException {
 
-    @Autowired
-    LiquidSwaggerResourcesProvider swaggerProvider;
+    public RepositoryAlreadyExistsException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    @RequestMapping("/swagger-resources")
-    public ResponseEntity<List<SwaggerResource>> swaggerResources() {
-        return ResponseEntity.ok(swaggerProvider.get());
+    public RepositoryAlreadyExistsException(String message) {
+        super(message);
     }
 }

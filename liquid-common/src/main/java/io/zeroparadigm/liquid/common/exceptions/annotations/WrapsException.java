@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.core.exceptions.annotations;
+package io.zeroparadigm.liquid.common.exceptions.annotations;
 
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import java.lang.annotation.ElementType;

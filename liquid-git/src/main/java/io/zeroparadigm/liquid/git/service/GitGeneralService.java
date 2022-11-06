@@ -15,28 +15,12 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.gateway.docs;
+package io.zeroparadigm.liquid.git.service;
 
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.swagger.web.SwaggerResource;
+import org.springframework.stereotype.Service;
 
-/**
- * Polymerize all services' api docs to gateway.
- *
- * @author hezean
- */
-@RestController
-public class SwaggerConfiguration {
+@Service
+public interface GitGeneralService {
 
-    @Autowired
-    LiquidSwaggerResourcesProvider swaggerProvider;
-
-    @RequestMapping("/swagger-resources")
-    public ResponseEntity<List<SwaggerResource>> swaggerResources() {
-        return ResponseEntity.ok(swaggerProvider.get());
-    }
+    void createRepo(String repo, String defaultBranch);
 }

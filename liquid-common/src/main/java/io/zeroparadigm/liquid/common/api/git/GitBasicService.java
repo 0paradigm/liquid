@@ -15,28 +15,28 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.gateway.docs;
+package io.zeroparadigm.liquid.common.api.git;
 
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.swagger.web.SwaggerResource;
+import java.io.IOException;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.springframework.stereotype.Service;
 
 /**
- * Polymerize all services' api docs to gateway.
+ * Basic git operations shared for liquid-core.
  *
  * @author hezean
  */
-@RestController
-public class SwaggerConfiguration {
+@Service
+public interface GitBasicService {
 
-    @Autowired
-    LiquidSwaggerResourcesProvider swaggerProvider;
-
-    @RequestMapping("/swagger-resources")
-    public ResponseEntity<List<SwaggerResource>> swaggerResources() {
-        return ResponseEntity.ok(swaggerProvider.get());
-    }
+    /**
+     * Creates a repo.
+     *
+     * @param owner repo owner
+     * @param repo repo name
+     * @param initBranch initial branch
+     * @throws IOException if cannot create repo in FS
+     * @throws GitAPIException if cannot init the repo
+     */
+    void createRepo(String owner, String repo, String initBranch) throws IOException, GitAPIException;
 }

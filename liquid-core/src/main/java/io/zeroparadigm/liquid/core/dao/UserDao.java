@@ -19,6 +19,7 @@ package io.zeroparadigm.liquid.core.dao;
 
 import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.lang.Nullable;
@@ -40,10 +41,9 @@ public class UserDao {
     @Nullable
     @Transactional(rollbackFor = Exception.class)
     public User getByNameAndUpdate(String name) {
-        // User user = Objects.requireNonNull(userMapper.findByName(name));
-        // user.setUpdateTime(new Date());
-        // userMapper.updateById(user);
-        // return user;
-        return null;
+        User user = Objects.requireNonNull(userMapper.findByNameOrMail(name));
+        user.setUpdatedAt(System.currentTimeMillis());
+        userMapper.updateById(user);
+        return user;
     }
 }

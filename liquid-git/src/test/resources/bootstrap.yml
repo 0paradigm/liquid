@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: liquid-media-testing
+
+minio:
+  endpoint: "http://localhost:9000"
+  root-user: liquid
+  root-password: liquid_media_minio
+  timeout: 10000
