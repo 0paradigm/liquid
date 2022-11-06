@@ -129,39 +129,6 @@ services:
       timeout: 30s
       retries: 5
 
-  #FIXME The port need to be changed or not?
-  liquid-auth:
-    image: liquid-auth
-    networks:
-      - liquid
-    ports:
-      - "8004:8004"  # liquid-core rest api
-    env_file:
-      - env/liquid-auth.env
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8004/actuator/health" ]
-      interval: 10s
-      timeout: 20s
-      retries: 3
-    depends_on:
-      liquid-nacos:
-        condition: service_healthy
-      liquid-core-ds:
-        condition: service_healthy
-
-  liquid-auth-ds:
-    image: mariadb:10.9.3
-    networks:
-      - liquid
-    ports:
-      - "13306:13306"  # mariadb connection
-    env_file:
-      - env/liquid-auth-ds.env
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      interval: 5s
-      timeout: 10s
-      retries: 5
 
 
 networks:

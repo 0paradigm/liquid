@@ -18,10 +18,12 @@
 package io.zeroparadigm.liquid.core.service;
 
 import io.zeroparadigm.liquid.common.api.media.MinioService;
+import io.zeroparadigm.liquid.common.bo.UserBO;
 
 public interface UserService {
 
     String greet(String s);
 
     public MinioService getMinioService();
+
 }
