@@ -25,8 +25,12 @@ spring:
             - Path=/core/**
           filters:
             - StripPrefix=1
+        - id: liquid-auth
+          uri: lb://liquid-auth
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
 
-jwt:
-  encrypt-secret: 'cQfTjWnZr4u7w!z%C*F-JaNdRgUkXp2s5v8y/A?D(G+KbPeShVmYq3t6w9z$C&E)'
-  default-expire-time: 86400000
-  remember-expire-time: 2678400000
+
+

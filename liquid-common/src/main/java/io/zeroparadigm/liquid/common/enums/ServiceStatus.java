@@ -25,7 +25,7 @@ import lombok.Getter;
 import org.springframework.context.i18n.LocaleContextHolder;
 
 /**
- * When controller throws an exception (or <i>0</i> as <i>success</i>), attach the error code and
+ * When controller throws an io.zeroparadigm.liquid.auth.exception (or <i>0</i> as <i>success</i>), attach the error code and
  * message to the response.
  *
  * @author hezean

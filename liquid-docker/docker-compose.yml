@@ -58,6 +58,23 @@ services:
       liquid-nacos:
         condition: service_healthy
 
+  liquid-auth:
+    image: liquid-auth
+    networks:
+      - liquid
+    ports:
+      - "8004:8004"  # gateway entry point
+    env_file:
+      - env/liquid-auth.env
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8004/actuator/health" ]
+      interval: 10s
+      timeout: 20s
+      retries: 3
+    depends_on:
+      liquid-nacos:
+        condition: service_healthy
+
   liquid-core:
     image: liquid-core
     networks:

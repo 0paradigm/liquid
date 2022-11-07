@@ -14,8 +14,6 @@ spring:
         name: ${CONFIG_NAME:@project.artifactId@}
         file-extension: yaml
 
-server:
-  port: ${SERVICE_PORT:@liquid_core.port@}
 
 dubbo:
   application:
@@ -24,16 +22,12 @@ dubbo:
     protocol: nacos
     address: ${NACOS_ADDR:@liquid_nacos.addr@}?namespace=@liquid_dubbo.namespace@
     group: @liquid_dubbo.group@
-  scan:
-    base-packages: io.zeroparadigm.liquid.core.service.impl
-  provider:
+  consumer:
     timeout: 30000
   protocol:
     name: dubbo
     port: -1
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
+
+server:
+  port: ${SERVICE_PORT:@liquid_auth.port@}
