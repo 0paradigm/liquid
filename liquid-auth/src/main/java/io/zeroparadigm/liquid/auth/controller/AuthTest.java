@@ -41,9 +41,7 @@ public class AuthTest {
         credentials.password(userName, password);
         try {
             Subject subject = authService.login(credentials);
-            Result<String> result = Result.success();
-            result.setData(jwtUtils.createTokenFor((Integer) subject.getPrincipal(), remember));
-            return result;
+            return (Result<String>) Result.success();
         } catch (UnknownAccountException e) {
             return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND,
                 ServiceStatus.ACCOUNT_NOT_FOUND);
@@ -67,7 +65,7 @@ public class AuthTest {
 
     @GetMapping("/hello/{name}")
     public Result<String> hello(@PathVariable String name) {
-        Result result = Result.success();
+        Result<String> result = Result.success();
         result.setData(name);
         return result;
     }

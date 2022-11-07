@@ -6,9 +6,11 @@ import org.apache.dubbo.config.annotation.DubboService;
 
 @DubboService
 public class UserAuthServiceImpl implements UserAuthService {
+    //FIXME: Just for test!
 
     @Override
     public UserBO findByNameOrMail(String login) {
+
         UserBO userBO = new UserBO();
         userBO.setLogin("liquid-official");
         userBO.setId(1);
@@ -19,11 +21,16 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Override
     public Object getPassword() {
-        return null;
+        return "liquid";
     }
 
     @Override
     public UserBO findById(Integer userId) {
-        return null;
+        UserBO userBO = new UserBO();
+        userBO.setLogin("liquid-official");
+        userBO.setId(1);
+        userBO.setPassword("liquid");
+        userBO.setEmail("admin@liquid.com");
+        return userBO;
     }
 }

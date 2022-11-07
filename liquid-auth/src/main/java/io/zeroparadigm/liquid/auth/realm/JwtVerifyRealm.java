@@ -23,7 +23,7 @@ public class JwtVerifyRealm extends GenericAuthorizationRealm {
 
     @Autowired JwtUtils jwtUtils;
 
-    @DubboReference(timeout = 30000)
+    @DubboReference
     UserAuthService authService;
 
     @Override

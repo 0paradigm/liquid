@@ -26,11 +26,11 @@ dubbo:
     group: @liquid_dubbo.group@
   scan:
     base-packages: io.zeroparadigm.liquid.core.service.impl
-  provider:
-    timeout: 30000
   protocol:
     name: dubbo
     port: -1
+  provider:
+    timeout: 300000
 
 management:
   endpoints:

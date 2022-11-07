@@ -20,7 +20,7 @@ import org.apache.shiro.authc.UsernamePasswordToken;
  */
 public class UserPasswordRealm extends GenericAuthorizationRealm {
 
-    @DubboReference(timeout = 30000)
+    @DubboReference
     UserAuthService authService;
 
     @Override
