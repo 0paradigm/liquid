@@ -16,13 +16,34 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins: "http://localhost:3000"
+#            allowedOrigins: "http://localhost:3000"
             allowedHeaders: "*"
+            allowedOrigins: "*"
             allowedMethods:
               - GET
               - POST
               - PUT
               - DELETE
+
+
+#      filter:
+#        remove-hop-by-hop:
+#          headers:
+#            - trailer
+#            - te
+#            - keep-alive
+#            - transfer-encoding
+#            - upgrade
+#            - proxy-authenticate
+#            - connection
+#            - proxy-authorization
+#            - x-application-context
+#            - access-control-allow-credentials
+#            - access-control-allow-headers
+#            - access-control-allow-methods
+#            - access-control-allow-origin
+#            - access-control-max-age
+#            - vary
 
       routes:
         - id: liquid-media
