@@ -125,10 +125,10 @@ public class GitWebController {
 
     @SneakyThrows
     @GetMapping("/list/{owner}/{repo}/{branchOrCommit}")
-    public List<String> listFiles(@PathVariable String owner, @PathVariable String repo,
+    public Result<List<String>> listFiles(@PathVariable String owner, @PathVariable String repo,
                                   @PathVariable String branchOrCommit,
                                   @RequestBody String relPath) {
-        gitWebService.listFiles(owner, repo, branchOrCommit, relPath);
-        return null;
+        List<String> files = gitWebService.listFiles(owner, repo, branchOrCommit, relPath);
+        return Result.success(files);
     }
 }

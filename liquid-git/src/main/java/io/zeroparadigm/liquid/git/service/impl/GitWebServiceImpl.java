@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
@@ -166,16 +167,15 @@ public class GitWebServiceImpl implements GitWebService {
     @GetMapping("git/web/list/{owner}/{repo}/{branchOrCommit}/{*relPath}")
     public List<String> listFiles(String owner, String repo, String branchOrCommit,
                                   String relPath) throws IOException, GitAPIException {
-        System.out.println(owner);
-        System.out.println(repo);
-        System.out.println(relPath);
         File repoFs = Path.of(gitStorage, owner, repo).toFile();
         try (Git git = Git.open(repoFs)) {
             git.checkout()
                     .setName(branchOrCommit)
                     .call();
-            git.log().call().forEach(System.out::println);
         }
-        return null;
+        File[] fileList = repoFs.listFiles();
+        return Arrays.stream(fileList).parallel()  // FIXME
+                .map(File::getName)
+                .toList();
     }
 }
