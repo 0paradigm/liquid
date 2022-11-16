@@ -103,7 +103,9 @@ public class GitWebServiceImpl implements GitWebService {
         Path dest = Path.of(tmpRepo.toString(), relPath, file.getOriginalFilename());
         log.debug("transforming uploaded file '{}' to fs://{}", file.getOriginalFilename(), dest);
         file.transferTo(dest);
-        return Path.of(relPath, file.getOriginalFilename()).toString();
+        return Path.of(relPath, file.getOriginalFilename()).toString()
+                // remove './'
+                .substring(2);
     }
 
     @Override
