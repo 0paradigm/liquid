@@ -22,6 +22,7 @@ import java.util.List;
 
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,4 +49,7 @@ public interface GitWebService {
      */
     List<LatestCommitInfo> listFiles(String owner, String repo, String branchOrCommit,
                                      @Nullable String relPath) throws IOException, GitAPIException;
+
+    RevCommit latestCommitOfCurrentRepo(String owner, String repo, String branchOrCommit,
+                                        @Nullable String relPath) throws IOException, GitAPIException;
 }

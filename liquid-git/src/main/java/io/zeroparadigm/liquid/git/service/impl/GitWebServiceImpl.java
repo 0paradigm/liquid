@@ -38,6 +38,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
@@ -186,6 +187,26 @@ public class GitWebServiceImpl implements GitWebService {
                     .filter(f -> !".git".equals(f.getName()))
                     .map(f -> new LatestCommitInfo(git, f))
                     .toList();
+        }
+    }
+
+    @Override
+    @Nullable
+    public RevCommit latestCommitOfCurrentRepo(String owner, String repo, String branchOrCommit,
+                                        @Nullable String relPath) throws IOException, GitAPIException {
+        File repoFs = Path.of(gitStorage, owner, repo, Objects.requireNonNullElse(relPath, "")).toFile();
+
+        try (Git git = Git.open(repoFs)) {
+            git.checkout()
+                    .setName(branchOrCommit)
+                    .call();
+
+            return git.log()
+                    .addPath(relPath)
+                    .setMaxCount(1)
+                    .call()
+                    .iterator()
+                    .next();
         }
     }
 }
