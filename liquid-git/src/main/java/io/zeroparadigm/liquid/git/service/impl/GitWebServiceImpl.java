@@ -17,7 +17,9 @@
 
 package io.zeroparadigm.liquid.git.service.impl;
 
+import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import io.zeroparadigm.liquid.git.service.GitWebService;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,7 +27,10 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.PostConstruct;
+
+import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -95,6 +100,7 @@ public class GitWebServiceImpl implements GitWebService {
         Path absPath = Path.of(tmpRepo.toString(), relPath);
         Files.createDirectories(absPath);
         Path dest = Path.of(tmpRepo.toString(), relPath, file.getOriginalFilename());
+        log.debug("transforming uploaded file '{}' to fs://{}", file.getOriginalFilename(), dest);
         file.transferTo(dest);
         return Path.of(relPath, file.getOriginalFilename()).toString();
     }
@@ -163,19 +169,23 @@ public class GitWebServiceImpl implements GitWebService {
         }
     }
 
-    // @Override
-    @GetMapping("git/web/list/{owner}/{repo}/{branchOrCommit}/{*relPath}")
-    public List<String> listFiles(String owner, String repo, String branchOrCommit,
-                                  String relPath) throws IOException, GitAPIException {
-        File repoFs = Path.of(gitStorage, owner, repo).toFile();
+    @Override
+    public List<LatestCommitInfo> listFiles(String owner, String repo, String branchOrCommit,
+                                            @Nullable String relPath) throws IOException, GitAPIException {
+        File repoFs = Path.of(gitStorage, owner, repo, Objects.requireNonNullElse(relPath, "")).toFile();
+        Path repoRoot = Path.of(gitStorage, owner, repo);
+
         try (Git git = Git.open(repoFs)) {
             git.checkout()
                     .setName(branchOrCommit)
                     .call();
+
+            return Arrays.stream(Objects.requireNonNullElse(repoFs.listFiles(), new File[0])).parallel()
+                    .map(f -> repoRoot.relativize(f.toPath()))
+                    .map(Path::toFile)
+                    .filter(f -> !".git".equals(f.getName()))
+                    .map(f -> new LatestCommitInfo(git, f))
+                    .toList();
         }
-        File[] fileList = repoFs.listFiles();
-        return Arrays.stream(fileList).parallel()  // FIXME
-                .map(File::getName)
-                .toList();
     }
 }

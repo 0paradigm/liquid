@@ -26,6 +26,7 @@ import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
 import io.zeroparadigm.liquid.git.dto.WebCommitDTO;
+import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import io.zeroparadigm.liquid.git.service.GitWebService;
 import java.util.List;
 
@@ -125,10 +126,10 @@ public class GitWebController {
 
     @SneakyThrows
     @GetMapping("/list/{owner}/{repo}/{branchOrCommit}")
-    public Result<List<String>> listFiles(@PathVariable String owner, @PathVariable String repo,
+    public Result<List<LatestCommitInfo>> listFiles(@PathVariable String owner, @PathVariable String repo,
                                   @PathVariable String branchOrCommit,
                                   @RequestBody String relPath) {
-        List<String> files = gitWebService.listFiles(owner, repo, branchOrCommit, relPath);
+        List<LatestCommitInfo> files = gitWebService.listFiles(owner, repo, branchOrCommit, relPath);
         return Result.success(files);
     }
 }

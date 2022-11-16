@@ -19,6 +19,8 @@ package io.zeroparadigm.liquid.git.service;
 
 import java.io.IOException;
 import java.util.List;
+
+import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,17 @@ public interface GitWebService {
     void commit(String owner, String repo, String toBranch, String taskId,
                 @Nullable List<String> addFiles, String message) throws IOException, GitAPIException;
 
-    List<String> listFiles(String owner, String repo, String branchOrCommit,
-                           String relPath) throws IOException, GitAPIException;
+    /**
+     * Lists the file/dir names with git info.
+     *
+     * @param owner          owner login name
+     * @param repo           repo name
+     * @param branchOrCommit target branch name, or commit sha
+     * @param relPath        relative path from repo root, empty string or null for root itself
+     * @return list of file/dir in this path, with their latest commit info
+     * @throws IOException     if the repo or relPath doesn't exist
+     * @throws GitAPIException if it cannot check out to the target branch or commit
+     */
+    List<LatestCommitInfo> listFiles(String owner, String repo, String branchOrCommit,
+                                     @Nullable String relPath) throws IOException, GitAPIException;
 }
