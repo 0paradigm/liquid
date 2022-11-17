@@ -35,8 +35,10 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.transport.RefSpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
@@ -81,13 +83,31 @@ public class GitWebServiceImpl implements GitWebService {
                 Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
         if (Files.notExists(tmpRepo.toPath())) {
             File originalRepo = Path.of(gitStorage, owner, repo).toFile();
-            Git.cloneRepository()
-                    .setURI(originalRepo.toURI().toString())
-                    .setDirectory(tmpRepo)
-                    .setBranchesToClone(Collections.singleton(fromBranch))
-                    .setBranch(fromBranch)
-                    .call()
-                    .close();
+
+            boolean originAlreadyInit;
+            try (Git origin = Git.open(originalRepo)) {
+                originAlreadyInit = !origin.branchList().call().isEmpty();
+            } catch (Exception e) {
+                log.error("error fetching branch list of remote {}/{}", owner, repo, e);
+                originAlreadyInit = false;
+            }
+
+            if (originAlreadyInit) {
+                Git.cloneRepository()
+                        .setURI(originalRepo.toURI().toString())
+                        .setDirectory(tmpRepo)
+                        .setBranchesToClone(Collections.singleton("refs/heads/" + fromBranch))
+                        .setBranch(fromBranch)
+                        .call()
+                        .close();
+            } else {
+                Git.cloneRepository()
+                        .setURI(originalRepo.toURI().toString())
+                        .setDirectory(tmpRepo)
+                        .setBranch(fromBranch)
+                        .call()
+                        .close();
+            }
         }
 
         Path absPath = Path.of(tmpRepo.toString(), relPath);
@@ -109,18 +129,24 @@ public class GitWebServiceImpl implements GitWebService {
         File tmpRepo =
                 Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
 
+        boolean isCommittingToInit = false;
         try (Git git = Git.open(tmpRepo)) {
-            try {
-                git.checkout()
-                        .setName(toBranch)
-                        .call();
-            } catch (RefNotFoundException e) {
-                log.info("Creating new branch '{}'", toBranch);
-                git.checkout()
-                        .setCreateBranch(true)
-                        .setOrphan(true)
-                        .setName(toBranch)
-                        .call();
+            if (StringUtils.hasText(toBranch)) {
+                try {
+                    git.checkout()
+                            .setName(toBranch)
+                            .call();
+                } catch (RefNotFoundException e) {
+                    log.info("Creating new branch '{}'", toBranch);
+                    try {
+                        git.checkout()
+                                .setCreateBranch(true)
+                                .setName(toBranch)
+                                .call();
+                    } catch (RefNotFoundException e1) {
+                        isCommittingToInit = true;
+                    }
+                }
             }
 
             if (Objects.isNull(addFiles)) {
@@ -140,7 +166,23 @@ public class GitWebServiceImpl implements GitWebService {
                     .setCommitter(committerName, committerEmail)
                     .call();
 
-            git.push().call();
+
+            git.branchList().call().forEach(ref -> System.out.println(ref.getName()));
+
+            if (isCommittingToInit) {
+                git.branchRename()
+                        .setNewName(toBranch)
+                        .call();
+
+                git.branchList().call().forEach(ref -> System.out.println(ref.getName()));
+
+                git.push()
+                        .setRefSpecs(new RefSpec("refs/heads/" + toBranch))
+                        .call();
+            } else {
+                git.push().call();
+            }
+
             deleteDirAsync(tmpRepo);
         }
     }

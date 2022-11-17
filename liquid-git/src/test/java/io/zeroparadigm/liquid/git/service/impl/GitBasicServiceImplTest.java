@@ -26,7 +26,6 @@ import static org.assertj.core.api.Assertions.*;
 @TestPropertySource(properties = {
         "storage.git = storage-sa/git",
         "storage.git-tmp = storage-sa/git-tmp",
-        "storage.git-bkp = storage-sa/git-bkp",
 })
 class GitBasicServiceImplTest {
 
@@ -57,11 +56,9 @@ class GitBasicServiceImplTest {
     void testCreateRepoSimple() throws Exception {
         gitBasicService.createRepo("liquid", "sa", "main");
         Path repoPath = Path.of(gitStorage, "liquid", "sa");
-        Path repoGitDB = Path.of(gitStorage, "liquid", "sa", ".git");
 
         assertThat(FileUtils.isDirectory(repoPath.toFile())).isTrue();
-        assertThat(FileUtils.isDirectory(repoGitDB.toFile())).isTrue();
-        assertThat(FileUtils.isEmptyDirectory(repoGitDB.toFile())).isFalse();
+        assertThat(FileUtils.isEmptyDirectory(repoPath.toFile())).isFalse();
 
         try (Git git = Git.open(repoPath.toFile())) {
             assertThat(git.getRepository().getBranch()).isEqualTo("main");

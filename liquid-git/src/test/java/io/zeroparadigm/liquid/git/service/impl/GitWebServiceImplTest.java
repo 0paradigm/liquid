@@ -3,17 +3,20 @@ package io.zeroparadigm.liquid.git.service.impl;
 
 import io.zeroparadigm.liquid.git.DubboMockFactory;
 import io.zeroparadigm.liquid.git.LiquidGit;
-import io.zeroparadigm.liquid.git.exceptions.RepositoryAlreadyExistsException;
 import io.zeroparadigm.liquid.git.service.GitWebService;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.NameFileFilter;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
+import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.util.FS;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -27,7 +30,6 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -68,12 +70,12 @@ class GitWebServiceImplTest {
         gitBasicService.createRepo("liquid", "sa", "main");
     }
 
-    @SneakyThrows
-    @AfterAll
-    static void removeSaStorage() {
-        File storage = Path.of(storageRoot).toFile();
-        FileUtils.deleteDirectory(storage);
-    }
+//    @SneakyThrows
+//    @AfterAll
+//    static void removeSaStorage() {
+//        File storage = Path.of(storageRoot).toFile();
+//        FileUtils.deleteDirectory(storage);
+//    }
 
     @Test
     void testUploadStartTask() throws Exception {
@@ -114,14 +116,25 @@ class GitWebServiceImplTest {
     }
 
     @Test
-    void testCommitSample() throws Exception {
+    void testCommitToNewRepo() throws Exception {
         String ts = String.valueOf(System.currentTimeMillis());
         gitWebService.uploadFile("liquid", "sa", "main",
                 new MockMultipartFile("README.md", "README.md", null, "sa".getBytes(StandardCharsets.UTF_8)),
                 "/docs", ts);
         assertThatNoException()
-                .isThrownBy(() -> gitWebService.commit("liquid", "sa", "main", ts, null, "no temp repo"));
-
-        System.out.println(gitWebService.listFiles("liquid", "sa", "main", "."));
+                .isThrownBy(() -> gitWebService.commit("liquid", "sa", "dev", ts, null, "no temp repo"));
+        File tmp = Files.createTempDirectory("sa").toFile();
+        try (
+                Git git = Git.cloneRepository()
+                        .setDirectory(tmp)
+                        .setURI(Path.of(gitStorage, "liquid", "sa").toFile().toURI().toString())
+                        .call()
+        ) {
+            assertThat(git.branchList().call())
+                    .extracting(Ref::getName)
+                    .containsExactly("dev");
+        } finally {
+            FileUtils.deleteQuietly(tmp);
+        }
     }
 }
