@@ -1,10 +1,10 @@
 [
   {
-    "path": "/auth/login",
+    "path": "/login",
     "auth": "anon"
   },
   {
-    "path": "/auth/logout",
+    "path": "/logout",
     "auth": "logout"
   },
   {

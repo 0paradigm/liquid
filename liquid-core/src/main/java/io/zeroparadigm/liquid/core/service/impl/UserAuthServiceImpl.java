@@ -10,7 +10,6 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Override
     public UserBO findByNameOrMail(String login) {
-
         UserBO userBO = new UserBO();
         userBO.setLogin("liquid-official");
         userBO.setId(1);

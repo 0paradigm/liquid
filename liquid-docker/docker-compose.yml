@@ -64,8 +64,11 @@ services:
       - liquid
     ports:
       - "8004:8004"  # gateway entry point
+      - "5005:5005"  #debug port
     env_file:
       - env/liquid-auth.env
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8004/actuator/health" ]
       interval: 10s

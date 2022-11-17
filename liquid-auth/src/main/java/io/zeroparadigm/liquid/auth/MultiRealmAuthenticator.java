@@ -2,6 +2,7 @@ package io.zeroparadigm.liquid.auth;
 
 import io.zeroparadigm.liquid.auth.realm.GenericAuthorizationRealm;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -13,6 +14,7 @@ import org.apache.shiro.realm.Realm;
  *
  * @author hezean
  */
+@Slf4j
 public class MultiRealmAuthenticator extends ModularRealmAuthenticator {
 
     @Override
@@ -25,7 +27,6 @@ public class MultiRealmAuthenticator extends ModularRealmAuthenticator {
                 .filter(r -> r.getClass() != GenericAuthorizationRealm.class)
                 .filter(r -> r.supports(authenticationToken))
                 .findFirst();
-
         if (realm.isPresent()) {
             return doSingleRealmAuthentication(realm.get(), authenticationToken);
         } else {
