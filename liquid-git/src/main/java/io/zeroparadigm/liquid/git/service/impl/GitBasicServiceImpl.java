@@ -45,6 +45,7 @@ public class GitBasicServiceImpl implements GitBasicService {
         Files.createDirectories(repoPath);
         try (
                 Git git = Git.init()
+                        .setBare(true)
                         .setDirectory(repoPath.toFile())
                         .setInitialBranch(initBranch)
                         .call()) {
