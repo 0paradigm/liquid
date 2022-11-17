@@ -81,7 +81,7 @@ public class GitWebController {
                          @PathVariable String repo,
                          @PathVariable String branch,
                          @RequestPart MultipartFile file,
-                         @RequestPart String path,
+                         @RequestPart(required = false) String path,
                          @RequestPart String taskId) {
         try {
             String addPath = gitWebService.uploadFile(owner, repo, branch, file, path, taskId);

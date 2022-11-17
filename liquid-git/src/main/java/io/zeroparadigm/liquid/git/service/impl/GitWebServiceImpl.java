@@ -24,10 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.Future;
 import javax.annotation.PostConstruct;
 
 import lombok.Data;
@@ -57,15 +55,11 @@ public class GitWebServiceImpl implements GitWebService {
     @Value("${storage.git-tmp}")
     private String gitTmpStorage;
 
-    @Value("${storage.git-bkp}")
-    private String gitBkpStorage;
-
     private static final String TMPDIR_PATTERN = "%s-%s";
 
     @PostConstruct
     void deleteWorkDirOnJvmExit() {
-        Path.of(gitTmpStorage).toFile().deleteOnExit();
-        Path.of(gitBkpStorage).toFile().deleteOnExit();
+        new File(gitTmpStorage).deleteOnExit();
     }
 
     @Async
@@ -76,40 +70,36 @@ public class GitWebServiceImpl implements GitWebService {
 
     @Override
     public String uploadFile(String owner, String repo, String fromBranch,
-                             MultipartFile file, String relPath,
+                             MultipartFile file, @Nullable String relPath,
                              String taskId) throws IOException, GitAPIException {
+
+        if (Objects.isNull(relPath)) {
+            relPath = "";
+        }
+
         File tmpRepo =
                 Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
         if (Files.notExists(tmpRepo.toPath())) {
             File originalRepo = Path.of(gitStorage, owner, repo).toFile();
-            if (Files.notExists(originalRepo.toPath())) {
-                throw new RepositoryNotFoundException(originalRepo);
-            }
-            FileUtils.copyDirectory(originalRepo, tmpRepo);
-
-            try (Git git = Git.open(tmpRepo)) {
-                if (git.getRepository().getRefDatabase().getRefs().isEmpty()) {
-                    log.warn(
-                            "commit history is empty, must commit to default branch for the first commit");
-                } else {
-                    git.checkout()
-                            .setName(fromBranch)
-                            .call();
-                }
-            }
+            Git.cloneRepository()
+                    .setURI(originalRepo.toURI().toString())
+                    .setDirectory(tmpRepo)
+                    .setBranchesToClone(Collections.singleton(fromBranch))
+                    .setBranch(fromBranch)
+                    .call()
+                    .close();
         }
+
         Path absPath = Path.of(tmpRepo.toString(), relPath);
         Files.createDirectories(absPath);
         Path dest = Path.of(tmpRepo.toString(), relPath, file.getOriginalFilename());
         log.debug("transforming uploaded file '{}' to fs://{}", file.getOriginalFilename(), dest);
         file.transferTo(dest);
-        return Path.of(relPath, file.getOriginalFilename()).toString()
-                // remove './'
-                .substring(2);
+        return Path.of(relPath, file.getOriginalFilename()).toString().substring(2);
     }
 
     @Override
-    public void commit(String owner, String repo, String toBranch, String taskId,
+    public void commit(String owner, String repo, @Nullable String toBranch, String taskId,
                        @Nullable List<String> addFiles, String message) throws IOException, GitAPIException {
 
         // TODO: verify auth, get user(committer) info
@@ -118,26 +108,19 @@ public class GitWebServiceImpl implements GitWebService {
 
         File tmpRepo =
                 Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
+
         try (Git git = Git.open(tmpRepo)) {
-            if (StringUtils.hasText(toBranch) &&
-                    git.getRepository().getRefDatabase().getRefs().isEmpty()) {
-                if (!toBranch.equals(git.getRepository().getBranch())) {
-                    log.warn(
-                            "commit history is empty, must commit to default branch for the first commit");
-                }
-            } else {
-                try {
-                    git.checkout()
-                            .setName(toBranch)
-                            .call();
-                } catch (RefNotFoundException e) {
-                    log.info("Creating new branch '{}'", toBranch);
-                    git.checkout()
-                            .setCreateBranch(true)
-                            .setOrphan(true)
-                            .setName(toBranch)
-                            .call();
-                }
+            try {
+                git.checkout()
+                        .setName(toBranch)
+                        .call();
+            } catch (RefNotFoundException e) {
+                log.info("Creating new branch '{}'", toBranch);
+                git.checkout()
+                        .setCreateBranch(true)
+                        .setOrphan(true)
+                        .setName(toBranch)
+                        .call();
             }
 
             if (Objects.isNull(addFiles)) {
@@ -156,19 +139,9 @@ public class GitWebServiceImpl implements GitWebService {
                     .setMessage(message)
                     .setCommitter(committerName, committerEmail)
                     .call();
-            git.clean()
-                    .call();
 
-            File originalRepo = Path.of(gitStorage, owner, repo).toFile();
-            File originalRepoBkp =
-                    Path.of(gitBkpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
-            FileUtils.moveDirectory(originalRepo, originalRepoBkp);
-            try {
-                FileUtils.moveDirectory(tmpRepo, originalRepo);
-            } catch (IOException e) {
-                FileUtils.moveDirectory(originalRepoBkp, originalRepo);
-            }
-            deleteDirAsync(originalRepoBkp);
+            git.push().call();
+            deleteDirAsync(tmpRepo);
         }
     }
 
@@ -195,7 +168,7 @@ public class GitWebServiceImpl implements GitWebService {
     @Override
     @Nullable
     public RevCommit latestCommitOfCurrentRepo(String owner, String repo, String branchOrCommit,
-                                        @Nullable String relPath) throws IOException, GitAPIException {
+                                               @Nullable String relPath) throws IOException, GitAPIException {
         File repoFs = Path.of(gitStorage, owner, repo, Objects.requireNonNullElse(relPath, "")).toFile();
 
         try (Git git = Git.open(repoFs)) {

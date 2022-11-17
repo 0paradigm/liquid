@@ -30,10 +30,10 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public interface GitWebService {
 
-    String uploadFile(String owner, String repo, String fromBranch, MultipartFile file, String relPath,
+    String uploadFile(String owner, String repo, String fromBranch, MultipartFile file, @Nullable String relPath,
                       String taskId) throws IOException, GitAPIException;
 
-    void commit(String owner, String repo, String toBranch, String taskId,
+    void commit(String owner, String repo, @Nullable String toBranch, String taskId,
                 @Nullable List<String> addFiles, String message) throws IOException, GitAPIException;
 
     /**

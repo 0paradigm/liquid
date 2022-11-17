@@ -28,4 +28,9 @@ public class RepositoryAlreadyExistsException extends GitAPIException {
     public RepositoryAlreadyExistsException(String message) {
         super(message);
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s already exists", this.getMessage());
+    }
 }
