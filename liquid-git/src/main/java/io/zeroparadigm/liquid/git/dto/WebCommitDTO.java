@@ -6,8 +6,6 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestPart;
 
-@AllArgsConstructor
-@RequiredArgsConstructor
 @Data
 public class WebCommitDTO {
 

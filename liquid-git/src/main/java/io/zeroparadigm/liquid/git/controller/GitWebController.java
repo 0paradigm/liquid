@@ -26,6 +26,7 @@ import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
 import io.zeroparadigm.liquid.git.dto.WebCommitDTO;
+import io.zeroparadigm.liquid.git.dto.WebCreateRepoDTO;
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import io.zeroparadigm.liquid.git.service.GitWebService;
 
@@ -108,9 +109,9 @@ public class GitWebController {
     public Result commitUpload(@PathVariable String owner,
                                @PathVariable String repo,
                                @PathVariable String branch,
-                               @RequestBody WebCommitDTO commitDto) {
+                               @RequestBody WebCommitDTO args) {
         gitWebService.commit(owner, repo, branch,
-                commitDto.getTaskId(), commitDto.getAddFiles(), commitDto.getMessage());
+                args.getTaskId(), args.getAddFiles(), args.getMessage());
         return Result.success();
     }
 
@@ -121,8 +122,8 @@ public class GitWebController {
     @SuppressWarnings("rawtypes")
     public Result createRepo(@PathVariable String owner,
                              @PathVariable String repo,
-                             @RequestParam String initBranch) {
-        gitBasicService.createRepo(owner, repo, initBranch);
+                             @RequestBody WebCreateRepoDTO args) {
+        gitBasicService.createRepo(owner, repo, args.getInitBranch());
         return Result.success();
     }
 
