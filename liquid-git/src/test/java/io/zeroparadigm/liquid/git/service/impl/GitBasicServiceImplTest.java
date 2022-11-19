@@ -26,6 +26,8 @@ import static org.assertj.core.api.Assertions.*;
 @TestPropertySource(properties = {
         "storage.git = storage-sa/git",
         "storage.git-tmp = storage-sa/git-tmp",
+        "storage.git-cache = storage-sa/git-cache",
+        "git.cache-num = 3",
 })
 class GitBasicServiceImplTest {
 

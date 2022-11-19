@@ -17,6 +17,7 @@
 
 package io.zeroparadigm.liquid.git.service.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import io.zeroparadigm.liquid.git.service.GitWebService;
 
@@ -26,19 +27,30 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.Min;
 
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.eclipse.jgit.internal.storage.file.LockFile;
+import org.eclipse.jgit.lib.BranchConfig;
+import org.eclipse.jgit.lib.ConfigConstants;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
@@ -57,11 +69,19 @@ public class GitWebServiceImpl implements GitWebService {
     @Value("${storage.git-tmp}")
     private String gitTmpStorage;
 
+    @Value("${storage.git-cache}")
+    private String gitCacheStorage;
+
+    @Value("${git.cache-num}")
+    @Min(value = 1, message = "in memory cache is not supported yet")
+    private int cacheObjNum;
+
     private static final String TMPDIR_PATTERN = "%s-%s";
 
     @PostConstruct
     void deleteWorkDirOnJvmExit() {
         new File(gitTmpStorage).deleteOnExit();
+        new File(gitCacheStorage).deleteOnExit();
     }
 
     @Async
@@ -129,7 +149,6 @@ public class GitWebServiceImpl implements GitWebService {
         File tmpRepo =
                 Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
 
-        boolean isCommittingToInit = false;
         try (Git git = Git.open(tmpRepo)) {
             if (StringUtils.hasText(toBranch)) {
                 try {
@@ -137,19 +156,19 @@ public class GitWebServiceImpl implements GitWebService {
                             .setName(toBranch)
                             .call();
                 } catch (RefNotFoundException e) {
-                    log.info("Creating new branch '{}'", toBranch);
                     try {
                         git.checkout()
                                 .setCreateBranch(true)
                                 .setName(toBranch)
                                 .call();
+                        log.info("new branch '{}' created", toBranch);
                     } catch (RefNotFoundException e1) {
-                        isCommittingToInit = true;
+                        log.warn("committing to new repo, init branch may be dropped");
                     }
                 }
             }
 
-            if (Objects.isNull(addFiles)) {
+            if (Objects.isNull(addFiles) || addFiles.isEmpty()) {
                 git.add()
                         .addFilepattern(".")
                         .call();
@@ -166,40 +185,119 @@ public class GitWebServiceImpl implements GitWebService {
                     .setCommitter(committerName, committerEmail)
                     .call();
 
+            String refSpec = git.getRepository().getBranch() + ":" + toBranch;
+            log.info("pushing to remote, spec={}", refSpec);
+            git.push()
+                    .setRemote("origin")
+                    .setRefSpecs(new RefSpec(refSpec))
+                    .call();
 
-            git.branchList().call().forEach(ref -> System.out.println(ref.getName()));
-
-            if (isCommittingToInit) {
-                git.branchRename()
-                        .setNewName(toBranch)
-                        .call();
-
-                git.branchList().call().forEach(ref -> System.out.println(ref.getName()));
-
-                git.push()
-                        .setRefSpecs(new RefSpec("refs/heads/" + toBranch))
-                        .call();
-            } else {
-                git.push().call();
-            }
-
+            updateCaches(owner, repo);
             deleteDirAsync(tmpRepo);
+        }
+    }
+
+    private synchronized File selectCache(String owner, String repo) {
+        for (int i = 0; ; i++, i %= cacheObjNum) {
+            File cacheRepo = Path.of(gitCacheStorage, owner, String.format("%s-%d", repo, i)).toFile();
+            if (!Files.exists(cacheRepo.toPath())) {
+                createCache(owner, repo);
+                continue;
+            }
+            if (Files.exists(Path.of(cacheRepo.getPath(), ".git", "index.lock"))) {
+                log.warn("cache {} is busy", i);
+                continue;
+            }
+            log.info("using cache {} for {}/{}", i, owner, repo);
+            return cacheRepo;
+        }
+    }
+
+    @SneakyThrows
+    private void createCache(String owner, String repo) {
+        log.info("creating {} caches for {}/{}", cacheObjNum, owner, repo);
+        File dest0 = Path.of(gitCacheStorage, owner, repo + "-0").toFile();
+        FileUtils.deleteQuietly(dest0);
+        try {
+            Git.cloneRepository()
+                    .setURI(Path.of(gitStorage, owner, repo).toUri().toString())
+                    .setDirectory(dest0)
+                    .call()
+                    .close();
+        } catch (TransportException e) {
+            Optional<String> branch = Git.lsRemoteRepository()
+                    .setRemote(Path.of(gitStorage, owner, repo).toUri().toString())
+                    .call()
+                    .stream()
+                    .map(Ref::getName)
+                    .findFirst();
+
+            if (branch.isEmpty()) {
+                log.error("no branch to clone");
+                return;
+            }
+            Git.cloneRepository()
+                    .setURI(Path.of(gitStorage, owner, repo).toUri().toString())
+                    .setDirectory(dest0)
+                    .setCloneAllBranches(true)
+                    .setBranch(branch.get())
+                    .call()
+                    .close();
+        }
+
+        for (int i = 1; i < cacheObjNum; i++) {
+            File cacheRepo = Path.of(gitCacheStorage, owner, String.format("%s-%d", repo, i)).toFile();
+            FileUtils.deleteQuietly(cacheRepo);
+            FileUtils.copyDirectory(dest0, cacheRepo);
+        }
+    }
+
+    private void updateCaches(String owner, String repo) {
+        for (int i = 0; i < cacheObjNum; i++) {
+            File cacheRepo = Path.of(gitCacheStorage, owner, String.format("%s-%d", repo, i)).toFile();
+            try (Git git = Git.open(cacheRepo)) {
+                git.fetch()
+                        .setRemoveDeletedRefs(true)
+                        .setForceUpdate(true)
+                        .call();
+                git.pull()
+                        .setRebase(BranchConfig.BranchRebaseMode.REBASE)
+                        .call();
+            } catch (IOException e) {
+                createCache(owner, repo);
+            } catch (GitAPIException e) {
+                log.error("error updating cache", e);
+            }
+        }
+    }
+
+    private void cacheCheckout(Git git, String branch) throws GitAPIException {
+        try {
+            git.checkout()
+                    .setName(branch)
+                    .call();
+        } catch (RefNotFoundException e) {
+            git.checkout()
+                    .setForced(true)
+                    .setCreateBranch(true)
+                    .setName(branch)
+                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                    .setStartPoint("origin/" + branch)
+                    .call();
         }
     }
 
     @Override
     public List<LatestCommitInfo> listFiles(String owner, String repo, String branchOrCommit,
                                             @Nullable String relPath) throws IOException, GitAPIException {
-        File repoFs = Path.of(gitStorage, owner, repo, Objects.requireNonNullElse(relPath, "")).toFile();
-        Path repoRoot = Path.of(gitStorage, owner, repo);
+        File repoRoot = selectCache(owner, repo);
+        File repoFs = Path.of(repoRoot.getPath(), relPath).toFile();
 
-        try (Git git = Git.open(repoFs)) {
-            git.checkout()
-                    .setName(branchOrCommit)
-                    .call();
+        try (Git git = Git.open(repoRoot)) {
+            cacheCheckout(git, branchOrCommit);
 
             return Arrays.stream(Objects.requireNonNullElse(repoFs.listFiles(), new File[0])).parallel()
-                    .map(f -> repoRoot.relativize(f.toPath()))
+                    .map(f -> repoRoot.toPath().relativize(f.toPath()))
                     .map(Path::toFile)
                     .filter(f -> !".git".equals(f.getName()))
                     .map(f -> new LatestCommitInfo(git, f))
@@ -211,19 +309,21 @@ public class GitWebServiceImpl implements GitWebService {
     @Nullable
     public RevCommit latestCommitOfCurrentRepo(String owner, String repo, String branchOrCommit,
                                                @Nullable String relPath) throws IOException, GitAPIException {
-        File repoFs = Path.of(gitStorage, owner, repo, Objects.requireNonNullElse(relPath, "")).toFile();
-
-        try (Git git = Git.open(repoFs)) {
-            git.checkout()
-                    .setName(branchOrCommit)
-                    .call();
-
-            return git.log()
-                    .addPath(relPath)
-                    .setMaxCount(1)
-                    .call()
-                    .iterator()
-                    .next();
-        }
+//        File repoFs = Path.of(gitStorage, owner, repo, Objects.requireNonNullElse(relPath, "")).toFile();
+//
+//        try (Git git = Git.open(repoFs)) {
+//            git.checkout()
+//                    .setName(branchOrCommit)
+//                    .call();
+//
+//            return git.log()
+//                    .addPath(relPath)
+//                    .setMaxCount(1)
+//                    .call()
+//                    .iterator()
+//                    .next();
+//        }
+        // fetch database to find out the real user
+        return null;
     }
 }

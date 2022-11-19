@@ -28,4 +28,7 @@ logging:
 storage:
   git: storage/git
   git-tmp: storage/git-tmp
-  git-bkp: storage/git-bkp
+  git-cache: storage/git-cache
+
+git:
+  cache-num: 5
