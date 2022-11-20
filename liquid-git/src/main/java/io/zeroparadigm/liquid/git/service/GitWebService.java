@@ -50,6 +50,9 @@ public interface GitWebService {
     List<LatestCommitInfo> listFiles(String owner, String repo, String branchOrCommit,
                                      @Nullable String relPath) throws IOException, GitAPIException;
 
+    byte[] getFile(String owner, String repo, String branchOrCommit,
+                          @Nullable String filePath) throws IOException, GitAPIException;
+
     RevCommit latestCommitOfCurrentRepo(String owner, String repo, String branchOrCommit,
                                         @Nullable String relPath) throws IOException, GitAPIException;
 }

@@ -236,6 +236,11 @@ class GitWebServiceImplTest {
         assertThatNoException()
                 .isThrownBy(() -> gitWebService.commit("liquid", "sa", "dev1", ts, null, "bbb"));
 
+        assertThat(gitWebService.listFiles("liquid", "sa", "dev", null))
+                .extracting("name", "isDir", "message")
+                .containsExactly(
+                        Tuple.tuple("docs", true, "aaa")
+                );
         assertThat(gitWebService.listFiles("liquid", "sa", "dev", "docs"))
                 .extracting("name", "isDir", "message")
                 .containsExactly(

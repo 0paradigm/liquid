@@ -54,8 +54,9 @@ public class LatestCommitInfo {
      * @param rel        relative path from repo root.
      */
     public LatestCommitInfo(Git checkOuted, File rel) {
+        File abs = new File(checkOuted.getRepository().getDirectory().getParent(), String.valueOf(rel));
         name = rel.getName();
-        isDir = Files.isDirectory(rel.toPath());
+        isDir = abs.isDirectory();
 
         AtomicReference<RevCommit> latestCommitAtom = new AtomicReference<>();
         try {

@@ -17,47 +17,37 @@
 
 package io.zeroparadigm.liquid.git.service.impl;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import io.zeroparadigm.liquid.git.service.GitWebService;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import javax.validation.constraints.Min;
-
-import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.tomcat.util.http.fileupload.FileItem;
+import org.apache.tomcat.util.http.fileupload.disk.DiskFileItem;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.internal.storage.file.LockFile;
 import org.eclipse.jgit.lib.BranchConfig;
-import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.StoredConfig;
-import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.RefSpec;
-import org.eclipse.jgit.transport.RemoteConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
+import javax.annotation.PostConstruct;
+import javax.validation.constraints.Min;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -303,6 +293,26 @@ public class GitWebServiceImpl implements GitWebService {
                     .filter(f -> !".git".equals(f.getName()))
                     .map(f -> new LatestCommitInfo(git, f))
                     .toList();
+        }
+    }
+
+    @Override
+    public byte[] getFile(String owner, String repo, String branchOrCommit, String filePath) throws IOException, GitAPIException {
+        File repoRoot = selectCache(owner, repo);
+
+        try (Git git = Git.open(repoRoot)) {
+            cacheCheckout(git, branchOrCommit);
+
+            File file = new File(repoRoot, filePath);
+//            DiskFileItem fileItem = new DiskFileItem("mainFile", Files.probeContentType(file.toPath()), false, file.getName(), (int) file.length(), file.getParentFile());
+
+            try (
+                InputStream input = new FileInputStream(file);
+//                OutputStream os = fileItem.getOutputStream()
+            ){
+//                IOUtils.copy(input, os);
+                return input.readAllBytes();
+            }
         }
     }
 

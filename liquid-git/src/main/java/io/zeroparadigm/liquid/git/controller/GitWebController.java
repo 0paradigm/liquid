@@ -145,4 +145,11 @@ public class GitWebController {
                                                @RequestBody(required = false) String relPath) {
         return gitWebService.latestCommitOfCurrentRepo(owner, repo, branchOrCommit, relPath);
     }
+
+    @GetMapping("/file/{owner}/{repo}/{branchOrCommit}")
+    @SneakyThrows
+    @WrapsException(wrapped = ServiceStatus.NOT_FOUND, status = HttpStatus.NOT_FOUND)
+    public Result<byte[]> getFile(String owner, String repo, String branchOrCommit, String filePath) {
+        return Result.success(gitWebService.getFile(owner, repo, branchOrCommit, filePath));
+    }
 }
