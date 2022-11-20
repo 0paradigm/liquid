@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestPart;
 
 @Data
-@Builder
 public class WebCommitDTO {
 
     String taskId;
