@@ -45,6 +45,8 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.Min;
 import java.io.*;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -284,8 +286,9 @@ public class GitWebServiceImpl implements GitWebService {
                                             String branchOrCommit,
                                             @Nullable String relPath)
             throws IOException, GitAPIException {
+        relPath = URLDecoder.decode(Objects.requireNonNullElse(relPath, ""), StandardCharsets.UTF_8);
         File repoRoot = selectCache(owner, repo);
-        File repoFs = Path.of(repoRoot.getPath(), Objects.requireNonNullElse(relPath, "")).toFile();
+        File repoFs = Path.of(repoRoot.getPath(), relPath).toFile();
 
         if (!repoFs.exists()) {
             throw new FileNotFoundException(repoFs.getCanonicalPath());
@@ -305,7 +308,8 @@ public class GitWebServiceImpl implements GitWebService {
     @Override
     public byte[] getFile(String owner, String repo, String branchOrCommit, String filePath) throws IOException, GitAPIException {
         File repoRoot = selectCache(owner, repo);
-
+        filePath = URLDecoder.decode(filePath, StandardCharsets.UTF_8);
+        
         try (Git git = Git.open(repoRoot)) {
             cacheCheckout(git, branchOrCommit);
 
