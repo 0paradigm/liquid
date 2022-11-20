@@ -288,7 +288,7 @@ public class GitWebServiceImpl implements GitWebService {
         File repoFs = Path.of(repoRoot.getPath(), Objects.requireNonNullElse(relPath, "")).toFile();
 
         if (!repoFs.exists()) {
-            throw new FileNotFoundException();
+            throw new FileNotFoundException(repoFs.getCanonicalPath());
         }
         try (Git git = Git.open(repoRoot)) {
             cacheCheckout(git, branchOrCommit);
