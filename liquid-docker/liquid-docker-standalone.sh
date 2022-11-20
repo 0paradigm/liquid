@@ -34,6 +34,14 @@ fi
 
 for arg in "$@"
 do
+  [[ $arg == "update" ]] \
+  && git pull \
+  && echo "===>> source code updated" \
+  && break;
+done
+
+for arg in "$@"
+do
   [[ $arg == "rebuild" ]] \
   && docker-compose -f "$BASEDIR"/docker-compose.yml down --remove-orphans \
   && "$BASEDIR"/../mvnw clean package -f "$BASEDIR"/../pom.xml -Pdocker -Dmaven.test.skip=true \
