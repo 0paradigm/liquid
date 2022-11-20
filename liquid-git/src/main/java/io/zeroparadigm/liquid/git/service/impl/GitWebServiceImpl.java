@@ -309,7 +309,7 @@ public class GitWebServiceImpl implements GitWebService {
     public byte[] getFile(String owner, String repo, String branchOrCommit, String filePath) throws IOException, GitAPIException {
         File repoRoot = selectCache(owner, repo);
         filePath = URLDecoder.decode(filePath, StandardCharsets.UTF_8);
-        
+
         try (Git git = Git.open(repoRoot)) {
             cacheCheckout(git, branchOrCommit);
 

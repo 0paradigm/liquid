@@ -136,7 +136,8 @@ public class GitWebController {
     @GetMapping("/list/{owner}/{repo}/{branchOrCommit}")
     @SneakyThrows
     @WrapsException(wrapped = ServiceStatus.NOT_FOUND, status = HttpStatus.NOT_FOUND)
-    public Result<List<LatestCommitInfo>> listFiles(@PathVariable String owner, @PathVariable String repo,
+    public Result<List<LatestCommitInfo>> listFiles(@PathVariable String owner,
+                                                    @PathVariable String repo,
                                                     @PathVariable String branchOrCommit,
                                                     @RequestParam(required = false) String relPath) {
         return Result.success(gitWebService.listFiles(owner, repo, branchOrCommit, relPath));
