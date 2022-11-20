@@ -133,6 +133,7 @@ public class GitWebServiceImpl implements GitWebService {
         Path absPath = Path.of(tmpRepo.toString(), relPath);
         Files.createDirectories(absPath);
         Path dest = Path.of(tmpRepo.toString(), relPath, file.getOriginalFilename());
+        FileUtils.createParentDirectories(dest.toFile());
         log.debug("transforming uploaded file '{}' to fs://{}", file.getOriginalFilename(), dest);
         file.transferTo(dest);
         return Path.of(relPath, file.getOriginalFilename()).toString();
