@@ -127,12 +127,12 @@ public class GitWebController {
         return Result.success();
     }
 
-    @GetMapping("/list/{owner}/{repo}/{branchOrCommit}")
+    @GetMapping("/list/{owner}/{repo}/{branchOrCommit}/{relPath}")
     @SneakyThrows
     @WrapsException(wrapped = ServiceStatus.NOT_FOUND, status = HttpStatus.NOT_FOUND)
     public Result<List<LatestCommitInfo>> listFiles(@PathVariable String owner, @PathVariable String repo,
                                                     @PathVariable String branchOrCommit,
-                                                    @RequestBody(required = false) String relPath) {
+                                                    @PathVariable(required = false) String relPath) {
         List<LatestCommitInfo> files = gitWebService.listFiles(owner, repo, branchOrCommit, relPath);
         return Result.success(files);
     }
@@ -146,10 +146,10 @@ public class GitWebController {
         return gitWebService.latestCommitOfCurrentRepo(owner, repo, branchOrCommit, relPath);
     }
 
-    @GetMapping("/file/{owner}/{repo}/{branchOrCommit}")
+    @GetMapping("/file/{owner}/{repo}/{branchOrCommit}/{filePath}")
     @SneakyThrows
     @WrapsException(wrapped = ServiceStatus.NOT_FOUND, status = HttpStatus.NOT_FOUND)
-    public Result<byte[]> getFile(String owner, String repo, String branchOrCommit, String filePath) {
+    public Result<byte[]> getFile(@PathVariable String owner, @PathVariable String repo, @PathVariable String branchOrCommit, @PathVariable String filePath) {
         return Result.success(gitWebService.getFile(owner, repo, branchOrCommit, filePath));
     }
 }
