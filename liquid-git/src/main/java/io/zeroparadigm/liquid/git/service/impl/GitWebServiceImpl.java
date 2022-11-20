@@ -291,7 +291,7 @@ public class GitWebServiceImpl implements GitWebService {
     public List<LatestCommitInfo> listFiles(String owner, String repo, String branchOrCommit,
                                             @Nullable String relPath) throws IOException, GitAPIException {
         File repoRoot = selectCache(owner, repo);
-        File repoFs = Path.of(repoRoot.getPath(), relPath).toFile();
+        File repoFs = Path.of(repoRoot.getPath(), Objects.requireNonNullElse(relPath, "")).toFile();
 
         try (Git git = Git.open(repoRoot)) {
             cacheCheckout(git, branchOrCommit);
