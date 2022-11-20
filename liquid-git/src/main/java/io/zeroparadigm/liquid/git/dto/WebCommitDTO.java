@@ -2,11 +2,13 @@ package io.zeroparadigm.liquid.git.dto;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestPart;
 
 @Data
+@Builder
 public class WebCommitDTO {
 
     String taskId;

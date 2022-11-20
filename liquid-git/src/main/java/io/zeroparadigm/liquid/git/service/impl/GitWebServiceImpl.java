@@ -279,11 +279,17 @@ public class GitWebServiceImpl implements GitWebService {
     }
 
     @Override
-    public List<LatestCommitInfo> listFiles(String owner, String repo, String branchOrCommit,
-                                            @Nullable String relPath) throws IOException, GitAPIException {
+    public List<LatestCommitInfo> listFiles(String owner,
+                                            String repo,
+                                            String branchOrCommit,
+                                            @Nullable String relPath)
+            throws IOException, GitAPIException {
         File repoRoot = selectCache(owner, repo);
         File repoFs = Path.of(repoRoot.getPath(), Objects.requireNonNullElse(relPath, "")).toFile();
 
+        if (!repoFs.exists()) {
+            throw new FileNotFoundException();
+        }
         try (Git git = Git.open(repoRoot)) {
             cacheCheckout(git, branchOrCommit);
 
@@ -307,9 +313,9 @@ public class GitWebServiceImpl implements GitWebService {
 //            DiskFileItem fileItem = new DiskFileItem("mainFile", Files.probeContentType(file.toPath()), false, file.getName(), (int) file.length(), file.getParentFile());
 
             try (
-                InputStream input = new FileInputStream(file);
+                    InputStream input = new FileInputStream(file);
 //                OutputStream os = fileItem.getOutputStream()
-            ){
+            ) {
 //                IOUtils.copy(input, os);
                 return input.readAllBytes();
             }

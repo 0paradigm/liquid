@@ -65,6 +65,7 @@ public class GitWebController {
     @Autowired
     private GitBasicService gitBasicService;
 
+    @PostMapping("/upload/{owner}/{repo}/{branch}")
     @ApiOperation(value = "upload", notes = "upload files to commit")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "owner", paramType = "path", value = "owner of repo", required = true, dataTypeClass = String.class, example = "apache"),
@@ -74,7 +75,6 @@ public class GitWebController {
             @ApiImplicitParam(name = "path", paramType = "form", value = "relative path from repo root, without filename", required = true, dataTypeClass = String.class, example = "docs"),
             @ApiImplicitParam(name = "taskId", paramType = "form", value = "task id", required = true, dataTypeClass = String.class, example = "17287390173"),
     })
-    @PostMapping("/upload/{owner}/{repo}/{branch}")
     @SneakyThrows
     @WrapsException(ServiceStatus.GIT_WEB_UPLOAD_FAIL)
     @SuppressWarnings("rawtypes")
@@ -116,6 +116,12 @@ public class GitWebController {
     }
 
     @PostMapping("/create/{owner}/{repo}")
+    @ApiOperation(value = "create repo", notes = "create a bare repo")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "owner", paramType = "path", value = "owner of repo", required = true, dataTypeClass = String.class, example = "apache"),
+            @ApiImplicitParam(name = "repo", paramType = "path", value = "repo name", required = true, dataTypeClass = String.class, example = "dubbo"),
+            @ApiImplicitParam(name = "args", paramType = "body", value = "{initBranch}", required = true, dataTypeClass = WebCreateRepoDTO.class),
+    })
     @ResponseStatus(HttpStatus.CREATED)
     @SneakyThrows
     @WrapsException(ServiceStatus.GIT_REPO_ALREADY_EXISTS)
@@ -127,14 +133,13 @@ public class GitWebController {
         return Result.success();
     }
 
-    @GetMapping("/list/{owner}/{repo}/{branchOrCommit}/{relPath}")
+    @GetMapping("/list/{owner}/{repo}/{branchOrCommit}")
     @SneakyThrows
     @WrapsException(wrapped = ServiceStatus.NOT_FOUND, status = HttpStatus.NOT_FOUND)
     public Result<List<LatestCommitInfo>> listFiles(@PathVariable String owner, @PathVariable String repo,
                                                     @PathVariable String branchOrCommit,
-                                                    @PathVariable(required = false) String relPath) {
-        List<LatestCommitInfo> files = gitWebService.listFiles(owner, repo, branchOrCommit, relPath);
-        return Result.success(files);
+                                                    @RequestParam(required = false) String relPath) {
+        return Result.success(gitWebService.listFiles(owner, repo, branchOrCommit, relPath));
     }
 
     @GetMapping("/latest/{owner}/{repo}/{branchOrCommit}")
@@ -146,10 +151,13 @@ public class GitWebController {
         return gitWebService.latestCommitOfCurrentRepo(owner, repo, branchOrCommit, relPath);
     }
 
-    @GetMapping("/file/{owner}/{repo}/{branchOrCommit}/{filePath}")
+    @GetMapping("/file/{owner}/{repo}/{branchOrCommit}")
     @SneakyThrows
     @WrapsException(wrapped = ServiceStatus.NOT_FOUND, status = HttpStatus.NOT_FOUND)
-    public Result<byte[]> getFile(@PathVariable String owner, @PathVariable String repo, @PathVariable String branchOrCommit, @PathVariable String filePath) {
+    public Result<byte[]> getFile(@PathVariable String owner,
+                                  @PathVariable String repo,
+                                  @PathVariable String branchOrCommit,
+                                  @RequestParam String filePath) {
         return Result.success(gitWebService.getFile(owner, repo, branchOrCommit, filePath));
     }
 }
