@@ -23,7 +23,7 @@ public class JwtVerifyRealm extends GenericAuthorizationRealm {
 
     @Autowired JwtUtils jwtUtils;
 
-    @DubboReference
+    @DubboReference(parameters = {"unicast", "false"})
     UserAuthService authService;
 
     @Override

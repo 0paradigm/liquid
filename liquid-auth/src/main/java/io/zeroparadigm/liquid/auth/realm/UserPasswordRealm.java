@@ -20,7 +20,7 @@ import org.apache.shiro.authc.UsernamePasswordToken;
  */
 public class UserPasswordRealm extends GenericAuthorizationRealm {
 
-    @DubboReference
+    @DubboReference(parameters = {"unicast", "false"})
     UserAuthService authService;
 
     @Override
