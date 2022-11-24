@@ -27,6 +27,8 @@ public final class CommonConsts {
     private CommonConsts() {
     }
 
+    public static final String JWT_USER_ID = "uid";
+    public static final String JWT_TOKEN_HEADER = "Authorization";
     public static final String REQUEST_AUTH_HEADER = "Authorization";
     public static final String LOCALE_INDICATOR_NAME = "locale";
 }

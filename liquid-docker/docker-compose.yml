@@ -58,6 +58,26 @@ services:
       liquid-nacos:
         condition: service_healthy
 
+  liquid-auth:
+    image: liquid-auth
+    networks:
+      - liquid
+    ports:
+      - "8005:8005"  # gateway entry point
+      - "5005:5005"  #debug port
+    env_file:
+      - env/liquid-auth.env
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8004/actuator/health" ]
+      interval: 10s
+      timeout: 20s
+      retries: 3
+    depends_on:
+      liquid-nacos:
+        condition: service_healthy
+
   liquid-core:
     image: liquid-core
     networks:
@@ -148,6 +168,7 @@ services:
       interval: 5s
       timeout: 30s
       retries: 5
+
 
 
 networks:

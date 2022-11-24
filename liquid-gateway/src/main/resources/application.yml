@@ -52,12 +52,21 @@ spring:
             - Path=/media/**
           filters:
             - StripPrefix=1
+
         - id: liquid-core
           uri: lb://liquid-core
           predicates:
             - Path=/core/**
           filters:
             - StripPrefix=1
+
+        - id: liquid-auth
+          uri: lb://liquid-auth
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+
         - id: liquid-git
           uri: lb://liquid-git
           predicates:
