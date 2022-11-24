@@ -23,19 +23,17 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.zeroparadigm.liquid.core.dao.annotation.Unique;
 import java.io.Serializable;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+
+import lombok.*;
 
 /**
- * Demo.
+ * User entity.
  *
  * @author hezean
  */
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Data
 @EqualsAndHashCode
 @ToString
@@ -44,11 +42,13 @@ public class User implements Serializable {
 
     /** system generated primary key. */
     @TableId(value = "id", type = IdType.AUTO)
+    @NonNull
     private Integer id;
 
     /** account name aka. username. */
     @Unique
     @TableField("login")
+    @NonNull
     private String login;
 
     /** nickname, default to none, and display large @code{User.login} in profile page. */
@@ -75,10 +75,12 @@ public class User implements Serializable {
 
     /** System.currentTimeMillis() */
     @TableField("created_at")
+    @NonNull
     private Long createdAt;
 
     /** System.currentTimeMillis() */
     @TableField("updated_at")
+    @NonNull
     private Long updatedAt;
 
     @TableField(exist = false)
@@ -91,5 +93,6 @@ public class User implements Serializable {
     private Integer publicRepos;
 
     @TableField("password")
+    @NonNull
     private String password;
 }

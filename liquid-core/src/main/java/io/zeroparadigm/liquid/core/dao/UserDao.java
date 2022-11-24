@@ -38,12 +38,12 @@ public class UserDao {
     @Autowired
     UserMapper userMapper;
 
-    @Nullable
-    @Transactional(rollbackFor = Exception.class)
-    public User getByNameAndUpdate(String name) {
-        User user = Objects.requireNonNull(userMapper.findByNameOrMail(name));
-        user.setUpdatedAt(System.currentTimeMillis());
-        userMapper.updateById(user);
-        return user;
-    }
+//    @Nullable
+//    @Transactional(rollbackFor = Exception.class)
+//    public User getByNameAndUpdate(String name) {
+//        User user = Objects.requireNonNull(userMapper.findByNameOrMail(name));
+//        user.setUpdatedAt(System.currentTimeMillis());
+//        userMapper.updateById(user);
+//        return user;
+//    }
 }

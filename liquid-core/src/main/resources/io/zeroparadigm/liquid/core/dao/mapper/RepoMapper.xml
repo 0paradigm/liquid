@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.RepoMapper">
+
+    <select id="findById" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
+        SELECT *
+        FROM `t_ds_repo`
+        WHERE `id` = #{id};
+    </select>
+
+    <delete id="deleteById">
+        DELETE
+        FROM `t_ds_repo`
+        WHERE `id` = #{id};
+    </delete>
+
+    <select id="findByOwnerAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+        SELECT *
+        FROM `t_ds_repo`
+        WHERE `owner` = (SELECT `id` FROM `t_ds_user` WHERE `login` = #{owner})
+          AND `name` = #{name}
+        LIMIT 1;
+    </select>
+
+    <select id="findByOwnerIdAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+        SELECT *
+        FROM `t_ds_repo`
+        WHERE `owner` = #{owner_id}
+          AND `name` = #{name}
+        LIMIT 1;
+    </select>
+
+    <select id="countStarers" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `t_rel_user_star`
+        WHERE `repo` = ${id};
+    </select>
+
+    <select id="listStarers" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+        SELECT *
+        FROM `t_ds_user`
+        WHERE `id` IN (SELECT `user` FROM `t_rel_user_star` WHERE `repo` = #{id});
+    </select>
+</mapper>

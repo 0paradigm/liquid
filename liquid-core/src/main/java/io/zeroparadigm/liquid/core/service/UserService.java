@@ -17,11 +17,13 @@
 
 package io.zeroparadigm.liquid.core.service;
 
-import io.zeroparadigm.liquid.common.api.media.MinioService;
+import io.zeroparadigm.liquid.core.dao.entity.User;
+import org.springframework.lang.Nullable;
 
 public interface UserService {
 
-    String greet(String s);
+    @Nullable
+    User findByLoginOrEmail(String loginOrEmail);
 
-    public MinioService getMinioService();
+
 }

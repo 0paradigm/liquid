@@ -2,17 +2,28 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
 <mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.UserMapper">
+    <insert id="starRepo">
+        INSERT IGNORE INTO `t_rel_user_star`
+        VALUES ((SELECT `id` FROM `t_ds_user` WHERE `login` = ${user}), ${repo});
+    </insert>
 
     <select id="findById" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
         SELECT *
         FROM `t_ds_user`
-        WHERE `id` = #{id}
+        WHERE `id` = #{id};
     </select>
 
     <delete id="deleteById">
         DELETE
         FROM `t_ds_user`
-        WHERE `id` = #{id}
+        WHERE `id` = #{id};
+    </delete>
+
+    <delete id="unstarRepo">
+        DELETE
+        FROM `t_rel_user_star`
+        WHERE `repo` = ${repo}
+          AND `user` = ${user};
     </delete>
 
     <select id="findByNameOrMail" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
@@ -20,7 +31,14 @@
         FROM `t_ds_user`
         WHERE `login` = #{name_or_mail}
            OR `email` = #{name_or_mail}
-        ORDER BY `id` LIMIT 1
+        ORDER BY `id`
+        LIMIT 1;
+    </select>
+
+    <select id="listUserRepos" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
+        SELECT *
+        FROM `t_ds_repo`
+        WHERE `owner` = (SELECT `id` FROM `t_ds_user` WHERE `login` = ${user});
     </select>
 
 </mapper>
