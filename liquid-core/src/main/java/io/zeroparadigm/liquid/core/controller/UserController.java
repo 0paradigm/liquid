@@ -24,11 +24,11 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.zeroparadigm.liquid.common.constants.StorageConsts;
+import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
+import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
 import io.zeroparadigm.liquid.core.dao.UserDao;
 import io.zeroparadigm.liquid.core.dao.entity.User;
-import io.zeroparadigm.liquid.core.dto.Result;
-import io.zeroparadigm.liquid.core.exceptions.annotations.WrapsException;
 import io.zeroparadigm.liquid.core.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
@@ -42,14 +42,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.shiro.subject.Subject;
-//import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * Fetch and modify user info. Register user.
  *
  * @author hezean
  */
- @Api
+@Api
 @Slf4j
 @RestController
 @RequestMapping("/api/user")
@@ -66,16 +65,15 @@ public class UserController {
      * @param name person name
      * @return a greeting message
      */
-     @ApiOperation(value = "hello", notes = "says hello to the person")
-     @ApiImplicitParams({
-     @ApiImplicitParam(name = "name", value = "USER_NAME", required = true, dataTypeClass = String.class, example =
-     "chris")
-     })
+    @ApiOperation(value = "hello", notes = "says hello to the person")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "name", value = "USER_NAME", required = true, dataTypeClass = String.class, example = "chris")
+    })
     @PostMapping(value = "/hello")
     @ResponseStatus(HttpStatus.CREATED)
-    // @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
+    @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<String> hello(
-                                @RequestParam(value = "name") String name,
+                                @RequestParam String name,
                                 @RequestBody(required = false) String ts) {
         log.debug("User {}", name);
         return Result.success(userService.greet(name));
@@ -87,11 +85,10 @@ public class UserController {
      * @param name person name
      * @return first user
      */
-    // @ApiOperation(value = "getUserNamedAs", notes = "queries the first user with that name")
-    // @ApiImplicitParams({
-    // @ApiImplicitParam(name = "name", value = "user's name", required = true, dataTypeClass = String.class, example =
-    // "foo")
-    // })
+    @ApiOperation(value = "getUserNamedAs", notes = "queries the first user with that name")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "name", value = "user's name", required = true, dataTypeClass = String.class, example = "foo")
+    })
     @PostMapping(value = "/user")
     @ResponseStatus(HttpStatus.OK)
     @WrapsException(value = ServiceStatus.INTERNAL_SERVER_ERROR_ARGS, status = HttpStatus.NOT_ACCEPTABLE)
@@ -101,7 +98,8 @@ public class UserController {
 
     @PostMapping("/upload")
     public String upload(MultipartFile file) {
-        return userService.getMinioService().upload(file, file.getName(), StorageConsts.MINIO_AVATAR_BUCKET);
+        return userService.getMinioService()
+                .upload(file, file.getName(), StorageConsts.MINIO_AVATAR_BUCKET);
     }
 
     @PostMapping("/getCredential")

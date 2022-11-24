@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.core.exceptions;
+package io.zeroparadigm.liquid.common.exceptions;
 
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import java.text.MessageFormat;

@@ -33,13 +33,12 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserDao userDao;
 
-    @DubboReference
+    @DubboReference(parameters = {"unicast", "false"})
     private MinioService minioService;
 
     @Override
     @Cacheable
     public String greet(String s) {
-        // User user = userDao.getByNameAndUpdate(s);
         return " hi!";
     }
 

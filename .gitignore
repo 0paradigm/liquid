@@ -52,3 +52,7 @@ replay_pid*
 
 # docker compose logs
 liquid-docker/logs/
+
+# dev git storage
+storage
+liquid-git/storage-sa/

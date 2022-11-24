@@ -17,10 +17,10 @@
 
 package io.zeroparadigm.liquid.core.exceptions.handlers;
 
+import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
-import io.zeroparadigm.liquid.core.dto.Result;
-import io.zeroparadigm.liquid.core.exceptions.ServiceException;
-import io.zeroparadigm.liquid.core.exceptions.annotations.WrapsException;
+import io.zeroparadigm.liquid.common.exceptions.ServiceException;
+import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

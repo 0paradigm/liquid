@@ -12,6 +12,39 @@ spring:
         enabled: true
 
       # TODO: use nacos dynamic configuration
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+#            allowedOrigins: "http://localhost:3000"
+            allowedHeaders: "*"
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+
+
+#      filter:
+#        remove-hop-by-hop:
+#          headers:
+#            - trailer
+#            - te
+#            - keep-alive
+#            - transfer-encoding
+#            - upgrade
+#            - proxy-authenticate
+#            - connection
+#            - proxy-authorization
+#            - x-application-context
+#            - access-control-allow-credentials
+#            - access-control-allow-headers
+#            - access-control-allow-methods
+#            - access-control-allow-origin
+#            - access-control-max-age
+#            - vary
+
       routes:
         - id: liquid-media
           uri: lb://liquid-media
@@ -19,12 +52,14 @@ spring:
             - Path=/media/**
           filters:
             - StripPrefix=1
+
         - id: liquid-core
           uri: lb://liquid-core
           predicates:
             - Path=/core/**
           filters:
             - StripPrefix=1
+
         - id: liquid-auth
           uri: lb://liquid-auth
           predicates:
@@ -32,5 +67,9 @@ spring:
           filters:
             - StripPrefix=1
 
-
-
+        - id: liquid-git
+          uri: lb://liquid-git
+          predicates:
+            - Path=/git/**
+          filters:
+            - StripPrefix=1
