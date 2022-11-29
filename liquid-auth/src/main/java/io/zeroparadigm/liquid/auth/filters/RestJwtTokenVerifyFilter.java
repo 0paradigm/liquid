@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.zeroparadigm.liquid.auth.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,8 +43,8 @@ public class RestJwtTokenVerifyFilter extends BasicHttpAuthenticationFilter {
 
     @Override
     protected boolean isAccessAllowed(
-        ServletRequest request, ServletResponse response, Object mappedValue)
-        throws UnauthorizedException {
+                                      ServletRequest request, ServletResponse response,
+                                      Object mappedValue) throws UnauthorizedException {
         try {
             executeLogin(request, response);
             return true;
@@ -46,8 +63,7 @@ public class RestJwtTokenVerifyFilter extends BasicHttpAuthenticationFilter {
     }
 
     @Override
-    protected boolean executeLogin(ServletRequest request, ServletResponse response)
-        throws Exception {
+    protected boolean executeLogin(ServletRequest request, ServletResponse response) throws Exception {
         if (request instanceof HttpServletRequest req) {
             String token = req.getHeader(CommonConsts.JWT_TOKEN_HEADER);
             JwtToken jwtToken = new JwtToken(token);
@@ -58,14 +74,13 @@ public class RestJwtTokenVerifyFilter extends BasicHttpAuthenticationFilter {
     }
 
     @Override
-    protected boolean onAccessDenied(ServletRequest request, ServletResponse response)
-        throws IOException {
+    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws IOException {
         if (request instanceof HttpServletRequest req) {
             log.info(
-                "[ip: {}, session: {}] access denied for {}",
-                SecurityUtils.getSubject().getSession().getHost(),
-                SecurityUtils.getSubject().getSession().getId(),
-                req.getServletPath());
+                    "[ip: {}, session: {}] access denied for {}",
+                    SecurityUtils.getSubject().getSession().getHost(),
+                    SecurityUtils.getSubject().getSession().getId(),
+                    req.getServletPath());
         }
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         if (response instanceof HttpServletResponse resp) {

@@ -17,14 +17,11 @@
 
 package io.zeroparadigm.liquid.core.service.impl;
 
-import io.zeroparadigm.liquid.common.api.media.MinioService;
 import io.zeroparadigm.liquid.core.dao.UserDao;
 import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.service.UserService;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service

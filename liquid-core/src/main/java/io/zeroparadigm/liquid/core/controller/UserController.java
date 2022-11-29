@@ -17,7 +17,6 @@
 
 package io.zeroparadigm.liquid.core.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -103,7 +102,7 @@ public class UserController {
     }
 
     @PostMapping("/getCredential")
-    public Result<JSONObject> getCredential(){
+    public Result<JSONObject> getCredential() {
         Subject subject = SecurityUtils.getSubject();
         Result<JSONObject> result = Result.success();
         JSONObject jsonObject = new JSONObject();
@@ -111,6 +110,5 @@ public class UserController {
         result.setData(jsonObject);
         return result;
     }
-
 
 }

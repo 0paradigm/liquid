@@ -25,5 +25,4 @@ public interface UserService {
     @Nullable
     User findByLoginOrEmail(String loginOrEmail);
 
-
 }

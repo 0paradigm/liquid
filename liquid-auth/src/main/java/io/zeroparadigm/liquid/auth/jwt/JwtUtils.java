@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.zeroparadigm.liquid.auth.jwt;
 
 import com.auth0.jwt.JWT;
@@ -31,9 +48,9 @@ public class JwtUtils {
     private long rememberExpireTime;
 
     private static final Map<String, Object> JWT_HEADERS =
-        Map.of(
-            "alg", "HS256",
-            "typ", "JWT");
+            Map.of(
+                    "alg", "HS256",
+                    "typ", "JWT");
 
     /**
      * Generates token with userId claim.
@@ -45,16 +62,16 @@ public class JwtUtils {
     public String createTokenFor(Integer userId, boolean remember) {
         try {
             Date expireDate =
-                new Date(
-                    System.currentTimeMillis()
-                        + (remember ? defaultExpireTime : rememberExpireTime));
+                    new Date(
+                            System.currentTimeMillis()
+                                    + (remember ? defaultExpireTime : rememberExpireTime));
             Algorithm algo = Algorithm.HMAC256(secret);
             return JWT.create()
-                .withHeader(JWT_HEADERS)
-                .withClaim(CommonConsts.JWT_USER_ID, userId)
-                .withExpiresAt(expireDate)
-                .withIssuedAt(new Date())
-                .sign(algo);
+                    .withHeader(JWT_HEADERS)
+                    .withClaim(CommonConsts.JWT_USER_ID, userId)
+                    .withExpiresAt(expireDate)
+                    .withIssuedAt(new Date())
+                    .sign(algo);
         } catch (Exception e) {
             log.warn("Error creating token for {}", userId, e);
             return "";

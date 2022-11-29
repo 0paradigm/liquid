@@ -51,7 +51,7 @@ public interface GitWebService {
                                      @Nullable String relPath) throws IOException, GitAPIException;
 
     byte[] getFile(String owner, String repo, String branchOrCommit,
-                          @Nullable String filePath) throws IOException, GitAPIException;
+                   @Nullable String filePath) throws IOException, GitAPIException;
 
     RevCommit latestCommitOfCurrentRepo(String owner, String repo, String branchOrCommit,
                                         @Nullable String relPath) throws IOException, GitAPIException;

@@ -17,10 +17,7 @@
 
 package io.zeroparadigm.liquid.git;
 
-import io.zeroparadigm.liquid.common.api.media.MinioService;
 import io.zeroparadigm.liquid.git.service.impl.GitBasicServiceImpl;
-import org.apache.dubbo.config.annotation.DubboService;
-import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -36,7 +33,7 @@ public class DubboMockFactory {
 
     @Bean
     @Primary
-//    @DubboService
+    // @DubboService
     GitBasicServiceImpl gitBasicService() {
         return new GitBasicServiceImpl();
     }

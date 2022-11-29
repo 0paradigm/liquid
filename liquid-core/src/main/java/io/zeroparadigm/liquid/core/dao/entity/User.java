@@ -24,8 +24,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import io.zeroparadigm.liquid.core.dao.annotation.Unique;
 import java.io.Serializable;
 
-import lombok.*;
-
 /**
  * User entity.
  *

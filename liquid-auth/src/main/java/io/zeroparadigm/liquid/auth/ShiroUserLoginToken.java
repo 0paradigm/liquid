@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.zeroparadigm.liquid.auth;
 
 import io.zeroparadigm.liquid.auth.enums.LoginType;
@@ -28,7 +45,7 @@ public class ShiroUserLoginToken extends UsernamePasswordToken {
     private String phone;
 
     private static final String PHONE_NUMBER_PATTERN =
-        Pattern.compile("^1[3456789]\\d{9}$").pattern();
+            Pattern.compile("^1[3456789]\\d{9}$").pattern();
 
     private static final String PHONE_CAPTCHA_PATTERN = Pattern.compile("^\\d{6}$").pattern();
 
@@ -48,8 +65,8 @@ public class ShiroUserLoginToken extends UsernamePasswordToken {
      * @param login username or email
      * @param password website password
      */
-    public ShiroUserLoginToken password(@Nullable String login, @Nullable String password)
-        throws InvalidCredentialFieldException {
+    public ShiroUserLoginToken password(@Nullable String login,
+                                        @Nullable String password) throws InvalidCredentialFieldException {
         if (!StringUtils.hasText(login)) {
             throw new InvalidCredentialFieldException("Login field is necessary", "账号为必填项");
         }
@@ -68,8 +85,8 @@ public class ShiroUserLoginToken extends UsernamePasswordToken {
      * @param phone phone number
      * @param captcha captcha received
      */
-    public ShiroUserLoginToken phoneCaptcha(@Nullable String phone, @Nullable String captcha)
-        throws InvalidCredentialFieldException {
+    public ShiroUserLoginToken phoneCaptcha(@Nullable String phone,
+                                            @Nullable String captcha) throws InvalidCredentialFieldException {
         if (!StringUtils.hasText(phone)) {
             throw new InvalidCredentialFieldException("Phone number is necessary", "手机号为必填项");
         } else if (!Pattern.matches(PHONE_NUMBER_PATTERN, phone)) {

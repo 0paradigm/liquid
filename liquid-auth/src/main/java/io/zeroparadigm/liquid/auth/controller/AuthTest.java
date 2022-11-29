@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.zeroparadigm.liquid.auth.controller;
 
 import io.swagger.annotations.Api;
@@ -33,6 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 public class AuthTest {
+
     @Autowired
     private AuthService authService;
 
@@ -40,16 +58,11 @@ public class AuthTest {
     private JwtUtils jwtUtils;
 
     @ApiOperation(value = "login", notes = "Specify login method and provide credentials")
-    @ApiImplicitParam(
-        name = "credentials",
-        value = "login type and related credentials",
-        paramType = "body",
-        required = true,
-        dataTypeClass = LoginCredentials.class)
+    @ApiImplicitParam(name = "credentials", value = "login type and related credentials", paramType = "body", required = true, dataTypeClass = LoginCredentials.class)
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Success"),
-        @ApiResponse(code = 406, message = "Wrong credentials"),
-        @ApiResponse(code = 400, message = "General errors")
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 406, message = "Wrong credentials"),
+            @ApiResponse(code = 400, message = "General errors")
     })
     @RequestMapping("/login")
     public Result<Map<String, Serializable>> login(@RequestBody LoginCredentials credentials) {
@@ -57,15 +70,15 @@ public class AuthTest {
         try {
             Subject subject = authService.login(credentials);
             log.info(
-                "User '{}' logged in via '{}'",
-                credentials.getLogin(),
-                credentials.getType().getIdentifier());
+                    "User '{}' logged in via '{}'",
+                    credentials.getLogin(),
+                    credentials.getType().getIdentifier());
             return Result.success(
-                Map.of(
-                    "token",
-                    jwtUtils.createTokenFor(
-                        ((UserBO) subject.getPrincipal()).getId(),
-                        credentials.getRemember())));
+                    Map.of(
+                            "token",
+                            jwtUtils.createTokenFor(
+                                    ((UserBO) subject.getPrincipal()).getId(),
+                                    credentials.getRemember())));
         } catch (InvalidCredentialFieldException e) {
             errResult = Result.error(ServiceStatus.MISSING_CREDENTIAL, e.getMsg());
         } catch (UnknownAccountException e) {
@@ -77,7 +90,6 @@ public class AuthTest {
         }
         return errResult;
     }
-
 
     @PostMapping("/whoami")
     public Result<Map<String, Serializable>> whoami() {
@@ -91,17 +103,15 @@ public class AuthTest {
         return Result.success(name);
     }
 
-
     @ApiOperation(value = "logout", notes = "Destroy current token in backend")
     @PostMapping("/logout")
     @SuppressWarnings({"rawtypes", "checkstyle:MissingJavadocMethod"})
     public Result logout() {
         SecurityUtils.getSubject().logout();
         log.info(
-            "[ip: {}, session: {}] logged out",
-            SecurityUtils.getSubject().getSession().getHost(),
-            SecurityUtils.getSubject().getSession().getId());
+                "[ip: {}, session: {}] logged out",
+                SecurityUtils.getSubject().getSession().getHost(),
+                SecurityUtils.getSubject().getSession().getId());
         return Result.success();
     }
 }
-

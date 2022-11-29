@@ -22,9 +22,6 @@ import io.zeroparadigm.liquid.git.service.GitWebService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.tomcat.util.http.fileupload.FileItem;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItem;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -40,16 +37,14 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.Min;
-import java.io.*;
+
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
 
 @Slf4j
 @Service
@@ -191,7 +186,7 @@ public class GitWebServiceImpl implements GitWebService {
     }
 
     private synchronized File selectCache(String owner, String repo) {
-        for (int i = 0; ; i++, i %= cacheObjNum) {
+        for (int i = 0;; i++, i %= cacheObjNum) {
             File cacheRepo = Path.of(gitCacheStorage, owner, String.format("%s-%d", repo, i)).toFile();
             if (!Files.exists(cacheRepo.toPath())) {
                 createCache(owner, repo);
@@ -284,8 +279,7 @@ public class GitWebServiceImpl implements GitWebService {
     public List<LatestCommitInfo> listFiles(String owner,
                                             String repo,
                                             String branchOrCommit,
-                                            @Nullable String relPath)
-            throws IOException, GitAPIException {
+                                            @Nullable String relPath) throws IOException, GitAPIException {
         relPath = URLDecoder.decode(Objects.requireNonNullElse(relPath, ""), StandardCharsets.UTF_8);
         File repoRoot = selectCache(owner, repo);
         File repoFs = Path.of(repoRoot.getPath(), relPath).toFile();
@@ -306,7 +300,8 @@ public class GitWebServiceImpl implements GitWebService {
     }
 
     @Override
-    public byte[] getFile(String owner, String repo, String branchOrCommit, String filePath) throws IOException, GitAPIException {
+    public byte[] getFile(String owner, String repo, String branchOrCommit,
+                          String filePath) throws IOException, GitAPIException {
         File repoRoot = selectCache(owner, repo);
         filePath = URLDecoder.decode(filePath, StandardCharsets.UTF_8);
 
@@ -314,13 +309,14 @@ public class GitWebServiceImpl implements GitWebService {
             cacheCheckout(git, branchOrCommit);
 
             File file = new File(repoRoot, filePath);
-//            DiskFileItem fileItem = new DiskFileItem("mainFile", Files.probeContentType(file.toPath()), false, file.getName(), (int) file.length(), file.getParentFile());
+            // DiskFileItem fileItem = new DiskFileItem("mainFile", Files.probeContentType(file.toPath()), false,
+            // file.getName(), (int) file.length(), file.getParentFile());
 
             try (
                     InputStream input = new FileInputStream(file);
-//                OutputStream os = fileItem.getOutputStream()
+            // OutputStream os = fileItem.getOutputStream()
             ) {
-//                IOUtils.copy(input, os);
+                // IOUtils.copy(input, os);
                 return input.readAllBytes();
             }
         }
@@ -330,20 +326,20 @@ public class GitWebServiceImpl implements GitWebService {
     @Nullable
     public RevCommit latestCommitOfCurrentRepo(String owner, String repo, String branchOrCommit,
                                                @Nullable String relPath) throws IOException, GitAPIException {
-//        File repoFs = Path.of(gitStorage, owner, repo, Objects.requireNonNullElse(relPath, "")).toFile();
-//
-//        try (Git git = Git.open(repoFs)) {
-//            git.checkout()
-//                    .setName(branchOrCommit)
-//                    .call();
-//
-//            return git.log()
-//                    .addPath(relPath)
-//                    .setMaxCount(1)
-//                    .call()
-//                    .iterator()
-//                    .next();
-//        }
+        // File repoFs = Path.of(gitStorage, owner, repo, Objects.requireNonNullElse(relPath, "")).toFile();
+        //
+        // try (Git git = Git.open(repoFs)) {
+        // git.checkout()
+        // .setName(branchOrCommit)
+        // .call();
+        //
+        // return git.log()
+        // .addPath(relPath)
+        // .setMaxCount(1)
+        // .call()
+        // .iterator()
+        // .next();
+        // }
         // fetch database to find out the real user
         return null;
     }
