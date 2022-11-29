@@ -19,6 +19,16 @@ package io.zeroparadigm.liquid.git.service.impl;
 
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import io.zeroparadigm.liquid.git.service.GitWebService;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -313,8 +323,8 @@ public class GitWebServiceImpl implements GitWebService {
             // file.getName(), (int) file.length(), file.getParentFile());
 
             try (
-                    InputStream input = new FileInputStream(file);
-            // OutputStream os = fileItem.getOutputStream()
+                InputStream input = new FileInputStream(file);
+                // OutputStream os = fileItem.getOutputStream()
             ) {
                 // IOUtils.copy(input, os);
                 return input.readAllBytes();

@@ -75,7 +75,7 @@ public class UserController {
                                 @RequestParam String name,
                                 @RequestBody(required = false) String ts) {
         log.debug("User {}", name);
-        return Result.success(userService.greet(name));
+        return Result.success("userService.greet(name)");
     }
 
     /**
@@ -93,12 +93,6 @@ public class UserController {
     @WrapsException(value = ServiceStatus.INTERNAL_SERVER_ERROR_ARGS, status = HttpStatus.NOT_ACCEPTABLE)
     public Result<User> getUserNamedAs(@RequestParam(value = "name") String name) {
         throw new RuntimeException();
-    }
-
-    @PostMapping("/upload")
-    public String upload(MultipartFile file) {
-        return userService.getMinioService()
-                .upload(file, file.getName(), StorageConsts.MINIO_AVATAR_BUCKET);
     }
 
     @PostMapping("/getCredential")
