@@ -19,6 +19,7 @@ package io.zeroparadigm.liquid.core.service.impl;
 
 import io.zeroparadigm.liquid.common.api.media.MinioService;
 import io.zeroparadigm.liquid.core.dao.UserDao;
+import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.service.UserService;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +34,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserDao userDao;
 
-    @DubboReference(parameters = {"unicast", "false"})
-    private MinioService minioService;
-
     @Override
-    @Cacheable
-    public String greet(String s) {
-        return " hi!";
-    }
-
-    public MinioService getMinioService() {
-        return minioService;
+    public User findByLoginOrEmail(String loginOrEmail) {
+        return null;
     }
 }

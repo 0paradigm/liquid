@@ -121,8 +121,7 @@ services:
 #    env_file:
 #      - env/liquid-git.env
     volumes:
-#      - liquid-git-storage:/storage
-      - sa-runtime/git/storage:/storage
+      - liquid-git-storage:/storage
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8004/actuator/health" ]
       interval: 10s

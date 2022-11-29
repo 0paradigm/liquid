@@ -4,6 +4,9 @@ import io.zeroparadigm.liquid.common.api.core.UserAuthService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
 import org.apache.dubbo.config.annotation.DubboService;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 @DubboService
 public class UserAuthServiceImpl implements UserAuthService {
     //FIXME: Just for test!
