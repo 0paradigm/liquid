@@ -61,14 +61,14 @@ public class UserController {
      */
     @ApiOperation(value = "hello", notes = "says hello to the person")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "name", value = "USER_NAME", required = true, dataTypeClass = String.class, example = "chris")
+            @ApiImplicitParam(name = "name", value = "USER_NAME", required = true, dataTypeClass = String.class, example = "chris")
     })
     @PostMapping(value = "/hello")
     @ResponseStatus(HttpStatus.CREATED)
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<String> hello(
-        @RequestParam String name,
-        @RequestBody(required = false) String ts) {
+                                @RequestParam String name,
+                                @RequestBody(required = false) String ts) {
         log.debug("User {}", name);
         return Result.success("userService.greet(name)");
     }
@@ -81,7 +81,7 @@ public class UserController {
      */
     @ApiOperation(value = "getUserNamedAs", notes = "queries the first user with that name")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "name", value = "user's name", required = true, dataTypeClass = String.class, example = "foo")
+            @ApiImplicitParam(name = "name", value = "user's name", required = true, dataTypeClass = String.class, example = "foo")
     })
     @PostMapping(value = "/user")
     @ResponseStatus(HttpStatus.OK)

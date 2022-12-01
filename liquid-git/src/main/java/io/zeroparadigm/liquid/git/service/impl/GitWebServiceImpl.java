@@ -323,8 +323,8 @@ public class GitWebServiceImpl implements GitWebService {
             // file.getName(), (int) file.length(), file.getParentFile());
 
             try (
-                InputStream input = new FileInputStream(file);
-                // OutputStream os = fileItem.getOutputStream()
+                    InputStream input = new FileInputStream(file);
+            // OutputStream os = fileItem.getOutputStream()
             ) {
                 // IOUtils.copy(input, os);
                 return input.readAllBytes();

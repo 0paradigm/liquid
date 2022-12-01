@@ -31,11 +31,11 @@
     <name>${project.artifactId}</name>
 
     <dependencies>
+        <!-- spring-cloud -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
-        <!-- spring-cloud -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
