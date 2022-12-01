@@ -23,8 +23,14 @@ import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+import org.springframework.test.context.TestPropertySource;
 
 @Component
+@TestPropertySource(properties = {
+        "dubbo.consumer.scope = local",
+        "dubbo.consumer.check = false",
+        "dubbo.registry.address = N/A",
+})
 public class DubboMockFactory {
 
     @Bean

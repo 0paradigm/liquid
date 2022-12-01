@@ -29,3 +29,9 @@ dubbo:
   protocol:
     name: dubbo
     port: -1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

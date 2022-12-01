@@ -1,3 +1,6 @@
+build:
+  version: @project.version@
+
 spring:
   mvc:
     throw-exception-if-no-handler-found: true
@@ -16,6 +19,7 @@ spring:
     cache-duration: 3600
     encoding: UTF-8
 
+  # TODO: nacos
   redis:
     host: localhost
     port: 16379
@@ -30,9 +34,10 @@ spring:
         min-idle: 0
         max-wait: -1
 
+  # TODO: nacos
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:13306/liquid?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mysql://liquid-core-ds:13306/liquid?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
     username: root
     password: liquid
 
@@ -44,7 +49,3 @@ logging:
   file:
     path: classpath:logs
     name: liquid-core.log
-
-build:
-  version: @project.version@
-  timestamp: @maven.build.timestamp@

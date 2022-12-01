@@ -20,6 +20,8 @@ package io.zeroparadigm.liquid.common.api.media;
 import org.springframework.stereotype.Service;
 
 /**
+ * Avatar resources, image procession supported.
+ *
  * @author hezean
  */
 @Service

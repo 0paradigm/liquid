@@ -17,8 +17,8 @@
 
 package io.zeroparadigm.liquid.core.exceptions.handlers;
 
+import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
-import io.zeroparadigm.liquid.core.dto.Result;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;

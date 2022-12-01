@@ -17,7 +17,7 @@
 
 package io.zeroparadigm.liquid.core.base.interceptor;
 
-import io.zeroparadigm.liquid.common.constants.Common;
+import io.zeroparadigm.liquid.common.constants.CommonConsts;
 import java.util.Locale;
 import java.util.Objects;
 import javax.servlet.http.Cookie;
@@ -48,7 +48,7 @@ public class LocaleInterceptor implements HandlerInterceptor {
                              @NotNull HttpServletResponse response,
                              @NotNull Object handler) {
 
-        Cookie localeCookie = WebUtils.getCookie(request, Common.LOCALE_INDICATOR_NAME);
+        Cookie localeCookie = WebUtils.getCookie(request, CommonConsts.LOCALE_INDICATOR_NAME);
         if (Objects.nonNull(localeCookie)) {
             Locale localeCookie0 = StringUtils.parseLocale(localeCookie.getValue());
             if (Objects.nonNull(localeCookie0)) {
@@ -58,11 +58,11 @@ public class LocaleInterceptor implements HandlerInterceptor {
         }
 
         Locale localeHeader =
-                StringUtils.parseLocale(request.getHeader(Common.LOCALE_INDICATOR_NAME));
+                StringUtils.parseLocale(request.getHeader(CommonConsts.LOCALE_INDICATOR_NAME));
         if (Objects.nonNull(localeHeader)) {
             LocaleContextHolder.setLocale(localeHeader);
             response.addCookie(
-                    new Cookie(Common.LOCALE_INDICATOR_NAME, localeHeader.getLanguage()));
+                    new Cookie(CommonConsts.LOCALE_INDICATOR_NAME, localeHeader.getLanguage()));
         }
         return true;
     }

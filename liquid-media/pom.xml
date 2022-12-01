@@ -34,6 +34,10 @@
         <!-- spring-cloud -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
@@ -50,18 +54,16 @@
             <artifactId>dubbo-spring-boot-starter</artifactId>
             <version>3.1.1</version>
         </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.4.24</version>
+        </dependency>
 
-        <!-- liquid-api -->
+        <!-- liquid -->
         <dependency>
             <groupId>io.zeroparadigm.liquid</groupId>
             <artifactId>liquid-common</artifactId>
-        </dependency>
-
-        <!-- api-docs -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-webmvc-core</artifactId>
-            <version>1.6.11</version>
         </dependency>
 
         <!-- resource-manager -->
@@ -74,6 +76,13 @@
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>4.10.0</version>
+        </dependency>
+
+        <!-- docs -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-micro-spring-boot-starter</artifactId>
+            <version>3.0.3</version>
         </dependency>
     </dependencies>
 

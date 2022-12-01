@@ -18,8 +18,9 @@
 package io.zeroparadigm.liquid.media.controller;
 
 import io.zeroparadigm.liquid.common.api.media.MinioService;
-import io.zeroparadigm.liquid.common.constants.Common;
 import javax.annotation.PostConstruct;
+
+import io.zeroparadigm.liquid.common.constants.StorageConsts;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,13 +43,13 @@ public class AvatarController {
 
     @PostConstruct
     private void createBucket() {
-        log.info("Creating bucket '{}'", Common.MINIO_AVATAR_BUCKET);
-        minioService.createBucketIfNotExists(Common.MINIO_AVATAR_BUCKET);
+        log.info("Creating bucket '{}'", StorageConsts.MINIO_AVATAR_BUCKET);
+        minioService.createBucketIfNotExists(StorageConsts.MINIO_AVATAR_BUCKET);
     }
 
     @PostMapping("/upload")
     public String upload(MultipartFile file) {
-        return minioService.upload(file, file.getName(), Common.MINIO_AVATAR_BUCKET);
+        return minioService.upload(file, file.getName(), StorageConsts.MINIO_AVATAR_BUCKET);
     }
 
     @GetMapping("/hello/{name}")

@@ -18,11 +18,15 @@
 package io.zeroparadigm.liquid.core.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import io.zeroparadigm.liquid.core.dao.entity.Repo;
 import io.zeroparadigm.liquid.core.dao.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+
+import java.util.List;
 
 /**
  * User mapper.
@@ -43,6 +47,13 @@ public interface UserMapper extends BaseMapper<User> {
     User findById(@Nullable @Param("id") Integer id);
 
     /**
+     * Deletes user by id.
+     *
+     * @param id liquid id
+     */
+    void deleteById(@NonNull @Param("id") Integer id);
+
+    /**
      * Gets first user with target name or mail.
      *
      * @param nameOrMail the user's name or email
@@ -50,4 +61,29 @@ public interface UserMapper extends BaseMapper<User> {
      */
     @Nullable
     User findByNameOrMail(@Param("name_or_mail") String nameOrMail);
+
+    /**
+     * Stars a repo.
+     *
+     * @param login  user's login
+     * @param repoId repo's id
+     */
+    void starRepo(@Param("user") String login, @Param("repo") Integer repoId);
+
+    /**
+     * Undo star a repo.
+     *
+     * @param login  user's login
+     * @param repoId repo's id
+     */
+    void unstarRepo(@Param("user") String login, @Param("repo") Integer repoId);
+
+    /**
+     * List repos of the user.
+     *
+     * @param login user's login
+     * @return all repo of this user
+     */
+    @Nullable
+    List<Repo> listUserRepos(@Param("user") String login);
 }

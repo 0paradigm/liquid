@@ -6,9 +6,13 @@ ci:
   - '.github/**/*'
 
 deploy:
-  - 'liquid-docker'
+  - 'liquid-docker/**/*'
   - '**/Dockerfile'
   - '**/*compose.yml'
+
+cloud-base:
+  - 'liquid-gateway/**/*'
+  - 'liquid-docker/image/**/*'
 
 core:
   - 'liquid-core/**/*'

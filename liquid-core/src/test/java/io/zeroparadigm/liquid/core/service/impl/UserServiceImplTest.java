@@ -17,7 +17,6 @@
 
 package io.zeroparadigm.liquid.core.service.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 import io.zeroparadigm.liquid.common.api.media.MinioService;
@@ -46,6 +45,5 @@ class UserServiceImplTest {
     void testA() {
         given(minioService.upload(null, null, "a"))
                 .willReturn("ok");
-        assertThat(userService.getMinioService().upload(null, null, "a")).isEqualTo("ok");
     }
 }
