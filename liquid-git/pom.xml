@@ -144,55 +144,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>0.40.2</version>
-                <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <id>pre-integration-test</id>
-                        <goals>
-                            <goal>build</goal>
-                            <goal>start</goal>
-                        </goals>
-                        <configuration>
-                            <images>
-                                <image>
-                                    <name>liquid-git-minio</name>
-                                    <external>
-                                        <type>compose</type>
-                                        <basedir>src/test/resources</basedir>
-                                        <composeFile>minio-compose.yml</composeFile>
-                                    </external>
-                                    <run>
-                                        <wait>
-                                            <log>.*MinIO Object Storage Server.*</log>
-                                            <time>60000</time>
-                                        </wait>
-                                    </run>
-                                </image>
-                            </images>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>post-integration-test</id>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                        <configuration>
-                            <images>
-                                <image>
-                                    <name>liquid-git-minio</name>
-                                    <watch>
-                                        <interval>2000</interval>
-                                    </watch>
-                                </image>
-                            </images>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 </project>
