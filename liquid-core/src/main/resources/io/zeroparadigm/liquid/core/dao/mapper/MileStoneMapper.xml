@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.MileStoneMapper">
+    <update id="updateDueById">
+        UPDATE `t_ds_milestone`
+        SET `due` = #{due}
+        WHERE `id` = #{id};
+    </update>
+
+    <delete id="deleteById">
+        DELETE
+        FROM `t_ds_milestone`
+        WHERE `id` = #{id};
+    </delete>
+
+    <select id="findById" resultType="io.zeroparadigm.liquid.core.dao.entity.MileStone">
+        SELECT *
+        FROM `t_ds_milestone`
+        WHERE `id` = #{id};
+    </select>
+
+    <select id="findByRepoId" resultType="io.zeroparadigm.liquid.core.dao.entity.MileStone">
+        SELECT *
+        FROM `t_ds_milestone`
+        WHERE `repo` = #{repo_id};
+    </select>
+</mapper>

@@ -79,6 +79,29 @@ public interface UserMapper extends BaseMapper<User> {
     void unstarRepo(@Param("user") String login, @Param("repo") Integer repoId);
 
     /**
+     * Watch a repo
+     *
+     * @param login         user's login
+     * @param repoId        repo's id
+     * @param participation participation
+     * @param issues        issues
+     * @param pulls         pulls
+     * @param releases      releases
+     * @param discussions discussions
+     * @param security_alerts securtiy alerts
+     */
+    void watchRepo(@Param("user") String login, @Param("repo") Integer repoId,
+                   @Param("participation") Boolean participation, @Param("issues") Boolean issues,
+                   @Param("pulls") Boolean pulls, @Param("releases") Boolean releases,
+                   @Param("discussions") Boolean discussions, @Param("security_alerts") Boolean security_alerts);
+
+    /**
+     * Unwatch a repo
+     */
+    void unwatchRepo(@Param("user") String login, @Param("repo") Integer repoId);
+
+
+    /**
      * List repos of the user.
      *
      * @param login user's login

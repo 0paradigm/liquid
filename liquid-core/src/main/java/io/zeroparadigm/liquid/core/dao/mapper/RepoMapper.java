@@ -90,4 +90,41 @@ public interface RepoMapper extends BaseMapper<Repo> {
      */
     @Nullable
     List<User> listStarers(@Param("id") Integer repoId);
+
+    /**
+     *  Count watchers.
+     */
+    @Nullable
+    Integer countWatchers(@Param("id") Integer repoId);
+
+    /**
+     * List watchers.
+     */
+    @Nullable
+    List<User> listWatchers(@Param("id") Integer repoId);
+
+    /**
+     * Count forks.
+     */
+    @Nullable
+    Integer countForks(@Param("id") Integer repoId);
+
+    /**
+     * List forks.
+     */
+    @Nullable
+    List<Repo> listForks(@Param("id") Integer repoId);
+
+    // Todo: Implement after Contributor implementation
+//    /**
+//     * Count contributors.
+//     */
+//    @Nullable
+//    Integer countContributors(@Param("id") Integer repoId);
+//
+//    /**
+//     * List contributors.
+//     */
+//    @Nullable
+//    List<User> listContributors(@Param("id") Integer repoId);
 }

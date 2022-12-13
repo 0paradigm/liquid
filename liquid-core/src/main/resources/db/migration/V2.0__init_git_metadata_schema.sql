@@ -67,6 +67,7 @@ CREATE TABLE `t_ds_issue`
     `opener`     int    NOT NULL,
 
     `created_at` bigint NOT NULL,
+    `closed`    bool NOT NULL DEFAULT FALSE,
 
     CONSTRAINT `uniq__ds_issue__display_id` UNIQUE (`repo`, `display_id`)
 );
@@ -106,8 +107,31 @@ CREATE TABLE `t_rel_issue_labels`
     CONSTRAINT `uniq__rel_issue_labels__record` UNIQUE (`issue`, `label`)
 );
 
+CREATE TABLE `t_ds_repo_milestone`
+(
+    `id`          int PRIMARY KEY AUTO_INCREMENT,
+    `repo`        int         NOT NULL,
+    `name`        varchar(50) NOT NULL,
+    `description` text,
+
+    `due_at`      bigint,
+    `closed`      bool NOT NULL DEFAULT FALSE,
+
+    CONSTRAINT `fk__ds_repo_milestone__repo` FOREIGN KEY (`repo`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `uniq__ds_repo_milestone__name` UNIQUE (`repo`, `name`)
+);
+
+CREATE TABLE `t_rel_issue_milestone`
+(
+    `issue`     int NOT NULL,
+    `milestone` int NOT NULL,
+
+    CONSTRAINT `fk__rel_issue_milestone__issue` FOREIGN KEY (`issue`) REFERENCES `t_ds_issue` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk__rel_issue_milestone__milestone` FOREIGN KEY (`milestone`) REFERENCES `t_ds_repo_milestone` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `uniq__rel_issue_milestone__record` UNIQUE (`issue`, `milestone`)
+);
+
 
 -- TODO: t_ds_repo_project
 -- TODO: t_rel_issue_projects
--- TODO: t_ds_repo_milestone
--- TODO: t_rel_issue_milestone
+

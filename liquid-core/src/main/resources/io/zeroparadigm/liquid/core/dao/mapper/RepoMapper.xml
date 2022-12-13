@@ -19,16 +19,14 @@
         SELECT *
         FROM `t_ds_repo`
         WHERE `owner` = (SELECT `id` FROM `t_ds_user` WHERE `login` = #{owner})
-          AND `name` = #{name}
-        LIMIT 1;
+          AND `name` = #{name} LIMIT 1;
     </select>
 
     <select id="findByOwnerIdAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
         SELECT *
         FROM `t_ds_repo`
         WHERE `owner` = #{owner_id}
-          AND `name` = #{name}
-        LIMIT 1;
+          AND `name` = #{name} LIMIT 1;
     </select>
 
     <select id="countStarers" resultType="java.lang.Integer">
@@ -42,4 +40,42 @@
         FROM `t_ds_user`
         WHERE `id` IN (SELECT `user` FROM `t_rel_user_star` WHERE `repo` = #{id});
     </select>
+
+    <select id="countWatchers" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `t_rel_user_watch`
+        WHERE `repo` = ${id};
+    </select>
+
+    <select id="listWatchers" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+        SELECT *
+        FROM `t_ds_user`
+        WHERE `id` IN (SELECT `user` FROM `t_rel_user_watch` WHERE `repo` = #{id});
+    </select>
+
+    <select id="countForks" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `t_ds_repo`
+        WHERE `forked_from` = ${id};
+    </select>
+
+    <select id="listForks" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
+        SELECT `owner`
+        FROM `t_ds_repo`
+        WHERE `forked_from` = #{id};
+    </select>
+
+<!--    <select id="countContributors" resultType="java.lang.Integer">-->
+<!--        SELECT COUNT(*)-->
+<!--        FROM `t_ds_repo`-->
+<!--        WHERE `forked_from` = ${id};-->
+<!--    </select>-->
+
+<!--    <select id="listContributors" resultType="io.zeroparadigm.liquid.core.dao.entity.User">-->
+<!--        SELECT `owner`-->
+<!--        FROM `t_ds_repo`-->
+<!--        WHERE `forked_from` = #{id};-->
+<!--    </select>-->
+
+
 </mapper>
