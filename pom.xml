@@ -196,11 +196,6 @@
                             <file>misc/liquid-spotless-formatter.xml</file>
                         </eclipse>
                         <removeUnusedImports />
-                        <replaceRegex>
-                            <name>Remove wildcard imports</name>
-                            <searchRegex>import\s+[^\*\s]+\*;(\r\n|\r|\n)</searchRegex>
-                            <replacement>$1</replacement>
-                        </replaceRegex>
                         <licenseHeader>
                             <file>misc/license-header</file>
                         </licenseHeader>
