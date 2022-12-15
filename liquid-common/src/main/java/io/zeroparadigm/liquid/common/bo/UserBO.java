@@ -23,12 +23,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode
 @SuperBuilder
-public class UserBO {
+public class UserBO implements Serializable {
 
     private Integer id;
 
