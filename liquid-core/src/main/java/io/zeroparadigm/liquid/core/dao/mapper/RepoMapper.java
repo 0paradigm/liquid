@@ -116,15 +116,15 @@ public interface RepoMapper extends BaseMapper<Repo> {
     List<Repo> listForks(@Param("id") Integer repoId);
 
     // Todo: Implement after Contributor implementation
-//    /**
-//     * Count contributors.
-//     */
-//    @Nullable
-//    Integer countContributors(@Param("id") Integer repoId);
-//
-//    /**
-//     * List contributors.
-//     */
-//    @Nullable
-//    List<User> listContributors(@Param("id") Integer repoId);
+    // /**
+    // * Count contributors.
+    // */
+    // @Nullable
+    // Integer countContributors(@Param("id") Integer repoId);
+    //
+    // /**
+    // * List contributors.
+    // */
+    // @Nullable
+    // List<User> listContributors(@Param("id") Integer repoId);
 }

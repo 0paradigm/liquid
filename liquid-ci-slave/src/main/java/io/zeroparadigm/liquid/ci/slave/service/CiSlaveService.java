@@ -15,18 +15,8 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.common.api.auth;
+package io.zeroparadigm.liquid.ci.slave.service;
 
-import org.springframework.stereotype.Service;
+public interface CiSlaveService {
 
-@Service
-public interface JWTService {
-
-    /**
-     * Get User Id via JWT
-     *
-     * @param jwt JWT in request
-     * @return user Id
-     */
-    Integer getUserId(String jwt);
 }

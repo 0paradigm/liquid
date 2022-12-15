@@ -15,18 +15,24 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.common.api.auth;
+package io.zeroparadigm.liquid.ci.slave.base.config;
 
-import org.springframework.stereotype.Service;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
-@Service
-public interface JWTService {
+import javax.validation.constraints.NotBlank;
 
-    /**
-     * Get User Id via JWT
-     *
-     * @param jwt JWT in request
-     * @return user Id
-     */
-    Integer getUserId(String jwt);
+@Data
+@Validated
+@Component
+@ConfigurationProperties(prefix = "worker.docker")
+@ConfigurationPropertiesScan
+public class DockerConfiguration {
+
+    @NotBlank
+    private String dockerHost;
+
 }

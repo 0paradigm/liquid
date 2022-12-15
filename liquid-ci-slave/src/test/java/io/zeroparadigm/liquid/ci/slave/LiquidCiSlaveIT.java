@@ -15,18 +15,23 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.common.api.auth;
+package io.zeroparadigm.liquid.media;
 
-import org.springframework.stereotype.Service;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@Service
-public interface JWTService {
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 
-    /**
-     * Get User Id via JWT
-     *
-     * @param jwt JWT in request
-     * @return user Id
-     */
-    Integer getUserId(String jwt);
+@SpringBootTest(classes = LiquidCiSlaveIT.class)
+class LiquidCiSlaveIT {
+
+    @Autowired
+    ApplicationContext ctx;
+
+    @Test
+    void contextLoads() {
+        assertThat(ctx).isNotNull();
+    }
 }

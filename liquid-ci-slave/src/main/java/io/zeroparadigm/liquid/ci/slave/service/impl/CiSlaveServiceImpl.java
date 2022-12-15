@@ -15,14 +15,10 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.core.service;
+package io.zeroparadigm.liquid.ci.slave.service.impl;
 
-import io.zeroparadigm.liquid.core.dao.entity.User;
-import org.springframework.lang.Nullable;
+import io.zeroparadigm.liquid.ci.slave.service.CiSlaveService;
 
-public interface UserService {
-
-    @Nullable
-    User findByLoginOrEmail(String loginOrEmail);
+public class CiSlaveServiceImpl implements CiSlaveService {
 
 }

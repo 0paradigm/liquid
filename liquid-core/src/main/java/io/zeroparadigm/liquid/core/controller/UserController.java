@@ -32,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
 
 import io.zeroparadigm.liquid.core.dao.entity.Repo;
 
@@ -98,8 +97,8 @@ public class UserController {
     public Result<Boolean> watch(@RequestHeader("Authorization") String token, @RequestParam("id") Integer id,
                                  @RequestParam("particip") Boolean participation, @RequestParam("issue") Boolean issue,
                                  @RequestParam("pull") Boolean pull, @RequestParam("release") Boolean release,
-                                 @RequestParam("discuss") Boolean discussion, @RequestParam("alerts") Boolean security_alerts
-    ) {
+                                 @RequestParam("discuss") Boolean discussion,
+                                 @RequestParam("alerts") Boolean security_alerts) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -147,8 +146,8 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<String> hello(
-            @RequestParam String name,
-            @RequestBody(required = false) String ts) {
+                                @RequestParam String name,
+                                @RequestBody(required = false) String ts) {
         log.debug("User {}", name);
         return Result.success("userService.greet(name)");
     }
@@ -169,7 +168,6 @@ public class UserController {
     public Result<User> getUserNamedAs(@RequestParam(value = "name") String name) {
         throw new RuntimeException();
     }
-
 
     @RequestMapping(value = "/userId")
     public Result<Integer> getUserIdViaJWT(@RequestHeader(value = "Token") String jwt) {

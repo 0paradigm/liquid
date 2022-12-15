@@ -42,6 +42,7 @@
         <module>liquid-media</module>
         <module>liquid-auth</module>
         <module>liquid-git</module>
+        <module>liquid-ci-slave</module>
     </modules>
 
     <properties>
@@ -57,6 +58,7 @@
         <liquid_media.port>8003</liquid_media.port>
         <liquid_git.port>8004</liquid_git.port>
         <liquid_auth.port>8005</liquid_auth.port>
+        <liquid_ci_slave.port>8006</liquid_ci_slave.port>
     </properties>
 
     <dependencyManagement>
