@@ -28,7 +28,6 @@ import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
 import io.zeroparadigm.liquid.core.dao.UserDao;
 import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
-import io.zeroparadigm.liquid.core.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,9 +52,6 @@ public class UserController {
 
     @Autowired
     UserDao userDao;
-
-    @Autowired
-    UserService userService;
 
     @DubboReference
     JWTService jwtService;
