@@ -24,14 +24,14 @@ dubbo:
     protocol: nacos
     address: ${NACOS_ADDR:@liquid_nacos.addr@}?namespace=@liquid_dubbo.namespace@
     group: @liquid_dubbo.group@
+  scan:
+    base-packages: io.zeroparadigm.liquid.auth.service.impl
   protocol:
     name: dubbo
     port: -1
   consumer:
     check: false
     retries: 3
-    timeout: 600000
-
-
-
-
+    timeout: 300000
+  provider:
+    timeout: 300000
