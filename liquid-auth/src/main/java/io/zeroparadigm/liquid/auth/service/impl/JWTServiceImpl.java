@@ -12,6 +12,11 @@ public class JWTServiceImpl implements JWTService {
     @Autowired
     JwtUtils jwtUtils;
 
+    /**
+     * 
+     * @param jwt JWT in request
+     * @return userId in Integer, maybe null
+     */
     @Override
     public Integer getUserId(String jwt) {
         return jwtUtils.getUserId(jwt);
