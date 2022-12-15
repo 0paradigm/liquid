@@ -15,14 +15,14 @@
         WHERE `id` = #{id};
     </delete>
 
-    <select id="findByOwnerAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+    <select id="findByOwnerAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
         SELECT *
         FROM `t_ds_repo`
         WHERE `owner` = (SELECT `id` FROM `t_ds_user` WHERE `login` = #{owner})
           AND `name` = #{name} LIMIT 1;
     </select>
 
-    <select id="findByOwnerIdAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+    <select id="findByOwnerIdAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
         SELECT *
         FROM `t_ds_repo`
         WHERE `owner` = #{owner_id}

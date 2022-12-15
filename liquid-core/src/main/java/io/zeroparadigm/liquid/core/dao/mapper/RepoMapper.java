@@ -61,7 +61,7 @@ public interface RepoMapper extends BaseMapper<Repo> {
      * @return the repo entity, or null
      */
     @Nullable
-    User findByOwnerAndName(@Param("owner") String owner, @Param("name") String name);
+    Repo findByOwnerAndName(@Param("owner") String owner, @Param("name") String name);
 
     /**
      * Gets repo "owner/name".
@@ -71,7 +71,7 @@ public interface RepoMapper extends BaseMapper<Repo> {
      * @return the repo entity, or null
      */
     @Nullable
-    User findByOwnerIdAndName(@Param("owner_id") Integer ownerId, @Param("name") String name);
+    Repo findByOwnerIdAndName(@Param("owner_id") Integer ownerId, @Param("name") String name);
 
     /**
      * Count starer.
