@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.zeroparadigm.liquid.common.api.auth.JWTService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.auth.dto.LoginCredentials;
@@ -43,10 +44,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Api(value = "登录模块", tags = {"登录模块"})
+@Api(value = "login module", tags = {"login module"})
 @Slf4j
 @RestController
 public class AuthTest {
@@ -56,6 +59,9 @@ public class AuthTest {
 
     @Autowired
     private JwtUtils jwtUtils;
+
+    @Autowired
+    private JWTService jwtService;
 
     @ApiOperation(value = "login", notes = "Specify login method and provide credentials")
     @ApiImplicitParam(name = "credentials", value = "login type and related credentials", paramType = "body", required = true, dataTypeClass = LoginCredentials.class)
@@ -91,10 +97,16 @@ public class AuthTest {
         return errResult;
     }
 
-    @PostMapping("/whoami")
-    public Result<Map<String, Serializable>> whoami() {
-        Subject subject = SecurityUtils.getSubject();
-        return Result.success(Map.of("name", ((UserBO) subject.getPrincipal()).getId()));
+    @RequestMapping("/getUserId")
+    public Result<Integer> jwtTest(@RequestHeader(value = "Token") String jwt){
+        log.info("token-->"+jwt);
+        Result<Integer> result;
+        Integer id = jwtService.getUserId(jwt);
+        if (id.equals(null)){
+            return Result.success(id);
+        }else {
+            return Result.error(ServiceStatus.ERROR_LOGGING, -1);
+        }
     }
 
     @RequiresAuthentication()

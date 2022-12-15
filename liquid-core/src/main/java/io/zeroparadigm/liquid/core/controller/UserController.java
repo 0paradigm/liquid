@@ -21,6 +21,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.zeroparadigm.liquid.common.api.auth.JWTService;
 import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
@@ -28,10 +29,12 @@ import io.zeroparadigm.liquid.core.dao.UserDao;
 import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -53,6 +56,8 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @DubboReference
+    JWTService jwtService;
     /**
      * Says hello to the person.
      *
@@ -90,4 +95,16 @@ public class UserController {
         throw new RuntimeException();
     }
 
+
+    @RequestMapping(value = "/userId")
+    public Result<Integer> getUserIdViaJWT(@RequestHeader(value = "Token") String jwt){
+        log.info("token-->"+jwt);
+        Result<Integer> result;
+        Integer id = jwtService.getUserId(jwt);
+        if (id.equals(null)){
+            return Result.success(id);
+        }else {
+            return Result.error(ServiceStatus.ERROR_LOGGING, -1);
+        }
+    }
 }
