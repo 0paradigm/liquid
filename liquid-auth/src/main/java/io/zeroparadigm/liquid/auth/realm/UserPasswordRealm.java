@@ -62,7 +62,7 @@ public class UserPasswordRealm extends GenericAuthorizationRealm {
         if (Objects.isNull(user)) {
             throw new UnknownAccountException();
         }
-        return new SimpleAuthenticationInfo(user, user.getPassword(), getName());
+        return new SimpleAuthenticationInfo(user, authService.getPassword(), getName());
     }
 
     /** Cleans auth cache after update permissions. */

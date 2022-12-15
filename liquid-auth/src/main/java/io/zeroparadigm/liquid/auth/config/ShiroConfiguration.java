@@ -45,6 +45,8 @@ package io.zeroparadigm.liquid.auth.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.zeroparadigm.liquid.auth.MultiRealmAuthenticator;
+import io.zeroparadigm.liquid.auth.filters.NoRedirectLogoutFilter;
+import io.zeroparadigm.liquid.auth.filters.RestJwtTokenVerifyFilter;
 import io.zeroparadigm.liquid.auth.realm.GenericAuthorizationRealm;
 import io.zeroparadigm.liquid.auth.realm.JwtVerifyRealm;
 import io.zeroparadigm.liquid.auth.realm.UserPasswordRealm;
@@ -54,6 +56,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.Filter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
@@ -165,11 +168,11 @@ public class ShiroConfiguration {
 
         bean.setSecurityManager(securityManager());
 
-        // Map<String, Filter> filters = new LinkedHashMap<>();
-        // filters.put("authc", new RestJwtTokenVerifyFilter());
-        // filters.put("logout", new NoRedirectLogoutFilter());
-        //
-        // bean.setFilters(filters);
+//        Map<String, Filter> filters = new LinkedHashMap<>();
+//        filters.put("authc", new RestJwtTokenVerifyFilter());
+//        filters.put("logout", new NoRedirectLogoutFilter());
+//
+//        bean.setFilters(filters);
 
         List<Map<String, String>> rc;
         try {

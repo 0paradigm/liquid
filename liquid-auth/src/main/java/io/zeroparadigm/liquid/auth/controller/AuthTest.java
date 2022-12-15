@@ -46,6 +46,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Api(value = "login module", tags = {"login module"})
@@ -97,13 +98,13 @@ public class AuthTest {
     }
 
     @RequestMapping("/getUserId")
-    public Result<Integer> jwtTest(@RequestHeader(value = "Token") String jwt) {
-        log.info("token-->" + jwt);
+    public Result<Integer> jwtTest(@RequestHeader(value = "Token") String jwt){
+        log.info("token-->"+jwt);
         Result<Integer> result;
         Integer id = jwtService.getUserId(jwt);
-        if (id.equals(null)) {
+        if (id.equals(null)){
             return Result.success(id);
-        } else {
+        }else {
             return Result.error(ServiceStatus.ERROR_LOGGING, -1);
         }
     }

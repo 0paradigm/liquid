@@ -23,5 +23,7 @@ public interface UserAuthService {
 
     public UserBO findByNameOrMail(String login);
 
+    public Object getPassword();
+
     public UserBO findById(Integer userId);
 }

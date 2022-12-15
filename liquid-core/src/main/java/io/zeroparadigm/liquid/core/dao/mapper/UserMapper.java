@@ -100,6 +100,7 @@ public interface UserMapper extends BaseMapper<User> {
      */
     void unwatchRepo(@Param("user") String login, @Param("repo") Integer repoId);
 
+
     /**
      * List repos of the user.
      *

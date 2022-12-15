@@ -19,35 +19,34 @@ package io.zeroparadigm.liquid.core.service.impl;
 
 import io.zeroparadigm.liquid.common.api.core.UserAuthService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
-import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
 import org.apache.dubbo.config.annotation.DubboService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @DubboService
 public class UserAuthServiceImpl implements UserAuthService {
-
-    @Autowired
-    private UserMapper userMapper;
+    // FIXME: Just for test!
 
     @Override
     public UserBO findByNameOrMail(String login) {
-        var userRec = userMapper.findByNameOrMail(login);
-        return UserBO.builder()
-                .id(userRec.getId())
-                .login(userRec.getLogin())
-                .email(userRec.getEmail())
-                .password(userRec.getPassword())
-                .build();
+        UserBO userBO = new UserBO();
+        userBO.setLogin("liquid-official");
+        userBO.setId(1);
+        userBO.setPassword("liquid");
+        userBO.setEmail("admin@liquid.com");
+        return userBO;
+    }
+
+    @Override
+    public Object getPassword() {
+        return "liquid";
     }
 
     @Override
     public UserBO findById(Integer userId) {
-        var userRec = userMapper.findById(userId);
-        return UserBO.builder()
-                .id(userRec.getId())
-                .login(userRec.getLogin())
-                .email(userRec.getEmail())
-                .password(userRec.getPassword())
-                .build();
+        UserBO userBO = new UserBO();
+        userBO.setLogin("liquid-official");
+        userBO.setId(1);
+        userBO.setPassword("liquid");
+        userBO.setEmail("admin@liquid.com");
+        return userBO;
     }
 }
