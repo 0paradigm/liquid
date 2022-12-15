@@ -168,11 +168,11 @@ public class ShiroConfiguration {
 
         bean.setSecurityManager(securityManager());
 
-        Map<String, Filter> filters = new LinkedHashMap<>();
-        filters.put("authc", new RestJwtTokenVerifyFilter());
-        filters.put("logout", new NoRedirectLogoutFilter());
-
-        bean.setFilters(filters);
+//        Map<String, Filter> filters = new LinkedHashMap<>();
+//        filters.put("authc", new RestJwtTokenVerifyFilter());
+//        filters.put("logout", new NoRedirectLogoutFilter());
+//
+//        bean.setFilters(filters);
 
         List<Map<String, String>> rc;
         try {
