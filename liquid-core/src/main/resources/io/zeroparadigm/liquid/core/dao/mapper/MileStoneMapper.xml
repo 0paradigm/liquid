@@ -2,6 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
 <mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.MileStoneMapper">
+    <insert id="createMileStone">
+        INSERT INTO `t_ds_milestone`
+        (`repo_id`, `name`, `description`, `due_date`, `state`)
+        VALUES
+        (#{repo_id}, #{name}, #{description}, #{due_date}, #{state});
+    </insert>
+
     <update id="updateDueById">
         UPDATE `t_ds_milestone`
         SET `due` = #{due}

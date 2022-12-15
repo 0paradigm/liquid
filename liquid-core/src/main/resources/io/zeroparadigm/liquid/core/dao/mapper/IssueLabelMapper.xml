@@ -2,6 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
 <mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.IssueLabelMapper">
+    <insert id="createIssueLabel">
+        INSERT INTO `t_ds_issue_label`
+        (`repo_id`, `name`, `color`, `description`)
+        VALUES
+        (#{repo_id}, #{name}, #{color}, #{description});
+    </insert>
+
     <delete id="deleteById">
         DELETE
         FROM `t_ds_issue_label`
@@ -25,5 +32,12 @@
         SELECT *
         FROM `t_ds_issue_label`
         WHERE `repo` = #{repo_id};
+    </select>
+
+    <select id="findByRepoIdAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.IssueLabel">
+        SELECT *
+        FROM `t_ds_issue_label`
+        WHERE `repo` = #{repo_id}
+          AND `name` = #{name};
     </select>
 </mapper>

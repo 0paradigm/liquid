@@ -38,6 +38,15 @@ import java.util.List;
 public interface RepoMapper extends BaseMapper<Repo> {
 
     /**
+     *
+     * Create repo.
+     *
+     */
+    @Nullable
+    void createRepo(@NonNull @Param("userId") Integer userId, @NonNull @Param("repoName") String repoName,
+                    @Param("forkedId") Integer forkedId);
+
+    /**
      * Gets repo by id.
      *
      * @param id repo id

@@ -23,6 +23,13 @@
         (#{issue_id}, #{milestone_id});
     </insert>
 
+    <insert id="createIssue">
+        INSERT INTO `t_ds_issue`
+        (`display_id`, `repo_id`, `opener`, `createdTime`, `closed`)
+        VALUES
+        (#{display_id}, #{title}, #{opener}, #{createdTime}, #{closed});
+    </insert>
+
     <update id="closeIssue">
         UPDATE `t_ds_issue`
         SET `closed` = 'true'

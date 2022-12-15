@@ -24,6 +24,12 @@ import java.util.List;
 public interface IssueLabelMapper extends BaseMapper<IssueLabel> {
 
     /**
+     * Create new issue label.
+     */
+    void createIssueLabel(@Param("repo_id") Integer repoId, @Param("name") String name,
+                          @Param("color") String color, @Param("description") String description);
+
+    /**
      * Gets issue label by id.
      *
      * @param id issue label id
@@ -54,4 +60,14 @@ public interface IssueLabelMapper extends BaseMapper<IssueLabel> {
      * @param name   issue label's name
      */
     void deleteIssueLabel(@Param("repo_id") Integer repoId, @Param("name") String name);
+
+    /**
+     *
+     * Get issue label by repo id and name.
+     * @param repoId repo's id
+     * @param name issue label's name
+     * @return issue label entity
+     */
+    @Nullable
+    IssueLabel findByRepoIdAndName(@Param("repo_id") Integer repoId, @Param("name") String name);
 }

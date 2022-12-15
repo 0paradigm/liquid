@@ -2,6 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
 <mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.RepoMapper">
+    <insert id="createRepo">
+        INSERT INTO `t_ds_repo`
+        (`owner`, `name` , `forked_from`)
+        VALUES
+        (#{userId}, #{repoName}, #{forkedId});
+    </insert>
 
     <select id="findById" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
         SELECT *

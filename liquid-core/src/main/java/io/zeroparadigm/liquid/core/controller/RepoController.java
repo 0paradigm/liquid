@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Fetch and modify user info. Register user.
+ * Fetch and modify repo info.
  *
  * @author matthewleng
  */

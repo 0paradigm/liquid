@@ -19,6 +19,13 @@ import java.util.List;
 public interface MileStoneMapper extends BaseMapper<MileStone> {
 
     /**
+     * Create new milestone.
+     */
+    void createMileStone(@Param("repo_id") Integer repoId, @Param("name") String name,
+                         @Param("description") String description, @Param("due_date") Long dueDate,
+                         @Param("closed") Boolean closed);
+
+    /**
      * Get repo milestone by id.
      * @param id milestone id
      * @return the milestone entity, null if id does not exist
@@ -37,8 +44,9 @@ public interface MileStoneMapper extends BaseMapper<MileStone> {
     /**
      * Update milestone due by id.
      * @param id milestone id
+     * @param due due time
      */
-    void updateDueById(@Param("id") Integer id);
+    void updateDueById(@Param("id") Integer id, @Param("due") Long due);
 
     /**
      * Delete milestone by id.
