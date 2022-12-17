@@ -4,10 +4,37 @@
 <mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.RepoMapper">
     <insert id="createRepo">
         INSERT INTO `t_ds_repo`
-        (`owner`, `name` , `forked_from`)
+        (`owner`, `name` , `forked_from`, `private`)
         VALUES
-        (#{userId}, #{repoName}, #{forkedId});
+        (#{userId}, #{repoName}, #{forkedId}, #{private});
     </insert>
+
+    <insert id="addCollaborator">
+        INSERT INTO `t_rel_repo_collaborator`
+        (`repo_id`, `user_id`)
+        VALUES
+        (#{repoId}, #{userId});
+    </insert>
+
+    <update id="setAuth">
+        INSERT INTO `t_rel_repo_auth`
+        (`repo`,`user`,`read`,`manage`,`push`,`settings`,`admin`)
+        VALUES
+        (#{repoId}, #{userId}, #{read}, #{manage}, #{push}, #{settings}, #{admin})
+        ON DUPLICATE KEY UPDATE;
+    </update>
+
+    <update id="setPublic">
+        UPDATE `t_ds_repo`
+        SET `private` = FALSE
+        WHERE `id` = #{repoId};
+    </update>
+
+    <update id="setPrivate">
+        UPDATE `t_ds_repo`
+        SET `private` = TRUE
+        WHERE `id` = #{repoId};
+    </update>
 
     <select id="findById" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
         SELECT *
@@ -19,6 +46,12 @@
         DELETE
         FROM `t_ds_repo`
         WHERE `id` = #{id};
+    </delete>
+
+    <delete id="removeCollaborator">
+        DELETE
+        FROM `t_rel_repo_collaborator`
+        WHERE `repo_id` = #{repoId} AND `user_id` = #{userId};
     </delete>
 
     <select id="findByOwnerAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
@@ -71,7 +104,26 @@
         WHERE `forked_from` = #{id};
     </select>
 
-<!--    <select id="countContributors" resultType="java.lang.Integer">-->
+    <select id="listCollaborators" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+        SELECT *
+        FROM `t_ds_user`
+        WHERE `id` IN (SELECT `user_id` FROM `t_rel_repo_collaborator` WHERE `repo_id` = #{id});
+    </select>
+
+    <select id="findByName" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
+        SELECT *
+        FROM `t_ds_repo`
+        WHERE `name` like concat('%',#{name,jdbcType=VARCHAR},'%')
+        AND (`private` = FALSE OR (`private` = TRUE AND `owner` = #{userId}));
+    </select>
+
+    <select id="verifyAuth" resultType="java.lang.Boolean">
+        SELECT COUNT(*) > 0
+        FROM `t_rel_repo_collaborator`
+        WHERE `repo_id` = #{repoId} AND `user_id` = #{userId};
+    </select>
+
+    <!--    <select id="countContributors" resultType="java.lang.Integer">-->
 <!--        SELECT COUNT(*)-->
 <!--        FROM `t_ds_repo`-->
 <!--        WHERE `forked_from` = ${id};-->

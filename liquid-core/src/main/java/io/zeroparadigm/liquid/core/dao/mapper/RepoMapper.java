@@ -44,7 +44,7 @@ public interface RepoMapper extends BaseMapper<Repo> {
      */
     @Nullable
     void createRepo(@NonNull @Param("userId") Integer userId, @NonNull @Param("repoName") String repoName,
-                    @Param("forkedId") Integer forkedId);
+                    @Param("forkedId") Integer forkedId, @Param("private") Boolean privat);
 
     /**
      * Gets repo by id.
@@ -81,6 +81,15 @@ public interface RepoMapper extends BaseMapper<Repo> {
      */
     @Nullable
     Repo findByOwnerIdAndName(@Param("owner_id") Integer ownerId, @Param("name") String name);
+
+    /**
+     *
+     * Gets repo by name.
+     * @param name repo name
+     * @return the repo entity, or null
+     */
+    @Nullable
+    List<Repo> findByName(@Param("userid") Integer userId, @Param("name") String name);
 
     /**
      * Count starer.
@@ -123,6 +132,50 @@ public interface RepoMapper extends BaseMapper<Repo> {
      */
     @Nullable
     List<Repo> listForks(@Param("id") Integer repoId);
+
+    /**
+     * repo authorities manager
+     */
+    void setAuth(@Param("repoId") Integer repoId, @Param("userId") Integer userId,
+                 @Param("read") Boolean read, @Param("manage") Boolean manage,
+                 @Param("push") Boolean push, @Param("settings") Boolean settings,
+                 @Param("admin") Boolean admin);
+
+    /**
+     * add collaborator
+     */
+    void addCollaborator(@Param("repoId") Integer repoId, @Param("userId") Integer userId);
+
+    /**
+     * remove collaborator
+     */
+    void removeCollaborator(@Param("repoId") Integer repoId, @Param("userId") Integer userId);
+
+    /**
+     * list collaborator
+     */
+    List<User> listCollaborators(@Param("repoId") Integer repoId);
+
+    /**
+     * Set repo public.
+     * @param repoId repo id
+     */
+    void setPublic(@Param("repoId") Integer repoId);
+
+    /**
+     * Set repo private.
+     * @param repoId repo id
+     */
+    void setPrivate(@Param("repoId") Integer repoId);
+
+
+    /**
+     * Verify user authorization
+     * @param repoId repo id
+     * @return true if user has authorization
+     */
+    Boolean verifyAuth(@Param("repoId") Integer repoId, @Param("userId") Integer userId);
+
 
     // Todo: Implement after Contributor implementation
 //    /**

@@ -5,6 +5,7 @@ CREATE TABLE `t_ds_repo`
     `name`        varchar(20) NOT NULL,
 
     `forked_from` int,
+    `private`     bool NOT NULL DEFAULT FALSE,
 
     CONSTRAINT `fk__ds_repo__owner_id` FOREIGN KEY (`owner`) REFERENCES `t_ds_user` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk__ds_repo__fork_id` FOREIGN KEY (`forked_from`) REFERENCES `t_ds_repo` (`id`) ON DELETE SET NULL,
@@ -26,6 +27,16 @@ CREATE TABLE `t_rel_repo_auth`
 --      COMMENT 'manage settings',
     `admin`    bool NOT NULL DEFAULT FALSE,
 --      COMMENT 'add collaborators + delete',
+
+    CONSTRAINT `fk__rel_repo_auth__repo_id` FOREIGN KEY (`repo`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk__rel_repo_auth__user_id` FOREIGN KEY (`user`) REFERENCES `t_ds_user` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `uniq__rel_repo_auth__record` UNIQUE (`repo`, `user`)
+);
+
+CREATE TABLE `t_rel_repo_collaborator`
+(
+    `repo`     int  NOT NULL,
+    `user`     int  NOT NULL,
 
     CONSTRAINT `fk__rel_repo_auth__repo_id` FOREIGN KEY (`repo`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk__rel_repo_auth__user_id` FOREIGN KEY (`user`) REFERENCES `t_ds_user` (`id`) ON DELETE CASCADE,

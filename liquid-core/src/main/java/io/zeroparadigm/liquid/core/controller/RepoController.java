@@ -45,6 +45,98 @@ public class RepoController {
     @Autowired
     UserMapper userMapper;
 
+    @Deprecated
+    public void changeAuth(Integer userId, Integer repoId, Boolean read, Boolean manage,
+                              Boolean push, Boolean settings,
+                              Boolean admin) {
+        repoMapper.setAuth(repoId, userId, read, manage, push, settings, admin);
+    }
+
+    @Deprecated
+    @GetMapping("/auth")
+    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
+    public Result<Boolean> auth(@RequestHeader("Authorization") String token, @RequestParam("repoId") Integer repoId,
+                                @RequestParam("read") Boolean read, @RequestParam("manage") Boolean manage,
+                                @RequestParam("push") Boolean push, @RequestParam("settings") Boolean settings,
+                                @RequestParam("admin") Boolean admin) {
+        Integer userId = jwtService.getUserId(token);
+        User user = userMapper.findById(userId);
+        if (Objects.isNull(user)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
+        repoMapper.setAuth(repoId, userId, read, manage, push, settings, admin);
+        return Result.success(true);
+    }
+
+    @GetMapping("/add_collaborator")
+    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
+    public Result<Boolean> addCollaborator(@RequestHeader("Authorization") String token, @RequestParam("repoId") Integer repoId,
+                                           @RequestParam("userId") Integer userId) {
+        Integer usrId = jwtService.getUserId(token);
+        User usr = userMapper.findById(usrId);
+        Repo repo = repoMapper.findById(repoId);
+        User user = userMapper.findById(userId);
+        if (Objects.isNull(usr) || Objects.isNull(user) || Objects.isNull(repo) || !repo.getOwner().equals(userId)) {
+            return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
+        }
+        repoMapper.addCollaborator(repoId, userId);
+        return Result.success(true);
+    }
+
+    @GetMapping("/remove_collaborator")
+    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
+    public Result<Boolean> removeCollaborator(@RequestHeader("Authorization") String token, @RequestParam("repoId") Integer repoId,
+                                           @RequestParam("userId") Integer userId) {
+        Integer usrId = jwtService.getUserId(token);
+        User usr = userMapper.findById(usrId);
+        Repo repo = repoMapper.findById(repoId);
+        User user = userMapper.findById(userId);
+        if (Objects.isNull(usr) || Objects.isNull(user) || Objects.isNull(repo) || !repo.getOwner().equals(userId)) {
+            return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
+        }
+        repoMapper.removeCollaborator(repoId, userId);
+        return Result.success(true);
+    }
+
+    @GetMapping("/get_collaborators")
+    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
+    public Result<List<User>> getCollaborators(@RequestHeader("Authorization") String token, @RequestParam("repoId") Integer repoId) {
+        Integer usrId = jwtService.getUserId(token);
+        User user = userMapper.findById(usrId);
+        if (Objects.isNull(user)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
+        List<User> collaborators = repoMapper.listCollaborators(repoId);
+        return Result.success(collaborators);
+    }
+
+    @GetMapping("/set_public")
+    @WrapsException(ServiceStatus.METHOD_NOT_ALLOWED)
+    public Result<Boolean> setPublic(@RequestHeader("Authorization") String token, @RequestParam("repoId") Integer repoId) {
+        Integer usrId = jwtService.getUserId(token);
+        User user = userMapper.findById(usrId);
+        Repo repo = repoMapper.findById(repoId);
+        if (Objects.isNull(user) || Objects.isNull(repo) || !repo.getOwner().equals(usrId)) {
+            return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
+        }
+        repoMapper.setPublic(repoId);
+        return Result.success(true);
+    }
+
+    @GetMapping("/set_private")
+    @WrapsException(ServiceStatus.METHOD_NOT_ALLOWED)
+    public Result<Boolean> setPrivate(@RequestHeader("Authorization") String token, @RequestParam("repoId") Integer repoId) {
+        Integer usrId = jwtService.getUserId(token);
+        User user = userMapper.findById(usrId);
+        Repo repo = repoMapper.findById(repoId);
+        if (Objects.isNull(user) || Objects.isNull(repo) || !repo.getOwner().equals(usrId)) {
+            return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
+        }
+        repoMapper.setPrivate(repoId);
+        return Result.success(true);
+    }
+
+
     @GetMapping("/find")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Repo> findRepoByOwnerIdAndName(@RequestHeader("Authorization") String token, @RequestParam("name") String name) {
@@ -59,10 +151,25 @@ public class RepoController {
         return Result.success(repo);
     }
 
-    @GetMapping("/search")
+    @GetMapping("/search_useless")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
     public Result<Repo> findRepoByOwnerAndName(@RequestParam("owner") String owner, @RequestParam("name") String name){
         Repo repo = repoMapper.findByOwnerAndName(owner,name);
+        if (Objects.isNull(repo)) {
+            return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
+        }
+        return Result.success(repo);
+    }
+
+    @GetMapping("/search")
+    @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
+    public Result<List<Repo>> findRepoByName(@RequestHeader("Authorization") String token, @RequestParam("name") String name){
+        Integer userId = jwtService.getUserId(token);
+        User usr = userMapper.findById(userId);
+        if (Objects.isNull(usr)) {
+            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
+        }
+        List<Repo> repo = repoMapper.findByName(userId,name);
         if (Objects.isNull(repo)) {
             return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
         }
@@ -121,8 +228,14 @@ public class RepoController {
     }
 
     @GetMapping("/delete")
-    @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
-    public Result<Boolean> deleteRepo(@RequestParam("repoId")Integer repoId){
+    @WrapsException(ServiceStatus.METHOD_NOT_ALLOWED)
+    public Result<Boolean> deleteRepo(@RequestHeader("Authorization") String token, @RequestParam("repoId")Integer repoId){
+        Integer userId = jwtService.getUserId(token);
+        User usr = userMapper.findById(userId);
+        Repo repo = repoMapper.findById(repoId);
+        if (Objects.isNull(usr) || Objects.isNull(repo) || !repo.getOwner().equals(userId)) {
+            return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
+        }
         repoMapper.deleteById(repoId);
         return Result.success(true);
     }

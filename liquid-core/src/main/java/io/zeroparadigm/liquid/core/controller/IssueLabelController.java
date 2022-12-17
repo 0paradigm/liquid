@@ -68,6 +68,11 @@ public class IssueLabelController {
         if (Objects.isNull(user)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
+        Boolean auth = repoMapper.verifyAuth(userId, repoId);
+        Repo repo = repoMapper.findById(repoId);
+        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
         issueLabelMapper.createIssueLabel(repoId, labelName, labelColor, labelDescription);
         return Result.success(true);
     }
@@ -94,6 +99,11 @@ public class IssueLabelController {
         IssueLabel issueLabel = issueLabelMapper.findById(id);
         if (Objects.isNull(issueLabel)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
+        }
+        Boolean auth = repoMapper.verifyAuth(userId, issueLabel.getRepo());
+        Repo repo = repoMapper.findById(issueLabel.getRepo());
+        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueLabelMapper.deleteById(id);
         return Result.success();
@@ -122,6 +132,10 @@ public class IssueLabelController {
         Repo repo = repoMapper.findById(repoId);
         if (Objects.isNull(repo)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
+        }
+        Boolean auth = repoMapper.verifyAuth(userId, repoId);
+        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueLabelMapper.deleteIssueLabel(repoId, name);
         return Result.success();

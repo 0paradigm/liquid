@@ -67,6 +67,11 @@ public class MileStoneController {
         if (Objects.isNull(user)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
+        Boolean auth = repoMapper.verifyAuth(userId, repoId);
+        Repo repo = repoMapper.findById(repoId);
+        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
         milestoneMapper.createMileStone(repoId, name, description, dueDate, closed);
         return Result.success(true);
     }
@@ -106,6 +111,11 @@ public class MileStoneController {
         if (Objects.isNull(mileStone)) {
             return Result.error(ServiceStatus.NOT_FOUND);
         }
+        Boolean auth = repoMapper.verifyAuth(userId, mileStone.getRepo());
+        Repo repo = repoMapper.findById(mileStone.getRepo());
+        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
         milestoneMapper.updateDueById(milestoneId, due);
         return Result.success(true);
     }
@@ -121,6 +131,11 @@ public class MileStoneController {
         MileStone mileStone = milestoneMapper.findById(milestoneId);
         if (Objects.isNull(mileStone)) {
             return Result.error(ServiceStatus.NOT_FOUND);
+        }
+        Boolean auth = repoMapper.verifyAuth(userId, mileStone.getRepo());
+        Repo repo = repoMapper.findById(mileStone.getRepo());
+        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         milestoneMapper.deleteById(milestoneId);
         return Result.success(true);

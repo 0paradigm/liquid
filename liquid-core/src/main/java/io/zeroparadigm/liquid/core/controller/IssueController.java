@@ -173,6 +173,11 @@ public class IssueController {
 //        if (!issue.getOwnerId().equals(userId)) {
 //            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
 //        }
+        Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
+        Repo repo = repoMapper.findById(issue.getRepo());
+        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
         issueMapper.assignIssue(issueId, assigneeId);
         return Result.success(true);
     }
@@ -193,6 +198,11 @@ public class IssueController {
         if (!assignee.contains(user)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
+        Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
+        Repo repo = repoMapper.findById(issue.getRepo());
+        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
         issueMapper.removeAssignee(issueId, assigneeId);
         return Result.success(true);
     }
@@ -207,6 +217,11 @@ public class IssueController {
         }
         Issue issue = issueMapper.findById(issueId);
         if (Objects.isNull(issue)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
+        Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
+        Repo repo = repoMapper.findById(issue.getRepo());
+        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueMapper.assignLabelById(issueId, labelId);
@@ -225,6 +240,11 @@ public class IssueController {
         if (Objects.isNull(issue)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
+        Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
+        Repo repo = repoMapper.findById(issue.getRepo());
+        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
         issueMapper.removeLabelById(issueId, labelId);
         return Result.success(true);
     }
@@ -239,6 +259,11 @@ public class IssueController {
         }
         Issue issue = issueMapper.findById(issueId);
         if (Objects.isNull(issue)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
+        Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
+        Repo repo = repoMapper.findById(issue.getRepo());
+        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueMapper.assignMilestone(issueId, milestoneId);
@@ -257,6 +282,11 @@ public class IssueController {
         if (Objects.isNull(issue)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
+        Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
+        Repo repo = repoMapper.findById(issue.getRepo());
+        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
         issueMapper.removeMilestone(issueId, milestoneId);
         return Result.success(true);
     }
@@ -271,6 +301,11 @@ public class IssueController {
         }
         Issue issue = issueMapper.findById(issueId);
         if (Objects.isNull(issue)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
+        Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
+        Repo repo = repoMapper.findById(issue.getRepo());
+        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueMapper.closeIssue(issueId);
