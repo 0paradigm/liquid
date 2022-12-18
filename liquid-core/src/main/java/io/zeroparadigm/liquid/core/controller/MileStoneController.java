@@ -30,6 +30,7 @@ import java.util.Objects;
 @Api
 @Slf4j
 @RestController
+@CrossOrigin
 @RequestMapping("/api/milestone")
 public class MileStoneController {
 
