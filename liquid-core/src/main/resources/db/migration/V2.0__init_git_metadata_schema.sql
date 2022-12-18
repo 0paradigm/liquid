@@ -38,8 +38,8 @@ CREATE TABLE `t_rel_repo_collaborator`
     `repo`     int  NOT NULL,
     `user`     int  NOT NULL,
 
-    CONSTRAINT `fk__rel_repo_auth__repo_id` FOREIGN KEY (`repo`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk__rel_repo_auth__user_id` FOREIGN KEY (`user`) REFERENCES `t_ds_user` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk__rel_repo_colla__repo_id` FOREIGN KEY (`repo`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk__rel_repo_colla__user_id` FOREIGN KEY (`user`) REFERENCES `t_ds_user` (`id`) ON DELETE CASCADE,
     CONSTRAINT `uniq__rel_repo_auth__record` UNIQUE (`repo`, `user`)
 );
 
