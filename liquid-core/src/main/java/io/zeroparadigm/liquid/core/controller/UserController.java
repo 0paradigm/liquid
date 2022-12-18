@@ -60,7 +60,7 @@ public class UserController {
     @Autowired
     UserMapper userMapper;
 
-    @PostMapping("/find")
+    @GetMapping("/find")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
     public Result<User> findUserByNameOrMail(@RequestParam("usr") String name_or_mail) {
         User user = userMapper.findByNameOrMail(name_or_mail);
@@ -70,7 +70,7 @@ public class UserController {
         return Result.success(user);
     }
 
-    @PostMapping("/star")
+    @GetMapping("/star")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Boolean> star(@RequestHeader("Authorization") String token, @RequestParam("id") Integer id) {
         Integer userId = jwtService.getUserId(token);
@@ -82,7 +82,7 @@ public class UserController {
         return Result.success();
     }
 
-    @PostMapping("/unstar")
+    @GetMapping("/unstar")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Boolean> unstar(@RequestHeader("Authorization") String token, @RequestParam("id") Integer id) {
         Integer userId = jwtService.getUserId(token);
@@ -94,7 +94,7 @@ public class UserController {
         return Result.success();
     }
 
-    @PostMapping("/watch")
+    @GetMapping("/watch")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Boolean> watch(@RequestHeader("Authorization") String token, @RequestParam("id") Integer id,
                                  @RequestParam("particip") Boolean participation, @RequestParam("issue") Boolean issue,
@@ -110,7 +110,7 @@ public class UserController {
         return Result.success();
     }
 
-    @PostMapping("/unwatch")
+    @GetMapping("/unwatch")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Boolean> unwatch(@RequestHeader("Authorization") String token, @RequestParam("id") Integer id) {
         Integer userId = jwtService.getUserId(token);
