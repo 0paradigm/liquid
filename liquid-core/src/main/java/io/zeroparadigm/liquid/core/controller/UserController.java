@@ -48,7 +48,6 @@ import java.util.Objects;
 @Api
 @Slf4j
 @RestController
-@CrossOrigin
 @RequestMapping("/api/user")
 public class UserController {
 

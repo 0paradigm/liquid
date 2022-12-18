@@ -30,7 +30,6 @@ import java.util.Objects;
 @Api
 @Slf4j
 @RestController
-@CrossOrigin
 @RequestMapping("/api/repo")
 public class RepoController {
 
