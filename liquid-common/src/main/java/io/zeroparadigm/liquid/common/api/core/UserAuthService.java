@@ -23,7 +23,9 @@ public interface UserAuthService {
 
     public UserBO findByNameOrMail(String login);
 
-    public Object getPassword();
-
     public UserBO findById(Integer userId);
+
+    public UserBO findByPhone(String phone);
+
+    public void register(String userName, String userMail, String userPassword);
 }

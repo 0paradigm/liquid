@@ -19,34 +19,62 @@ package io.zeroparadigm.liquid.core.service.impl;
 
 import io.zeroparadigm.liquid.common.api.core.UserAuthService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
+import io.zeroparadigm.liquid.core.dao.entity.User;
+import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @DubboService
 public class UserAuthServiceImpl implements UserAuthService {
-    // FIXME: Just for test!
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    @Autowired
+    UserMapper userMapper;
 
     @Override
-    public UserBO findByNameOrMail(String login) {
+    public UserBO findByNameOrMail(String login){
+        User user = userMapper.findByNameOrMail(login);
+        if (user == null){
+            return null;
+        }
         UserBO userBO = new UserBO();
-        userBO.setLogin("liquid-official");
-        userBO.setId(1);
-        userBO.setPassword("liquid");
-        userBO.setEmail("admin@liquid.com");
+        userBO.setLogin(user.getLogin());
+        userBO.setId(user.getId());
+        userBO.setPassword(user.getPassword());
+        userBO.setEmail(user.getEmail());
         return userBO;
     }
 
     @Override
-    public Object getPassword() {
-        return "liquid";
+    public UserBO findById(Integer userId){
+        User user = userMapper.findById(userId);
+        if (user == null){
+            return null;
+        }
+        UserBO userBO = new UserBO();
+        userBO.setLogin(user.getLogin());
+        userBO.setId(user.getId());
+        userBO.setPassword(user.getPassword());
+        userBO.setEmail(user.getEmail());
+        return userBO;
     }
 
     @Override
-    public UserBO findById(Integer userId) {
+    public UserBO findByPhone(String phone) {
+        //TODO: missing mapper function
+//        User user = userMapper.findByPhone();
+//        if (user == null){
+//            return null;
+//        }
         UserBO userBO = new UserBO();
-        userBO.setLogin("liquid-official");
-        userBO.setId(1);
-        userBO.setPassword("liquid");
-        userBO.setEmail("admin@liquid.com");
+//        userBO.setLogin(user.getLogin());
+//        userBO.setId(user.getId());
+//        userBO.setPassword(user.getPassword());
+//        userBO.setEmail(user.getEmail());
         return userBO;
+    }
+
+    @Override
+    public void register(String userName, String userMail, String userPassword) {
+        //TODO: missing mapper function
     }
 }

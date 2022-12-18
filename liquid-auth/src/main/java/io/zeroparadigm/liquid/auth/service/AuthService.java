@@ -40,4 +40,5 @@ public interface AuthService {
      * @throws InvalidCredentialFieldException if the credential is invalid
      */
     Subject login(LoginCredentials credentials) throws ShiroException, InvalidCredentialFieldException;
+
 }

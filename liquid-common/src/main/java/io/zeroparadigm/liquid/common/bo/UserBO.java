@@ -32,7 +32,10 @@ public class UserBO {
 
     private String login;
 
+    private String phone;
+
     private String email;
 
     private String password;
+
 }
