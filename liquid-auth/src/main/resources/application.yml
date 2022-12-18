@@ -29,12 +29,6 @@ spring:
         min-idle: 0
         max-wait: -1
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-
 logging:
   file:
     path: classpath:logs

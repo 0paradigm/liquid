@@ -35,11 +35,3 @@ dubbo:
     check: false
     retries: 3
     timeout: 300000
-
-
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'

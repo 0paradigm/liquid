@@ -4,6 +4,22 @@
     "auth": "anon"
   },
   {
+    "path": "/register",
+    "auth": "anon"
+  },
+  {
+    "path": "/test",
+    "auth": "anon"
+  },
+  {
+    "path": "/captcha",
+    "auth": "anon"
+  },
+  {
+    "path": "/sms",
+    "auth": "anon"
+  },
+  {
     "path": "/logout",
     "auth": "logout"
   },

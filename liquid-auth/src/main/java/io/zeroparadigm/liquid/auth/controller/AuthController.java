@@ -24,35 +24,34 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.zeroparadigm.liquid.common.api.core.UserAuthService;
-import io.zeroparadigm.liquid.common.bo.UserBO;
-import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.auth.dto.LoginCredentials;
+import io.zeroparadigm.liquid.auth.dto.Result;
 import io.zeroparadigm.liquid.auth.exception.InvalidCredentialFieldException;
 import io.zeroparadigm.liquid.auth.jwt.JwtUtils;
 import io.zeroparadigm.liquid.auth.service.AuthService;
-import io.zeroparadigm.liquid.auth.dto.Result;
-import java.io.Serializable;
+import io.zeroparadigm.liquid.common.api.core.UserAuthService;
+import io.zeroparadigm.liquid.common.bo.UserBO;
+import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Api(value = "login module", tags = {"login module"})
@@ -77,12 +76,7 @@ public class AuthController {
 
     @ApiOperation(value = "login", notes = "Specify login method and provide credentials")
     @ApiImplicitParam(name = "credentials", value = "login type and related credentials", paramType = "body", required = true, dataTypeClass = LoginCredentials.class)
-    @ApiResponses({
-        @ApiResponse(code = 200, message = "Success"),
-        @ApiResponse(code = 406, message = "Wrong credentials"),
-        @ApiResponse(code = 400, message = "General errors")
-    })
-    @RequestMapping("/login")
+    @PostMapping("/login")
     public Result<Map<String, String>> login(@RequestBody LoginCredentials credentials) {
         Result<Map<String, String>> errResult;
         try {
@@ -109,9 +103,19 @@ public class AuthController {
         return errResult;
     }
 
+    @PostMapping("/test")
+    public Result<String> test(@RequestParam(value = "login") String login) {
+        UserBO user = userAuthService.findByNameOrMail(login);
+        if (user != null){
+            return Result.success(user.getPassword());
+        }
+        return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
+    }
+
+
     @ApiOperation(value = "captchaLogin", notes = "Login via phone captcha")
     @ApiImplicitParam(name = "credentials", value = "login type and related credentials", paramType = "body", required = true, dataTypeClass = LoginCredentials.class)
-    @RequestMapping("login/sms")
+    @PostMapping("/sms")
     public Result<Map<String, String>> captchaLogin(@RequestBody LoginCredentials credentials) {
         String captcha = credentials.getCaptcha();
         String phone = credentials.getPhone();
@@ -138,8 +142,8 @@ public class AuthController {
         }
     }
 
-    @RequestMapping("/sendcode")
-    public Result<String> sendCode(@RequestBody String phone) {
+    @PostMapping("/captcha")
+    public Result<String> sendCode(@RequestParam(value = "phone") String phone) {
         String redisCode = redisTemplate.opsForValue().get(phone);
         // Can't send the captcha repeatedly within 1 minute
         if (redisCode != null) {
@@ -170,15 +174,10 @@ public class AuthController {
         return Result.success("OK");
     }
 
-    @RequiresAuthentication()
-    @GetMapping("/hello/{name}")
-    public Result<String> hello(@PathVariable String name) {
-        return Result.success(name);
-    }
 
     @PostMapping("/register")
-    public Result<String> register(@RequestBody String userMail, @RequestBody String userName,
-                                   @RequestBody String userPassword) {
+    public Result<String> register(@RequestParam String userMail, @RequestParam String userName,
+                                   @RequestParam String userPassword) {
         //TODO: need to be implement
         userAuthService.register(userName, userMail, userPassword);
         return null;
