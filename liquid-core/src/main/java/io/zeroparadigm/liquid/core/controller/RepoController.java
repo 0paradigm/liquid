@@ -68,6 +68,19 @@ public class RepoController {
         return Result.success(true);
     }
 
+    @GetMapping("/create")
+    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
+    public Result<Boolean> create(@RequestHeader("Authorization") String token, @RequestParam("name") String name,
+                                  @RequestParam("forkedId") Integer forkedId, @RequestParam("private") Boolean privat) {
+        Integer userId = jwtService.getUserId(token);
+        User user = userMapper.findById(userId);
+        if (Objects.isNull(user)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
+        repoMapper.createRepo(userId, name, forkedId==-1?null:forkedId, privat);
+        return Result.success(true);
+    }
+
     @GetMapping("/add_collaborator")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Boolean> addCollaborator(@RequestHeader("Authorization") String token, @RequestParam("repoId") Integer repoId,
