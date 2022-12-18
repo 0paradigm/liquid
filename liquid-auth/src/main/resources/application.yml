@@ -17,9 +17,9 @@ spring:
 
   redis:
     host: localhost
-    port: 16380
+    port: 6379
     database: 0
-    password:
+    password: 123456
     timeout: 1200
     jedis:
       pool:
