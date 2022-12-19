@@ -2,6 +2,39 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
 <mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.RepoMapper">
+    <insert id="createRepo">
+        INSERT INTO `t_ds_repo`
+        (`owner`, `name` , `forked_from`, `private`)
+        VALUES
+        (#{userId}, #{repoName}, #{forkedId}, #{private});
+    </insert>
+
+    <insert id="addCollaborator">
+        INSERT INTO `t_rel_repo_collaborator`
+        (`repo_id`, `user_id`)
+        VALUES
+        (#{repoId}, #{userId});
+    </insert>
+
+    <update id="setAuth">
+        INSERT INTO `t_rel_repo_auth`
+        (`repo`,`user`,`read`,`manage`,`push`,`settings`,`admin`)
+        VALUES
+        (#{repoId}, #{userId}, #{read}, #{manage}, #{push}, #{settings}, #{admin})
+        ON DUPLICATE KEY UPDATE;
+    </update>
+
+    <update id="setPublic">
+        UPDATE `t_ds_repo`
+        SET `private` = FALSE
+        WHERE `id` = #{repoId};
+    </update>
+
+    <update id="setPrivate">
+        UPDATE `t_ds_repo`
+        SET `private` = TRUE
+        WHERE `id` = #{repoId};
+    </update>
 
     <select id="findById" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
         SELECT *
@@ -15,20 +48,24 @@
         WHERE `id` = #{id};
     </delete>
 
-    <select id="findByOwnerAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+    <delete id="removeCollaborator">
+        DELETE
+        FROM `t_rel_repo_collaborator`
+        WHERE `repo_id` = #{repoId} AND `user_id` = #{userId};
+    </delete>
+
+    <select id="findByOwnerAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
         SELECT *
         FROM `t_ds_repo`
         WHERE `owner` = (SELECT `id` FROM `t_ds_user` WHERE `login` = #{owner})
-          AND `name` = #{name}
-        LIMIT 1;
+          AND `name` = #{name} LIMIT 1;
     </select>
 
-    <select id="findByOwnerIdAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+    <select id="findByOwnerIdAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
         SELECT *
         FROM `t_ds_repo`
         WHERE `owner` = #{owner_id}
-          AND `name` = #{name}
-        LIMIT 1;
+          AND `name` = #{name} LIMIT 1;
     </select>
 
     <select id="countStarers" resultType="java.lang.Integer">
@@ -42,4 +79,61 @@
         FROM `t_ds_user`
         WHERE `id` IN (SELECT `user` FROM `t_rel_user_star` WHERE `repo` = #{id});
     </select>
+
+    <select id="countWatchers" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `t_rel_user_watch`
+        WHERE `repo` = ${id};
+    </select>
+
+    <select id="listWatchers" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+        SELECT *
+        FROM `t_ds_user`
+        WHERE `id` IN (SELECT `user` FROM `t_rel_user_watch` WHERE `repo` = #{id});
+    </select>
+
+    <select id="countForks" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `t_ds_repo`
+        WHERE `forked_from` = ${id};
+    </select>
+
+    <select id="listForks" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
+        SELECT `owner`
+        FROM `t_ds_repo`
+        WHERE `forked_from` = #{id};
+    </select>
+
+    <select id="listCollaborators" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+        SELECT *
+        FROM `t_ds_user`
+        WHERE `id` IN (SELECT `user_id` FROM `t_rel_repo_collaborator` WHERE `repo_id` = #{id});
+    </select>
+
+    <select id="findByName" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
+        SELECT *
+        FROM `t_ds_repo`
+        WHERE `name` like concat('%',#{name,jdbcType=VARCHAR},'%')
+        AND (`private` = FALSE OR (`private` = TRUE AND `owner` = #{userId}));
+    </select>
+
+    <select id="verifyAuth" resultType="java.lang.Boolean">
+        SELECT COUNT(*) > 0
+        FROM `t_rel_repo_collaborator`
+        WHERE `repo_id` = #{repoId} AND `user_id` = #{userId};
+    </select>
+
+    <!--    <select id="countContributors" resultType="java.lang.Integer">-->
+<!--        SELECT COUNT(*)-->
+<!--        FROM `t_ds_repo`-->
+<!--        WHERE `forked_from` = ${id};-->
+<!--    </select>-->
+
+<!--    <select id="listContributors" resultType="io.zeroparadigm.liquid.core.dao.entity.User">-->
+<!--        SELECT `owner`-->
+<!--        FROM `t_ds_repo`-->
+<!--        WHERE `forked_from` = #{id};-->
+<!--    </select>-->
+
+
 </mapper>

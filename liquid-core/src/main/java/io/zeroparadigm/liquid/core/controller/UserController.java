@@ -27,18 +27,18 @@ import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
 import io.zeroparadigm.liquid.core.dao.UserDao;
 import io.zeroparadigm.liquid.core.dao.entity.User;
-import io.zeroparadigm.liquid.core.service.UserService;
+import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import io.zeroparadigm.liquid.core.dao.entity.Repo;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Fetch and modify user info. Register user.
@@ -53,11 +53,87 @@ public class UserController {
 
     @Autowired
     UserDao userDao;
-    @Autowired
-    UserService userService;
 
     @DubboReference
     JWTService jwtService;
+
+    @Autowired
+    UserMapper userMapper;
+
+    @GetMapping("/find")
+    @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
+    public Result<User> findUserByNameOrMail(@RequestParam("usr") String name_or_mail) {
+        User user = userMapper.findByNameOrMail(name_or_mail);
+        if (Objects.isNull(user)) {
+            return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
+        }
+        return Result.success(user);
+    }
+
+    @GetMapping("/star")
+    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
+    public Result<Boolean> star(@RequestHeader("Authorization") String token, @RequestParam("id") Integer id) {
+        Integer userId = jwtService.getUserId(token);
+        if (Objects.isNull(userId)) {
+            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
+        }
+        User usr = userMapper.findById(userId);
+        userMapper.starRepo(usr.getLogin(), id);
+        return Result.success();
+    }
+
+    @GetMapping("/unstar")
+    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
+    public Result<Boolean> unstar(@RequestHeader("Authorization") String token, @RequestParam("id") Integer id) {
+        Integer userId = jwtService.getUserId(token);
+        if (Objects.isNull(userId)) {
+            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
+        }
+        User usr = userMapper.findById(userId);
+        userMapper.unstarRepo(usr.getLogin(), id);
+        return Result.success();
+    }
+
+    @GetMapping("/watch")
+    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
+    public Result<Boolean> watch(@RequestHeader("Authorization") String token, @RequestParam("id") Integer id,
+                                 @RequestParam("particip") Boolean participation, @RequestParam("issue") Boolean issue,
+                                 @RequestParam("pull") Boolean pull, @RequestParam("release") Boolean release,
+                                 @RequestParam("discuss") Boolean discussion, @RequestParam("alerts") Boolean security_alerts
+    ) {
+        Integer userId = jwtService.getUserId(token);
+        if (Objects.isNull(userId)) {
+            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
+        }
+        User usr = userMapper.findById(userId);
+        userMapper.watchRepo(usr.getLogin(), id, participation, issue, pull, release, discussion, security_alerts);
+        return Result.success();
+    }
+
+    @GetMapping("/unwatch")
+    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
+    public Result<Boolean> unwatch(@RequestHeader("Authorization") String token, @RequestParam("id") Integer id) {
+        Integer userId = jwtService.getUserId(token);
+        if (Objects.isNull(userId)) {
+            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
+        }
+        User usr = userMapper.findById(userId);
+        userMapper.unwatchRepo(usr.getLogin(), id);
+        return Result.success();
+    }
+
+    @GetMapping("/repo")
+    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
+    public Result<List<Repo>> getRepo(@RequestHeader("Authorization") String token) {
+        Integer userId = jwtService.getUserId(token);
+        if (Objects.isNull(userId)) {
+            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
+        }
+        User usr = userMapper.findById(userId);
+        List<Repo> repos = userMapper.listUserRepos(usr.getLogin());
+        return Result.success(repos);
+    }
+
     /**
      * Says hello to the person.
      *
@@ -72,8 +148,8 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<String> hello(
-                                @RequestParam String name,
-                                @RequestBody(required = false) String ts) {
+            @RequestParam String name,
+            @RequestBody(required = false) String ts) {
         log.debug("User {}", name);
         return Result.success("userService.greet(name)");
     }
@@ -103,7 +179,7 @@ public class UserController {
         Integer id = jwtService.getUserId(jwt);
         if (id!=null){
             return Result.success(id);
-        }else {
+        } else {
             return Result.error(ServiceStatus.ERROR_LOGGING, -1);
         }
     }

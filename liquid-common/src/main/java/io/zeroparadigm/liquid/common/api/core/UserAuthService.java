@@ -25,6 +25,7 @@ public interface UserAuthService {
 
     UserBO findByNameOrMail(String login);
 
+
     UserBO findById(Integer userId);
 
     UserBO findByPhone(String phone);

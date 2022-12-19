@@ -72,4 +72,11 @@ public class Repo implements Serializable {
     @TableField("forked_from")
     @Nullable
     private Integer forkedFrom;
+
+    /**
+     * private or not.
+     */
+    @TableField("private")
+    @NonNull
+    private Boolean privateRepo;
 }

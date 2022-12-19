@@ -22,16 +22,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.lang.Nullable;
+import lombok.experimental.SuperBuilder;
+import java.io.Serializable;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@EqualsAndHashCode
+@SuperBuilder
 public class UserBO implements Serializable {
+
     private Integer id;
 
     private String login;
+    
     private String phone;
 
     private String email;

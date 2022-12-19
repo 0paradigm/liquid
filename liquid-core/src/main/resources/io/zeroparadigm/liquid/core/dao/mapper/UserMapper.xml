@@ -7,6 +7,12 @@
         VALUES ((SELECT `id` FROM `t_ds_user` WHERE `login` = ${user}), ${repo});
     </insert>
 
+    <insert id="watchRepo">
+        INSERT IGNORE INTO `t_rel_user_watch`
+        VALUES ((SELECT `id` FROM `t_ds_user` WHERE `login` = ${user}), ${repo}, ${participation},
+                ${issues}, ${pulls}, ${releases}, ${discussions}, ${security_alerts});
+    </insert>
+
     <select id="findById" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
         SELECT *
         FROM `t_ds_user`
@@ -22,6 +28,13 @@
     <delete id="unstarRepo">
         DELETE
         FROM `t_rel_user_star`
+        WHERE `repo` = ${repo}
+          AND `user` = ${user};
+    </delete>
+
+    <delete id="unwatchRepo">
+        DELETE
+        FROM `t_rel_user_watch`
         WHERE `repo` = ${repo}
           AND `user` = ${user};
     </delete>

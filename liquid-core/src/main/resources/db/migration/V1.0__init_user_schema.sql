@@ -10,7 +10,8 @@ CREATE TABLE `t_ds_user`
     `company`          varchar(50),
 
     `password`         text               NOT NULL,
---         CHECK (`password` REGEXP '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\s\S]{8,}$')
+
+--         CHECK (`password` REGEXP '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\s\S]{8,}$'),
 --         COMMENT 'at least 8 characters, 1 upper case, 1 lower case, and 1 number',
 
     `created_at`       bigint             NOT NULL,

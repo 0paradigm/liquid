@@ -28,41 +28,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Slf4j
 @DubboService
 public class UserAuthServiceImpl implements UserAuthService {
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+
     @Autowired
-    UserMapper userMapper;
+    private UserMapper userMapper;
 
     @Override
     public UserBO findByNameOrMail(String login) {
-        User user = userMapper.findByNameOrMail(login);
-        if (user == null) {
-            return new UserBO(-1, "", "", "", "");
-        }
-        return new UserBO(user.getId(), user.getLogin(), "-1", user.getEmail(),
-            user.getPassword());
+        var userRec = userMapper.findByNameOrMail(login);
+        return UserBO.builder()
+                .id(userRec.getId())
+                .login(userRec.getLogin())
+                .email(userRec.getEmail())
+                .password(userRec.getPassword())
+                .build();
     }
 
     @Override
     public UserBO findById(Integer userId) {
-        User user = userMapper.findById(userId);
-        if (user == null) {
-            return new UserBO(-1, "", "", "", "");
-        }
-        return new UserBO(user.getId(), user.getLogin(), "-1", user.getEmail(),
-            user.getPassword());
+        var userRec = userMapper.findById(userId);
+        return UserBO.builder()
+                .id(userRec.getId())
+                .login(userRec.getLogin())
+                .email(userRec.getEmail())
+                .password(userRec.getPassword())
+                .build();
+
     }
-
-    @Override
-    public UserBO findByPhone(String phone) {
-        //TODO: missing mapper function
-//        User user = userMapper.findByPhone();
-//        if (user == null){
-//            return new UserBO(-1, "", "", "", "");
-//        }
-        return new UserBO(-1, "-1", "-1", "-1", "-1");
-    }
-
-
+    
     @Override
     public void register(String userName, String userMail, String phone, String userPassword) {
         //TODO: missing mapper function
