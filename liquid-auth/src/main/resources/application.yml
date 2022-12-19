@@ -15,11 +15,19 @@ spring:
       max-file-size: 50MB
       max-request-size: 100MB
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+    password: 123456
+    timeout: 1200
+    jedis:
+      pool:
+        enabled: true
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1
 
 logging:
   file:
@@ -30,3 +38,15 @@ jwt:
   encrypt-secret: 'cQfTjWnZr4u7w!z%C*F-JaNdRgUkXp2s5v8y/A?D(G+KbPeShVmYq3t6w9z$C&E)'
   default-expire-time: 86400000
   remember-expire-time: 2678400000
+
+
+aliyun:
+  sms:
+    access-key-id: "LTAI5tDCCZgDT7ounNJN1exq"
+    access-key-secret: "IBypcl8baB7201PI4V6zpK5wgRyeJz"
+    sign-name: "liquid"
+    templates:
+      key1:
+        template-code: "SMS_264935151"
+
+

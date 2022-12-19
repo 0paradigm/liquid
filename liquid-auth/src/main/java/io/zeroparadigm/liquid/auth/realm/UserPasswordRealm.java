@@ -29,6 +29,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Liquid account sign in. Username / Email Address + Password
@@ -36,7 +37,6 @@ import org.apache.shiro.authc.UsernamePasswordToken;
  * @author hezean
  */
 public class UserPasswordRealm extends GenericAuthorizationRealm {
-
     @DubboReference(parameters = {"unicast", "false"})
     UserAuthService authService;
 
@@ -59,7 +59,7 @@ public class UserPasswordRealm extends GenericAuthorizationRealm {
         UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
         String login = token.getUsername();
         UserBO user = authService.findByNameOrMail(login);
-        if (Objects.isNull(user)) {
+        if (user.getId() == -1) {
             throw new UnknownAccountException();
         }
         return new SimpleAuthenticationInfo(user, user.getPassword(), getName());

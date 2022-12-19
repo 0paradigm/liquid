@@ -17,12 +17,12 @@
 
 package io.zeroparadigm.liquid.common.bo;
 
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
 import java.io.Serializable;
 
 @NoArgsConstructor
@@ -35,8 +35,11 @@ public class UserBO implements Serializable {
     private Integer id;
 
     private String login;
+    
+    private String phone;
 
     private String email;
 
     private String password;
+
 }

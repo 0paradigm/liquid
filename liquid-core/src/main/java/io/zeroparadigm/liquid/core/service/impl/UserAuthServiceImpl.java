@@ -19,10 +19,13 @@ package io.zeroparadigm.liquid.core.service.impl;
 
 import io.zeroparadigm.liquid.common.api.core.UserAuthService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
+import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@Slf4j
 @DubboService
 public class UserAuthServiceImpl implements UserAuthService {
 
@@ -49,5 +52,11 @@ public class UserAuthServiceImpl implements UserAuthService {
                 .email(userRec.getEmail())
                 .password(userRec.getPassword())
                 .build();
+
+    }
+    
+    @Override
+    public void register(String userName, String userMail, String phone, String userPassword) {
+        //TODO: missing mapper function
     }
 }

@@ -18,10 +18,17 @@
 package io.zeroparadigm.liquid.common.api.core;
 
 import io.zeroparadigm.liquid.common.bo.UserBO;
+import org.springframework.stereotype.Service;
 
+@Service
 public interface UserAuthService {
 
-    public UserBO findByNameOrMail(String login);
+    UserBO findByNameOrMail(String login);
 
-    public UserBO findById(Integer userId);
+
+    UserBO findById(Integer userId);
+
+    UserBO findByPhone(String phone);
+
+    void register(String userName, String userMail, String phone, String userPassword);
 }

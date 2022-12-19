@@ -172,12 +172,12 @@ public class UserController {
     }
 
 
-    @RequestMapping(value = "/userId")
-    public Result<Integer> getUserIdViaJWT(@RequestHeader(value = "Token") String jwt) {
-        log.info("token-->" + jwt);
+    @PostMapping(value = "/userId")
+    public Result<Integer> getUserIdViaJWT(@RequestHeader(value = "Token") String jwt){
+        log.info("token-->"+jwt);
         Result<Integer> result;
         Integer id = jwtService.getUserId(jwt);
-        if (id.equals(null)) {
+        if (id!=null){
             return Result.success(id);
         } else {
             return Result.error(ServiceStatus.ERROR_LOGGING, -1);
