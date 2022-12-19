@@ -54,7 +54,18 @@ public class UserAuthServiceImpl implements UserAuthService {
                 .build();
 
     }
-    
+
+    @Override
+    public UserBO findByPhone(String phone) {
+        var userRec = userMapper.findByPhone(phone);
+        return UserBO.builder()
+                .id(userRec.getId())
+                .login(userRec.getLogin())
+                .email(userRec.getEmail())
+                .password(userRec.getPassword())
+                .build();
+    }
+
     @Override
     public void register(String userName, String userMail, String phone, String userPassword) {
         //TODO: missing mapper function

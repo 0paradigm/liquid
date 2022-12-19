@@ -46,6 +46,9 @@ public interface UserMapper extends BaseMapper<User> {
     @Nullable
     User findById(@Nullable @Param("id") Integer id);
 
+    @Nullable
+    User findByPhone(@Nullable @Param("phone") String phone);
+
     /**
      * Deletes user by id.
      *

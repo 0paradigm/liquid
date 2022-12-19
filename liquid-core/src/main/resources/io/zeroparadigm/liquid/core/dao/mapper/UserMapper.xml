@@ -54,4 +54,12 @@
         WHERE `owner` = (SELECT `id` FROM `t_ds_user` WHERE `login` = ${user});
     </select>
 
+    <select id="findByPhone" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+        SELECT *
+        FROM `t_ds_user`
+        WHERE `phone` = #{phone}
+        ORDER BY `id`
+        LIMIT 1;
+    </select>
+
 </mapper>
