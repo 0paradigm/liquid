@@ -100,4 +100,7 @@ public class User implements Serializable {
     @TableField("password")
     @NonNull
     private String password;
+
+    @TableField("phone")
+    private String phone;
 }
