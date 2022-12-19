@@ -59,7 +59,7 @@ public class UserPasswordRealm extends GenericAuthorizationRealm {
         UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
         String login = token.getUsername();
         UserBO user = authService.findByNameOrMail(login);
-        if (Objects.isNull(user)) {
+        if (user.getId() == -1) {
             throw new UnknownAccountException();
         }
         return new SimpleAuthenticationInfo(user, user.getPassword(), getName());

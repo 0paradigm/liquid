@@ -17,21 +17,21 @@
 
 package io.zeroparadigm.liquid.common.bo;
 
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@EqualsAndHashCode
-public class UserBO {
-
+public class UserBO implements Serializable {
     private Integer id;
 
     private String login;
-
     private String phone;
 
     private String email;

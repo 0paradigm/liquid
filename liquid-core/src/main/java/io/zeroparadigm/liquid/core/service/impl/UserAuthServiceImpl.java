@@ -21,9 +21,11 @@ import io.zeroparadigm.liquid.common.api.core.UserAuthService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@Slf4j
 @DubboService
 public class UserAuthServiceImpl implements UserAuthService {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -31,31 +33,23 @@ public class UserAuthServiceImpl implements UserAuthService {
     UserMapper userMapper;
 
     @Override
-    public UserBO findByNameOrMail(String login){
+    public UserBO findByNameOrMail(String login) {
         User user = userMapper.findByNameOrMail(login);
-        if (user == null){
-            return null;
+        if (user == null) {
+            return new UserBO(-1, "", "", "", "");
         }
-        UserBO userBO = new UserBO();
-        userBO.setLogin(user.getLogin());
-        userBO.setId(user.getId());
-        userBO.setPassword(user.getPassword());
-        userBO.setEmail(user.getEmail());
-        return userBO;
+        return new UserBO(user.getId(), user.getLogin(), "-1", user.getEmail(),
+            user.getPassword());
     }
 
     @Override
-    public UserBO findById(Integer userId){
+    public UserBO findById(Integer userId) {
         User user = userMapper.findById(userId);
-        if (user == null){
-            return null;
+        if (user == null) {
+            return new UserBO(-1, "", "", "", "");
         }
-        UserBO userBO = new UserBO();
-        userBO.setLogin(user.getLogin());
-        userBO.setId(user.getId());
-        userBO.setPassword(user.getPassword());
-        userBO.setEmail(user.getEmail());
-        return userBO;
+        return new UserBO(user.getId(), user.getLogin(), "-1", user.getEmail(),
+            user.getPassword());
     }
 
     @Override
@@ -63,18 +57,14 @@ public class UserAuthServiceImpl implements UserAuthService {
         //TODO: missing mapper function
 //        User user = userMapper.findByPhone();
 //        if (user == null){
-//            return null;
+//            return new UserBO(-1, "", "", "", "");
 //        }
-        UserBO userBO = new UserBO();
-//        userBO.setLogin(user.getLogin());
-//        userBO.setId(user.getId());
-//        userBO.setPassword(user.getPassword());
-//        userBO.setEmail(user.getEmail());
-        return userBO;
+        return new UserBO(-1, "-1", "-1", "-1", "-1");
     }
 
+
     @Override
-    public void register(String userName, String userMail, String userPassword) {
+    public void register(String userName, String userMail, String phone, String userPassword) {
         //TODO: missing mapper function
     }
 }

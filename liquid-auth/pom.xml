@@ -70,14 +70,9 @@
 
         <!--SMS-->
         <dependency>
-            <groupId>cn.javaer.aliyun</groupId>
-            <artifactId>aliyun-sms</artifactId>
-            <version>1.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>cn.javaer.aliyun</groupId>
-            <artifactId>aliyun-spring-boot-starter-sms</artifactId>
-            <version>1.2.0</version>
+            <groupId>com.aliyun</groupId>
+            <artifactId>dysmsapi20170525</artifactId>
+            <version>2.0.23</version>
         </dependency>
 
         <!--redis-->
