@@ -17,9 +17,9 @@ spring:
 
   redis:
     host: localhost
-    port: 6379
+    port: 16379
     database: 0
-    password: 123456
+    password:
     timeout: 1200
     jedis:
       pool:
@@ -39,14 +39,5 @@ jwt:
   default-expire-time: 86400000
   remember-expire-time: 2678400000
 
-
-aliyun:
-  sms:
-    access-key-id: "LTAI5tDCCZgDT7ounNJN1exq"
-    access-key-secret: "IBypcl8baB7201PI4V6zpK5wgRyeJz"
-    sign-name: "liquid"
-    templates:
-      key1:
-        template-code: "SMS_264935151"
 
 

@@ -16,14 +16,12 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-#            allowedOrigins: "http://localhost:3000"
             allowedHeaders: "*"
-            allowedOrigins: "*"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
+            allowed-origin-patterns: "*"
+            allowedMethods: "*"
+            allow-credentials: true
+            exposedHeaders: "Content-Disposition,Content-Type,Cache-Control"
+            maxAge: 360000
 
 
 #      filter:

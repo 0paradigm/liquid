@@ -32,6 +32,7 @@ import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -106,7 +107,7 @@ public class AuthController {
         try {
             String redisCode = redisTemplate.opsForValue().get(phone);
             UserBO user = userAuthService.findByPhone(phone);
-            if (!StringUtils.isEmpty(redisCode) && captcha.equals(redisCode) && user != null) {
+            if (captcha.equals(redisCode) && user != null) {
                 redisTemplate.delete(phone);
                 return Result.success(
                     Map.of(
@@ -127,9 +128,18 @@ public class AuthController {
     @ApiImplicitParam(name = "phone", value = "user's phone number")
     @PostMapping("/captcha")
     public Result<String> sendCode(@RequestParam(value = "phone") String phone) {
+        //TODO: redis connection failed
+//        String redisCode = redisTemplate.opsForValue().get(phone);
+//        if (redisCode != null) {
+//            //设定发送短信间隔时长1min
+//            long l = Long.parseLong(redisCode.substring(5));
+//            if (System.currentTimeMillis() - l < 60000) {
+//                return Result.error(ServiceStatus.CAPTCHA_DUPLICATE);
+//            }
+//        }
         Random random = new Random();
         StringBuilder ss = new StringBuilder();
-        for (int i = 0;i< 4;i++){
+        for (int i = 0; i < 4; i++) {
             ss.append(random.nextInt(10));
         }
         try {
@@ -148,13 +158,11 @@ public class AuthController {
             com.aliyun.teautil.models.RuntimeOptions runtime =
                 new com.aliyun.teautil.models.RuntimeOptions();
             SendSmsResponse sendSmsResponse = client.sendSmsWithOptions(sendSmsRequest, runtime);
+//            redisTemplate.opsForValue().set(phone,
+//                String.valueOf(ss), 3, TimeUnit.MINUTES);
             return Result.success(sendSmsResponse.toString());
-        } catch (TeaException error) {
-            log.info(error.message);
-            return Result.error(ServiceStatus.SENDING_ERROR);
-        } catch (Exception _error) {
-            TeaException error = new TeaException(_error.getMessage(), _error);
-            log.info(error.message);
+        } catch (Exception error) {
+            log.info(error.getMessage());
             return Result.error(ServiceStatus.SENDING_ERROR);
         }
     }
