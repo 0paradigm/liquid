@@ -17,6 +17,7 @@
 
 package io.zeroparadigm.liquid.git.controller;
 
+import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -30,6 +31,7 @@ import io.zeroparadigm.liquid.git.dto.WebCreateRepoDTO;
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import io.zeroparadigm.liquid.git.service.GitWebService;
 
+import java.io.IOException;
 import java.util.List;
 
 import lombok.SneakyThrows;
@@ -155,10 +157,15 @@ public class GitWebController {
     @GetMapping("/file/{owner}/{repo}/{branchOrCommit}")
     @SneakyThrows
     @WrapsException(wrapped = ServiceStatus.NOT_FOUND, status = HttpStatus.NOT_FOUND)
-    public Result<byte[]> getFile(@PathVariable String owner,
-                                  @PathVariable String repo,
-                                  @PathVariable String branchOrCommit,
-                                  @RequestParam String filePath) {
-        return Result.success(gitWebService.getFile(owner, repo, branchOrCommit, filePath));
+    public Result<String> getFile(@PathVariable String owner,
+                                @PathVariable String repo,
+                                @PathVariable String branchOrCommit,
+                                @RequestParam String filePath) {
+        try {
+            String json = gitWebService.getFile(owner, repo, branchOrCommit, filePath);
+            return Result.success(json);
+        }catch (IOException e){
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
     }
 }
