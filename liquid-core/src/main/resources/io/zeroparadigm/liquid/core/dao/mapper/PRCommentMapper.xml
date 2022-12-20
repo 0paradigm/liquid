@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.PRCommentMapper">
+
+    <insert id="createPRComment">
+        INSERT INTO `t_ds_pr_comment`
+        (`repo`, `pr`, `author`, `comment`, `created_at`)
+        VALUES
+        (#{repo_id}, #{pr_id}, #{author_id}, #{comment}, #{created_at});
+    </insert>
+
+    <delete id="deleteById">
+        DELETE
+        FROM `t_ds_pr_comment`
+        WHERE `id` = #{id};
+    </delete>
+
+    <select id="findByPRId" resultType="io.zeroparadigm.liquid.core.dao.entity.PRComment">
+        SELECT *
+        FROM `t_ds_pr_comment`
+        WHERE `pr` = #{pr_id};
+    </select>
+</mapper>

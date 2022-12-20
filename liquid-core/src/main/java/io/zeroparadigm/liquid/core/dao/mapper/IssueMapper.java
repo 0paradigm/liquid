@@ -26,7 +26,7 @@ public interface IssueMapper extends BaseMapper<Issue> {
      * Create new issue.
      */
     void createIssue(@Param("display_id") Integer displayId, @Param("repo_id") Integer repoId,
-                     @Param("opener") Integer opner, @Param("createdTime") Long createdTime,
+                     @Param("opener") Integer opener, @Param("title") String title, @Param("createdTime") Long createdTime,
                      @Param("closed") Boolean closed);
 
     /**

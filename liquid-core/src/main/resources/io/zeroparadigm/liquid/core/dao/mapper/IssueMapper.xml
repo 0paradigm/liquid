@@ -25,9 +25,9 @@
 
     <insert id="createIssue">
         INSERT INTO `t_ds_issue`
-        (`display_id`, `repo_id`, `opener`, `createdTime`, `closed`)
+        (`display_id`, `repo_id`, `opener`, `title`, `createdTime`, `closed`)
         VALUES
-        (#{display_id}, #{title}, #{opener}, #{createdTime}, #{closed});
+        (#{display_id}, #{title}, #{opener}, #{title}, #{createdTime}, #{closed});
     </insert>
 
     <update id="closeIssue">

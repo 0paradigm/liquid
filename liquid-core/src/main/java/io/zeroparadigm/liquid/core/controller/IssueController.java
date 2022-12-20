@@ -11,14 +11,8 @@ import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
 import io.zeroparadigm.liquid.core.dao.UserDao;
-import io.zeroparadigm.liquid.core.dao.entity.Issue;
-import io.zeroparadigm.liquid.core.dao.entity.IssueLabel;
-import io.zeroparadigm.liquid.core.dao.entity.Repo;
-import io.zeroparadigm.liquid.core.dao.entity.User;
-import io.zeroparadigm.liquid.core.dao.mapper.IssueLabelMapper;
-import io.zeroparadigm.liquid.core.dao.mapper.IssueMapper;
-import io.zeroparadigm.liquid.core.dao.mapper.RepoMapper;
-import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
+import io.zeroparadigm.liquid.core.dao.entity.*;
+import io.zeroparadigm.liquid.core.dao.mapper.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.ibatis.annotations.Param;
@@ -58,15 +52,60 @@ public class IssueController {
     @Autowired
     IssueLabelMapper issueLabelMapper;
 
+    @Autowired
+    IssueCommentMapper issueCommentMapper;
+
     @GetMapping("/new")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<Boolean> newIssue(@RequestHeader("Authorization") String token, @RequestParam("display_id") Integer displayId, @RequestParam("repo_id") Integer repoId,
-                                    @RequestParam("closed") Boolean closed) {
+                                    @RequestParam("title") String title, @RequestParam("closed") Boolean closed) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
-        issueMapper.createIssue(displayId, repoId, userId, System.currentTimeMillis(), closed);
+        issueMapper.createIssue(displayId, repoId, userId, title, System.currentTimeMillis(), closed);
+        return Result.success(true);
+    }
+
+    @GetMapping("/comment")
+    @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
+    public Result<Boolean> commentIssue(@RequestHeader("Authorization") String token, @RequestParam("repo_id") Integer repoId,
+                                        @RequestParam("issue_id") Integer issueId, @RequestParam("content") String content) {
+        Integer userId = jwtService.getUserId(token);
+        if (Objects.isNull(userId)) {
+            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
+        }
+        issueCommentMapper.createIssueComment(repoId, issueId, userId, content, System.currentTimeMillis());
+        return Result.success(true);
+    }
+
+    @GetMapping("/get_comment")
+    @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
+    public Result<List<IssueComment>> getIssueComment(@RequestParam("issue_id") Integer issueId) {
+        Issue issue = issueMapper.findById(issueId);
+        if (Objects.isNull(issue)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
+        List<IssueComment> issueComments = issueCommentMapper.findByIssueId(issueId);
+        return Result.success(issueComments);
+    }
+
+    @GetMapping("/delete_comment")
+    @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
+    public Result<Boolean> deleteIssueComment(@RequestHeader("Authorization") String token, @RequestParam("comment_id") Integer commentId) {
+        Integer userId = jwtService.getUserId(token);
+        if (Objects.isNull(userId)) {
+            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
+        }
+        IssueComment issueComment = issueCommentMapper.findById(commentId);
+        if (Objects.isNull(issueComment)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
+        Repo repo = repoMapper.findById(issueComment.getRepo());
+        if (!issueComment.getAuthor().equals(userId) || !repo.getOwner().equals(userId)) {
+            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
+        }
+        issueCommentMapper.deleteById(commentId);
         return Result.success(true);
     }
 

@@ -4,18 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.ToString;
-
-import java.io.Serializable;
+import lombok.*;
 
 /**
- * Issue entity.
+ * PR entity.
  *
  * @author matthewleng
  */
@@ -24,8 +16,8 @@ import java.io.Serializable;
 @Builder
 @Data
 @ToString
-@TableName("t_ds_issue")
-public class Issue implements Serializable {
+@TableName("t_ds_pr")
+public class PR {
 
     /**
      * system generated primary key.
@@ -49,30 +41,52 @@ public class Issue implements Serializable {
     private Integer repo;
 
     /**
-     * issue opener.
+     * pr opener.
      */
     @TableField("opener")
     @NonNull
     private Integer opener;
 
     /**
-     * issue title.
+     * pr title.
      */
     @TableField("title")
     @NonNull
     private String title;
 
     /**
-     * issue created time.
+     * pr head repo.
+     */
+    @TableField("head")
+    @NonNull
+    private Integer head;
+
+    /**
+     * pr base repo.
+     */
+    @TableField("base")
+    @NonNull
+    private Integer base;
+
+    /**
+     * pr created time.
      */
     @TableField("created_at")
     @NonNull
-    private Long createdTime;
+    private Long createdAt;
 
     /**
-     * issue closed
+     * pr closed time.
+     */
+    @TableField("closed_at")
+    @NonNull
+    private Long closedAt;
+
+    /**
+     * pr closed status.
      */
     @TableField("closed")
     @NonNull
     private Boolean closed;
+
 }

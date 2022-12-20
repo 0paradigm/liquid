@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.IssueCommentMapper">
+
+    <insert id="createIssueComment">
+        INSERT INTO `t_ds_issue_comment`
+        (`repo`, `issue`, `author`, `comment`, `created_at`)
+        VALUES
+        (#{repo_id}, #{issue_id}, #{author_id}, #{comment}, #{created_at});
+    </insert>
+
+    <delete id="deleteById">
+        DELETE
+        FROM `t_ds_issue_comment`
+        WHERE `id` = #{id};
+    </delete>
+
+    <select id="findByIssueId" resultType="io.zeroparadigm.liquid.core.dao.entity.IssueComment">
+        SELECT *
+        FROM `t_ds_issue_comment`
+        WHERE `issue` = #{issue_id};
+    </select>
+
+    <select id="findById" resultType="io.zeroparadigm.liquid.core.dao.entity.IssueComment">
+        SELECT *
+        FROM `t_ds_issue_comment`
+        WHERE `id` = #{id};
+    </select>
+</mapper>
