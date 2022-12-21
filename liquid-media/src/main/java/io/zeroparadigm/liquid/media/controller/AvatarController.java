@@ -23,10 +23,7 @@ import javax.annotation.PostConstruct;
 import io.zeroparadigm.liquid.common.constants.StorageConsts;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -34,7 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
  *
  * @author hezean
  */
-@RestController
+@RestController("/avatar")
 @Slf4j
 public class AvatarController {
 
@@ -47,13 +44,15 @@ public class AvatarController {
         minioService.createBucketIfNotExists(StorageConsts.MINIO_AVATAR_BUCKET);
     }
 
-    @PostMapping("/upload")
-    public String upload(MultipartFile file) {
-        return minioService.upload(file, file.getName(), StorageConsts.MINIO_AVATAR_BUCKET);
+    @PostMapping("/{uid}/upload")
+    public String upload(
+            @PathVariable String uid,
+            @RequestBody MultipartFile file) {
+        return minioService.upload(file, uid, StorageConsts.MINIO_AVATAR_BUCKET);
     }
 
-    @GetMapping("/hello/{name}")
-    public String hello(@PathVariable String name) {
-        return name;
+    @GetMapping("/{uid}")
+    public byte[] hello(@PathVariable String uid) {
+        return minioService.download(uid, StorageConsts.MINIO_AVATAR_BUCKET);
     }
 }
