@@ -44,7 +44,8 @@ public interface RepoMapper extends BaseMapper<Repo> {
      */
     @Nullable
     void createRepo(@NonNull @Param("userId") Integer userId, @NonNull @Param("repoName") String repoName,
-                    @Param("forkedId") Integer forkedId, @Param("private") Boolean privat);
+                    @Param("forkedId") Integer forkedId, @Param("description") String description,
+                    @Param("language") String langauge, @Param("private") Boolean privat);
 
     /**
      * Gets repo by id.

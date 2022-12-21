@@ -71,13 +71,14 @@ public class RepoController {
     @GetMapping("/create")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Boolean> create(@RequestHeader("Authorization") String token, @RequestParam("name") String name,
-                                  @RequestParam("forkedId") Integer forkedId, @RequestParam("private") Boolean privat) {
+                                  @RequestParam("forkedId") Integer forkedId, @RequestParam("description") String description,
+                                  @RequestParam("langauge") String language, @RequestParam("private") Boolean privat) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
-        repoMapper.createRepo(userId, name, forkedId==-1?null:forkedId, privat);
+        repoMapper.createRepo(userId, name, forkedId==-1?null:forkedId, description, language, privat);
         return Result.success(true);
     }
 
@@ -174,6 +175,7 @@ public class RepoController {
         return Result.success(repo);
     }
 
+    // star, forked name, fork, watch      description language
     @GetMapping("/search")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
     public Result<List<Repo>> findRepoByName(@RequestHeader("Authorization") String token, @RequestParam("name") String name){

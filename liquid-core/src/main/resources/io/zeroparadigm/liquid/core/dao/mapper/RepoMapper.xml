@@ -4,9 +4,9 @@
 <mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.RepoMapper">
     <insert id="createRepo">
         INSERT INTO `t_ds_repo`
-        (`owner`, `name` , `forked_from`, `private`)
+        (`owner`, `name` , `forked_from`, `description`, `language`, `private`)
         VALUES
-        (#{userId}, #{repoName}, #{forkedId}, #{private});
+        (#{userId}, #{repoName}, #{forkedId},#{description}, #{langauge}, #{private});
     </insert>
 
     <insert id="addCollaborator">
