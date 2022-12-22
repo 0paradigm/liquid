@@ -42,11 +42,11 @@ public class UserAuthServiceImpl implements UserAuthService {
             return UserBO.builder().build();
         }
         return UserBO.builder()
-                .id(userRec.getId())
-                .login(userRec.getLogin())
-                .email(userRec.getEmail())
-                .password(userRec.getPassword())
-                .build();
+            .id(userRec.getId())
+            .login(userRec.getLogin())
+            .email(userRec.getEmail())
+            .password(userRec.getPassword())
+            .build();
     }
 
     @GetMapping("/internal/user/list")
@@ -61,11 +61,11 @@ public class UserAuthServiceImpl implements UserAuthService {
             return UserBO.builder().build();
         }
         return UserBO.builder()
-                .id(userRec.getId())
-                .login(userRec.getLogin())
-                .email(userRec.getEmail())
-                .password(userRec.getPassword())
-                .build();
+            .id(userRec.getId())
+            .login(userRec.getLogin())
+            .email(userRec.getEmail())
+            .password(userRec.getPassword())
+            .build();
 
     }
 
@@ -76,15 +76,22 @@ public class UserAuthServiceImpl implements UserAuthService {
             return UserBO.builder().build();
         }
         return UserBO.builder()
-                .id(userRec.getId())
-                .login(userRec.getLogin())
-                .email(userRec.getEmail())
-                .password(userRec.getPassword())
-                .build();
+            .id(userRec.getId())
+            .login(userRec.getLogin())
+            .email(userRec.getEmail())
+            .password(userRec.getPassword())
+            .build();
     }
 
     @Override
-    public void register(String userName, String userMail, String phone, String userPassword) {
-        //TODO: missing mapper function
+    public void register(String mail, String login, String password, String phone) {
+        User newUser = new User();
+        newUser.setEmail(mail);
+        newUser.setLogin(login);
+        newUser.setPassword(password);
+        newUser.setPhone(phone);
+        newUser.setCreatedAt(System.currentTimeMillis());
+        newUser.setUpdatedAt(System.currentTimeMillis());
+        userMapper.insert(newUser);
     }
 }

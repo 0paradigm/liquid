@@ -167,15 +167,19 @@ public class AuthController {
         }
     }
 
+
     @ApiOperation(value = "register", notes = "user register")
     @PostMapping("/register")
-    public Result<String> register(@RequestParam String userMail, @RequestParam String userName,
-                                   @RequestParam String userPhone,
-                                   @RequestParam String userPassword) {
-        //TODO: need to be implement
-        userAuthService.register(userName, userMail, userPhone, userPassword);
-        return null;
+    public Result<String> register(@RequestParam String mail, @RequestParam String login,
+                                   @RequestParam String password, @RequestParam String phone) {
+        try {
+            userAuthService.register(mail, login, password, phone);
+            return Result.success("OK");
+        } catch (Exception e) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR, e.getMessage());
+        }
     }
+
 
     @ApiOperation(value = "logout", notes = "Destroy current token in backend")
     @PostMapping("/logout")
