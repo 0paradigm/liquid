@@ -53,4 +53,5 @@ public interface MileStoneMapper extends BaseMapper<MileStone> {
      * @param id milestone id
      */
     void deleteById(@Nullable @Param("id") Integer id);
+
 }

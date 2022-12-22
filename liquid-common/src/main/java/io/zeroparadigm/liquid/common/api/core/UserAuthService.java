@@ -30,5 +30,5 @@ public interface UserAuthService {
 
     UserBO findByPhone(String phone);
 
-    void register(String userName, String userMail, String phone, String userPassword);
+    void register(String mail, String login, String password, String phone);
 }
