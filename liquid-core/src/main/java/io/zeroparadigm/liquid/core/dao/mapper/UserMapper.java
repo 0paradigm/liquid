@@ -46,6 +46,8 @@ public interface UserMapper extends BaseMapper<User> {
     @Nullable
     User findById(@Nullable @Param("id") Integer id);
 
+    List<User> listAll();
+
     /**
      * create user.
      */

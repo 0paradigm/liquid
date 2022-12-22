@@ -56,8 +56,8 @@
     <select id="findByNameOrMail" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
         SELECT *
         FROM `t_ds_user`
-        WHERE `login` = concat('',#{nameOrMail,jdbcType=VARCHAR},'')
-           OR `email` = concat('',#{nameOrMail,jdbcType=VARCHAR},'')
+        WHERE `login` = concat('',#{name_or_mail,jdbcType=VARCHAR},'')
+           OR `email` = concat('',#{name_or_mail,jdbcType=VARCHAR},'')
         ORDER BY `id`
         LIMIT 1;
     </select>
@@ -82,6 +82,11 @@
         WHERE `phone` = #{phone}
         ORDER BY `id`
         LIMIT 1;
+    </select>
+
+    <select id="listAll" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+        SELECT *
+        FROM `t_ds_user`;
     </select>
 
 </mapper>

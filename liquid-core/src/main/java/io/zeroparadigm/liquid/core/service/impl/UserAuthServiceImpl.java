@@ -21,9 +21,12 @@ import io.zeroparadigm.liquid.common.api.core.UserAuthService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
+import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @Slf4j
 @DubboService
@@ -35,6 +38,9 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public UserBO findByNameOrMail(String login) {
         var userRec = userMapper.findByNameOrMail(login);
+        if (Objects.isNull(userRec)) {
+            return UserBO.builder().build();
+        }
         return UserBO.builder()
                 .id(userRec.getId())
                 .login(userRec.getLogin())
@@ -43,9 +49,17 @@ public class UserAuthServiceImpl implements UserAuthService {
                 .build();
     }
 
+    @GetMapping("/internal/user/list")
+    public List<User> listUsers() {
+        return userMapper.listAll();
+    }
+
     @Override
     public UserBO findById(Integer userId) {
         var userRec = userMapper.findById(userId);
+        if (Objects.isNull(userRec)) {
+            return UserBO.builder().build();
+        }
         return UserBO.builder()
                 .id(userRec.getId())
                 .login(userRec.getLogin())
@@ -58,6 +72,9 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public UserBO findByPhone(String phone) {
         var userRec = userMapper.findByPhone(phone);
+        if (Objects.isNull(userRec)) {
+            return UserBO.builder().build();
+        }
         return UserBO.builder()
                 .id(userRec.getId())
                 .login(userRec.getLogin())
