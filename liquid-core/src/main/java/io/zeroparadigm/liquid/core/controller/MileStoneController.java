@@ -36,7 +36,7 @@ public class MileStoneController {
     @Autowired
     UserDao userDao;
 
-    @DubboReference
+    @DubboReference(parameters = {"unicast", "false"})
     JWTService jwtService;
 
     @Autowired

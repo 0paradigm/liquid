@@ -62,7 +62,7 @@ public class AuthController {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    @DubboReference
+    @DubboReference(parameters = {"unicast", "false"})
     UserAuthService userAuthService;
 
     @ApiOperation(value = "login", notes = "Specify login method and provide credentials")

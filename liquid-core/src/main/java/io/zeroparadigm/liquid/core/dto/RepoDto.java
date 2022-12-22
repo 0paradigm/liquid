@@ -20,7 +20,7 @@ public class RepoDto {
 
     private Integer id;
 
-    private Integer owner;
+    private String owner;
 
     private String name;
 
@@ -28,7 +28,8 @@ public class RepoDto {
 
     private String language;
 
-    private Integer forkedFrom;
+    @Nullable
+    private String forkedFrom;
 
     private Boolean privateRepo;
 

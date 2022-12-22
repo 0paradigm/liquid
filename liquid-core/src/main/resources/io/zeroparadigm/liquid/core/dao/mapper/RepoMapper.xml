@@ -4,9 +4,9 @@
 <mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.RepoMapper">
     <insert id="createRepo">
         INSERT INTO `t_ds_repo`
-        (`owner`, `name` , `forked_from`, `description`, `language`, `private`)
+        (`owner`, `name` , `forked_from`, `description`, `language`, `privated`)
         VALUES
-        (#{userId}, #{repoName}, #{forkedId},#{description}, #{langauge}, #{private});
+        (#{userId}, #{repoName}, #{forkedId},#{description}, #{language}, #{private});
     </insert>
 
     <insert id="addCollaborator">
@@ -26,13 +26,13 @@
 
     <update id="setPublic">
         UPDATE `t_ds_repo`
-        SET `private` = FALSE
+        SET `privated` = FALSE
         WHERE `id` = #{repoId};
     </update>
 
     <update id="setPrivate">
         UPDATE `t_ds_repo`
-        SET `private` = TRUE
+        SET `privated` = TRUE
         WHERE `id` = #{repoId};
     </update>
 
@@ -113,8 +113,8 @@
     <select id="findByName" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
         SELECT *
         FROM `t_ds_repo`
-        WHERE `name` like concat('%',#{name,jdbcType=VARCHAR},'%')
-        AND (`private` = FALSE OR (`private` = TRUE AND `owner` = #{userId}));
+        WHERE LOWER(`name`) like LOWER(concat('%',#{name,jdbcType=VARCHAR},'%'))
+        AND (`privated` = FALSE OR (`privated` = TRUE AND `owner` = #{userId}));
     </select>
 
     <select id="verifyAuth" resultType="java.lang.Boolean">

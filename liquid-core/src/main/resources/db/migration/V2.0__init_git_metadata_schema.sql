@@ -3,8 +3,6 @@ CREATE TABLE `t_ds_repo`
     `id`          int PRIMARY KEY AUTO_INCREMENT,
     `owner`       int         NOT NULL,
     `name`        varchar(20) NOT NULL,
-    `description` text,
-    `langauge`    text,
 
     `forked_from` int,
     `private`     bool NOT NULL DEFAULT FALSE,
