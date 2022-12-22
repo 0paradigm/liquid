@@ -45,7 +45,7 @@ public interface RepoMapper extends BaseMapper<Repo> {
     @Nullable
     void createRepo(@NonNull @Param("userId") Integer userId, @NonNull @Param("repoName") String repoName,
                     @Param("forkedId") Integer forkedId, @Param("description") String description,
-                    @Param("language") String langauge, @Param("private") Boolean privat);
+                    @Param("language") String language, @Param("private") Boolean privat);
 
     /**
      * Gets repo by id.
@@ -90,7 +90,7 @@ public interface RepoMapper extends BaseMapper<Repo> {
      * @return the repo entity, or null
      */
     @Nullable
-    List<Repo> findByName(@Param("userid") Integer userId, @Param("name") String name);
+    List<Repo> findByName(@Param("userId") Integer userId, @Param("name") String name);
 
     /**
      * Count starer.

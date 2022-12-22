@@ -69,7 +69,7 @@ public class User implements Serializable {
     private String twitterUsername;
 
     @TableField("bio")
-    private String biography;
+    private String bio;
 
     @TableField("location")
     private String location;

@@ -75,7 +75,7 @@ public class Repo implements Serializable {
     /**
      * repo main language
      */
-    @TableField("langauge")
+    @TableField("language")
     private String language;
 
     /**
@@ -88,7 +88,7 @@ public class Repo implements Serializable {
     /**
      * private or not.
      */
-    @TableField("private")
+    @TableField("privated")
     @NonNull
-    private Boolean privateRepo;
+    private Boolean privated;
 }

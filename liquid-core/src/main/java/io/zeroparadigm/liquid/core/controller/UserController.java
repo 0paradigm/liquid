@@ -27,11 +27,16 @@ import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
 import io.zeroparadigm.liquid.core.dao.UserDao;
 import io.zeroparadigm.liquid.core.dao.entity.User;
+import io.zeroparadigm.liquid.core.dao.mapper.RepoMapper;
 import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
+import io.zeroparadigm.liquid.core.dto.RepoDto;
+import java.util.ArrayList;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import io.zeroparadigm.liquid.core.dao.entity.Repo;
@@ -54,11 +59,64 @@ public class UserController {
     @Autowired
     UserDao userDao;
 
-    @DubboReference
+    @DubboReference(parameters = {"unicast", "false"})
     JWTService jwtService;
 
     @Autowired
     UserMapper userMapper;
+
+    @Autowired
+    RepoMapper repoMapper;
+
+    @PostMapping("/create")
+    @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
+    public Result<Boolean> createUser(@RequestParam("login") String login, @RequestParam("name") String name, @RequestParam("email") String email,
+                                      @Nullable @RequestParam("twitter_username") String twitter_username, @Nullable @RequestParam("bio") String bio,
+                                      @Nullable @RequestParam("company") String company, @Nullable @RequestParam("location") String location,
+                                      @RequestParam("password") String password, @Nullable @RequestParam("phone") String phone){
+        User user = new User();
+        user.setLogin(login);
+        user.setName(name);
+        user.setEmail(email);
+        user.setTwitterUsername(twitter_username);
+        user.setBio(bio);
+        user.setCompany(company);
+        user.setLocation(location);
+        user.setPassword(password);
+        user.setPhone(phone);
+        user.setCreatedAt(System.currentTimeMillis());
+        user.setUpdatedAt(System.currentTimeMillis());
+        userMapper.insert(user);
+        return Result.success();
+    }
+
+    @PostMapping("/update")
+    @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
+    public Result<Boolean> updateUser(@RequestHeader("Authorization") String token,
+                                      @Nullable @RequestParam("twitter_username") String twitter_username,
+                                      @Nullable @RequestParam("bio") String bio,
+                                      @Nullable @RequestParam("company") String company,
+                                      @Nullable @RequestParam("location") String location,
+                                       @Nullable @RequestParam("phone") String phone){
+        Integer userId = jwtService.getUserId(token);
+        User user = userMapper.selectById(userId);
+        if (Objects.isNull(user)) {
+            return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
+        }
+        userMapper.updateUserById(userId, twitter_username, bio, company, location, phone, System.currentTimeMillis());
+        return Result.success();
+    }
+
+    @GetMapping("/info")
+    @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
+    public Result<User> getUserInfo(@RequestHeader("Authorization") String token){
+        Integer userId = jwtService.getUserId(token);
+        User user = userMapper.selectById(userId);
+        if (Objects.isNull(user)) {
+            return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
+        }
+        return Result.success(user);
+    }
 
     @GetMapping("/find")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
@@ -68,6 +126,16 @@ public class UserController {
             return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
         }
         return Result.success(user);
+    }
+
+    @GetMapping("/search")
+    @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
+    public Result<List<User>> fuzzySearch(@RequestParam("usr") String name_or_mail) {
+        List<User> users = userMapper.fuzzySearch(name_or_mail);
+        if (Objects.isNull(users)) {
+            return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
+        }
+        return Result.success(users);
     }
 
     @GetMapping("/star")
@@ -90,6 +158,7 @@ public class UserController {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
         User usr = userMapper.findById(userId);
+//        log.info("user/unstar param  " + usr.getLogin() + " " + id);
         userMapper.unstarRepo(usr.getLogin(), id);
         return Result.success();
     }
@@ -125,14 +194,28 @@ public class UserController {
     // forked from
     @GetMapping("/repo")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<List<Repo>> getRepo(@RequestHeader("Authorization") String token) {
+    public Result<List<RepoDto>> getRepo(@RequestHeader("Authorization") String token) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
         User usr = userMapper.findById(userId);
         List<Repo> repos = userMapper.listUserRepos(usr.getLogin());
-        return Result.success(repos);
+        List<RepoDto> repoDtos = new ArrayList<>();
+        for (int i = 0; i < repos.size(); i++) {
+            String forkedFrom = null;
+            if (repos.get(i).getForkedFrom() != null) {
+                Repo repo = repoMapper.findById(repos.get(i).getForkedFrom());
+                if (!Objects.isNull(repo)){
+                    User owner = userMapper.findById(repo.getOwner());
+                    forkedFrom = owner.getLogin() + "/" + repo.getName();
+                }
+            }
+            log.info("user/repo: repo is " + repos.get(i));
+            repoDtos.add(new RepoDto(repos.get(i).getId(), usr.getLogin(), repos.get(i).getName(),
+                repos.get(i).getDescription(), repos.get(i).getLanguage(),forkedFrom, repos.get(i).getPrivated()));
+        }
+        return Result.success(repoDtos);
     }
 
     /**

@@ -13,6 +13,8 @@ import io.zeroparadigm.liquid.core.dao.entity.Repo;
 import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.dao.mapper.RepoMapper;
 import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
+import io.zeroparadigm.liquid.core.dto.RepoDto;
+import java.util.ArrayList;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +38,7 @@ public class RepoController {
     @Autowired
     UserDao userDao;
 
-    @DubboReference
+    @DubboReference(parameters = {"unicast", "false"})
     JWTService jwtService;
 
     @Autowired
@@ -72,13 +74,14 @@ public class RepoController {
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Boolean> create(@RequestHeader("Authorization") String token, @RequestParam("name") String name,
                                   @RequestParam("forkedId") Integer forkedId, @RequestParam("description") String description,
-                                  @RequestParam("langauge") String language, @RequestParam("private") Boolean privat) {
+                                  @RequestParam("language") String language, @RequestParam("private") Boolean privat) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
+        log.error("user " + user + " create ");
         if (Objects.isNull(user)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
-        repoMapper.createRepo(userId, name, forkedId==-1?null:forkedId, description, language, privat);
+        repoMapper.createRepo(userId, name, forkedId<=-1?null:forkedId, description, language, privat);
         return Result.success(true);
     }
 
@@ -178,17 +181,32 @@ public class RepoController {
     // star, forked name, fork, watch      description language
     @GetMapping("/search")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
-    public Result<List<Repo>> findRepoByName(@RequestHeader("Authorization") String token, @RequestParam("name") String name){
+    public Result<List<RepoDto>> findRepoByName(@RequestHeader("Authorization") String token, @RequestParam("name") String name){
         Integer userId = jwtService.getUserId(token);
         User usr = userMapper.findById(userId);
+        log.info("testing search ..... user " + usr);
         if (Objects.isNull(usr)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
-        List<Repo> repo = repoMapper.findByName(userId,name);
-        if (Objects.isNull(repo)) {
+        List<Repo> repos = repoMapper.findByName(userId,name);
+        log.info("testing search ..... repos " + repos);
+        if (Objects.isNull(repos)) {
             return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
         }
-        return Result.success(repo);
+        List<RepoDto> repoDtos = new ArrayList<>();
+        for (int i = 0; i < repos.size(); i++) {
+            String forkedFrom = null;
+            if (repos.get(i).getForkedFrom() != null) {
+                Repo repo = repoMapper.findById(repos.get(i).getForkedFrom());
+                if (!Objects.isNull(repo)){
+                    User owner = userMapper.findById(repo.getOwner());
+                    forkedFrom = owner.getLogin() + "/" + repo.getName();
+                }
+            }
+            repoDtos.add(new RepoDto(repos.get(i).getId(), usr.getLogin(), repos.get(i).getName(),
+                repos.get(i).getDescription(), repos.get(i).getLanguage(),forkedFrom, repos.get(i).getPrivated()));
+        }
+        return Result.success(repoDtos);
     }
 
     @GetMapping("count_star")

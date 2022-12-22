@@ -4,14 +4,28 @@
 <mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.UserMapper">
     <insert id="starRepo">
         INSERT IGNORE INTO `t_rel_user_star`
-        VALUES ((SELECT `id` FROM `t_ds_user` WHERE `login` = ${user}), ${repo});
+        VALUES (${repo}, (SELECT `id` FROM `t_ds_user` WHERE `login` = concat('',#{user,jdbcType=VARCHAR},'')));
     </insert>
 
     <insert id="watchRepo">
         INSERT IGNORE INTO `t_rel_user_watch`
-        VALUES ((SELECT `id` FROM `t_ds_user` WHERE `login` = ${user}), ${repo}, ${participation},
+        VALUES (${repo}, (SELECT `id` FROM `t_ds_user` WHERE `login` = concat('',#{user,jdbcType=VARCHAR},'')), ${participation},
                 ${issues}, ${pulls}, ${releases}, ${discussions}, ${security_alerts});
     </insert>
+
+    <insert id="createUser">
+        INSERT INTO `t_ds_user`
+        (`login`, `name`, `email`, `twitter_username`, `bio`, `company`, `location`, `password`, `phone`)
+        VALUES
+        (#{login}, #{name}, #{email}, #{twitter_username}, #{bio}, #{company}, #{location}, #{password}, #{phone});
+    </insert>
+
+    <update id="updateUserById">
+        UPDATE `t_ds_user`
+        SET `twitter_username` = #{twitter_username},
+            `bio` = #{bio}, `company` = #{company}, `location` = #{location}, `phone` = #{phone}, `updated_at` = #{updated_at}
+        WHERE `id` = #{id};
+    </update>
 
     <select id="findById" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
         SELECT *
@@ -29,29 +43,37 @@
         DELETE
         FROM `t_rel_user_star`
         WHERE `repo` = ${repo}
-          AND `user` = ${user};
+          AND `user` = (SELECT `id` FROM `t_ds_user` WHERE `login` = concat('',#{user,jdbcType=VARCHAR},''));
     </delete>
 
     <delete id="unwatchRepo">
         DELETE
         FROM `t_rel_user_watch`
         WHERE `repo` = ${repo}
-          AND `user` = ${user};
+          AND `user` = (SELECT `id` FROM `t_ds_user` WHERE `login` = concat('',#{user,jdbcType=VARCHAR},''));
     </delete>
 
     <select id="findByNameOrMail" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
         SELECT *
         FROM `t_ds_user`
-        WHERE `login` = #{name_or_mail}
-           OR `email` = #{name_or_mail}
+        WHERE `login` = concat('',#{nameOrMail,jdbcType=VARCHAR},'')
+           OR `email` = concat('',#{nameOrMail,jdbcType=VARCHAR},'')
         ORDER BY `id`
         LIMIT 1;
+    </select>
+
+    <select id="fuzzySearch" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+        SELECT *
+        FROM `t_ds_user`
+        WHERE LOWER(`login`) like LOWER(concat('%',#{nameOrMail,jdbcType=VARCHAR},'%'))
+           OR LOWER(`email`) like LOWER(concat('%',#{nameOrMail,jdbcType=VARCHAR},'%'))
+        ORDER BY `id`;
     </select>
 
     <select id="listUserRepos" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
         SELECT *
         FROM `t_ds_repo`
-        WHERE `owner` = (SELECT `id` FROM `t_ds_user` WHERE `login` = ${user});
+        WHERE `owner` = (SELECT `id` FROM `t_ds_user` WHERE `login` = concat('',#{user,jdbcType=VARCHAR},''));
     </select>
 
     <select id="findByPhone" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
