@@ -70,7 +70,7 @@ public class IssueLabelController {
         }
         Boolean auth = repoMapper.verifyAuth(userId, repoId);
         Repo repo = repoMapper.findById(repoId);
-        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+        if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueLabelMapper.createIssueLabel(repoId, labelName, labelColor, labelDescription);
@@ -102,7 +102,7 @@ public class IssueLabelController {
         }
         Boolean auth = repoMapper.verifyAuth(userId, issueLabel.getRepo());
         Repo repo = repoMapper.findById(issueLabel.getRepo());
-        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+        if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueLabelMapper.deleteById(id);
@@ -134,7 +134,7 @@ public class IssueLabelController {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
         Boolean auth = repoMapper.verifyAuth(userId, repoId);
-        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+        if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueLabelMapper.deleteIssueLabel(repoId, name);
@@ -145,6 +145,7 @@ public class IssueLabelController {
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<IssueLabel> findIssueLabelByRepoAndName(@RequestParam("repoId") Integer repoId, @RequestParam("name") String name) {
         IssueLabel issueLabel = issueLabelMapper.findByRepoIdAndName(repoId, name);
+        log.info("issueLabel: {}", issueLabel);
         if (Objects.isNull(issueLabel)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }

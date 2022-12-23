@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
+import org.springframework.lang.Nullable;
 
 /**
  * PR entity.
@@ -79,7 +80,7 @@ public class PR {
      * pr closed time.
      */
     @TableField("closed_at")
-    @NonNull
+    @Nullable
     private Long closedAt;
 
     /**

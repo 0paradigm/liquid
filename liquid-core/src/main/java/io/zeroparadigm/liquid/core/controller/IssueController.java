@@ -57,7 +57,8 @@ public class IssueController {
 
     @GetMapping("/new")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> newIssue(@RequestHeader("Authorization") String token, @RequestParam("display_id") Integer displayId, @RequestParam("repo_id") Integer repoId,
+    public Result<Boolean> newIssue(@RequestHeader("Authorization") String token, @RequestParam("display_id") Integer displayId,
+                                    @RequestParam("repo_id") Integer repoId,
                                     @RequestParam("title") String title, @RequestParam("closed") Boolean closed) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
@@ -214,7 +215,7 @@ public class IssueController {
 //        }
         Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
         Repo repo = repoMapper.findById(issue.getRepo());
-        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+        if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueMapper.assignIssue(issueId, assigneeId);
@@ -226,20 +227,32 @@ public class IssueController {
     public Result<Boolean> unassignIssue(@RequestHeader("Authorization") String token, @RequestParam("issueId") Integer issueId, @RequestParam("assigneeId") Integer assigneeId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
+//        log.info("user: {}", user);
         if (Objects.isNull(user)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         Issue issue = issueMapper.findById(issueId);
+//        log.info("issue: {}", issue);
         if (Objects.isNull(issue)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         List<User> assignee = issueMapper.findAssigneeById(issueId);
-        if (!assignee.contains(user)) {
+        Boolean flag = false;
+//        log.info("assignee: {}", assignee);
+        for (int i = 0; i < assignee.size(); i++) {
+            if (assignee.get(i).getId().equals(assigneeId)) {
+                flag = true;
+                break;
+            }
+        }
+        if (!flag) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
         Repo repo = repoMapper.findById(issue.getRepo());
-        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+//        log.info("repo: {}", repo);
+
+        if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueMapper.removeAssignee(issueId, assigneeId);
@@ -260,7 +273,7 @@ public class IssueController {
         }
         Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
         Repo repo = repoMapper.findById(issue.getRepo());
-        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+        if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueMapper.assignLabelById(issueId, labelId);
@@ -281,7 +294,7 @@ public class IssueController {
         }
         Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
         Repo repo = repoMapper.findById(issue.getRepo());
-        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+        if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueMapper.removeLabelById(issueId, labelId);
@@ -302,7 +315,7 @@ public class IssueController {
         }
         Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
         Repo repo = repoMapper.findById(issue.getRepo());
-        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+        if (Objects.isNull(repo) ||(!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueMapper.assignMilestone(issueId, milestoneId);
@@ -323,7 +336,7 @@ public class IssueController {
         }
         Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
         Repo repo = repoMapper.findById(issue.getRepo());
-        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+        if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueMapper.removeMilestone(issueId, milestoneId);
@@ -344,7 +357,7 @@ public class IssueController {
         }
         Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
         Repo repo = repoMapper.findById(issue.getRepo());
-        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+        if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueMapper.closeIssue(issueId);

@@ -69,7 +69,7 @@ public class MileStoneController {
         }
         Boolean auth = repoMapper.verifyAuth(userId, repoId);
         Repo repo = repoMapper.findById(repoId);
-        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+        if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         milestoneMapper.createMileStone(repoId, name, description, dueDate, closed);
@@ -90,6 +90,7 @@ public class MileStoneController {
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<List<MileStone>> findMileStoneByRepo(@RequestParam("repoId") Integer repoId) {
         List<MileStone> mileStones = milestoneMapper.findByRepoId(repoId);
+//        log.info("milestones: {}", mileStones);
         if (Objects.isNull(mileStones)) {
             return Result.error(ServiceStatus.NOT_FOUND);
         }
@@ -113,7 +114,7 @@ public class MileStoneController {
         }
         Boolean auth = repoMapper.verifyAuth(userId, mileStone.getRepo());
         Repo repo = repoMapper.findById(mileStone.getRepo());
-        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+        if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         milestoneMapper.updateDueById(milestoneId, due);
@@ -134,7 +135,7 @@ public class MileStoneController {
         }
         Boolean auth = repoMapper.verifyAuth(userId, mileStone.getRepo());
         Repo repo = repoMapper.findById(mileStone.getRepo());
-        if (Objects.isNull(repo) || !auth || !repo.getOwner().equals(userId)) {
+        if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         milestoneMapper.deleteById(milestoneId);

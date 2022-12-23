@@ -4,7 +4,7 @@
 <mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.IssueLabelMapper">
     <insert id="createIssueLabel">
         INSERT INTO `t_ds_issue_label`
-        (`repo_id`, `name`, `color`, `description`)
+        (`repo`, `name`, `color`, `description`)
         VALUES
         (#{repo_id}, #{name}, #{color}, #{description});
     </insert>
@@ -17,9 +17,9 @@
 
     <delete id="deleteIssueLabel">
         DELETE
-        FROM `t_rel_issue_label`
-        WHERE `issue` = #{issue_id}
-          AND `label` = #{label_id};
+        FROM `t_ds_issue_label`
+        WHERE `repo` = #{repo_id}
+          AND `name` = concat('',#{name,jdbcType=VARCHAR},'');
     </delete>
 
     <select id="findById" resultType="io.zeroparadigm.liquid.core.dao.entity.IssueLabel">
@@ -38,6 +38,6 @@
         SELECT *
         FROM `t_ds_issue_label`
         WHERE `repo` = #{repo_id}
-          AND `name` = #{name};
+          AND LOWER(`name`) like LOWER(concat('%',#{name,jdbcType=VARCHAR},'%'));
     </select>
 </mapper>

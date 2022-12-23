@@ -222,6 +222,38 @@ public class UserController {
         return Result.success(repoDtos);
     }
 
+    // get user repos by id
+    @GetMapping("/user_repo")
+    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
+    public Result<List<RepoDto>> getRepoByUserId(@RequestParam("userId") Integer userId) {
+        User usr = userMapper.findById(userId);
+        List<Repo> repos = userMapper.listUserRepos(usr.getLogin());
+        List<RepoDto> repoDtos = new ArrayList<>();
+        for (int i = 0; i < repos.size(); i++) {
+            String forkedFrom = null;
+            if (repos.get(i).getForkedFrom() != null) {
+                Repo repo = repoMapper.findById(repos.get(i).getForkedFrom());
+                if (!Objects.isNull(repo)){
+                    User owner = userMapper.findById(repo.getOwner());
+                    forkedFrom = owner.getLogin() + "/" + repo.getName();
+                }
+            }
+            log.info("user/repo: repo is " + repos.get(i));
+            Integer star = repoMapper.countStarers(repos.get(i).getId());
+            Integer fork = repoMapper.countForks(repos.get(i).getId());
+            Integer watch = repoMapper.countWatchers(repos.get(i).getId());
+            if (repos.get(i).getPrivated() == false) {
+                repoDtos.add(
+                    new RepoDto(repos.get(i).getId(), usr.getLogin(), repos.get(i).getName(),
+                        repos.get(i).getDescription(), repos.get(i).getLanguage(), forkedFrom,
+                        repos.get(i).getPrivated(),
+                        star, fork, watch));
+            }
+        }
+        log.info("user/user_repo: repoDtos is " + repoDtos);
+        return Result.success(repoDtos);
+    }
+
     /**
      * Says hello to the person.
      *
