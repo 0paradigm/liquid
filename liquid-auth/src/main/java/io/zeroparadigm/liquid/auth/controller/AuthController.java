@@ -33,6 +33,7 @@ import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -167,14 +168,21 @@ public class AuthController {
         }
     }
 
+    @Data
+    static class RegisterDTO {
+        String mail;
+        String login;
+        String password;
+        String phone;
+    }
 
     @ApiOperation(value = "register", notes = "user register")
     @PostMapping("/register")
-    public Result<String> register(@RequestParam String mail, @RequestParam String login,
-                                   @RequestParam String password, @RequestParam String phone) {
+    @SuppressWarnings("rawtype")
+    public Result register(@RequestBody RegisterDTO payload) {
         try {
-            userAuthService.register(mail, login, password, phone);
-            return Result.success("OK");
+            userAuthService.register(payload.mail, payload.login, payload.password, payload.phone);
+            return Result.success();
         } catch (Exception e) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR, e.getMessage());
         }

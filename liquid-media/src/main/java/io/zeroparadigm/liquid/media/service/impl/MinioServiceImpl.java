@@ -81,7 +81,7 @@ public class MinioServiceImpl implements MinioService {
 
     @Nullable
     @Override
-    public String upload(MultipartFile file, @Nullable String specName, String bucketName) {
+    public String upload(MultipartFile file, String specName, String bucketName) {
         String filename = specName;
         if (!StringUtils.hasText(filename)) {
             String[] fileExt = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
@@ -112,6 +112,25 @@ public class MinioServiceImpl implements MinioService {
             log.error(
                     "Cannot upload file (origin_name: '{}', identifier: '{}', bucket: '{}')",
                     file.getOriginalFilename(),
+                    filename,
+                    bucketName,
+                    e);
+            return null;
+        }
+    }
+
+    @Override
+    public String upload(InputStream is, String specName, String bucketName) {
+        String filename = specName;
+        try {
+            minioClient.putObject(
+                    PutObjectArgs.builder().bucket(bucketName).object(filename).stream(
+                            is, is.available(), -1)
+                            .build());
+            return filename;
+        } catch (Exception e) {
+            log.error(
+                    "Cannot upload file (identifier: '{}', bucket: '{}')",
                     filename,
                     bucketName,
                     e);

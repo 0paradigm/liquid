@@ -23,6 +23,7 @@ import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,9 +87,24 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public void register(String mail, String login, String password, String phone) {
         User newUser = new User();
+        if (Pattern.compile("^(.+)@(.+)\\.(.+)$").matcher(mail).matches()) {
+            throw new IllegalArgumentException("Invalid email address");
+        }
         newUser.setEmail(mail);
         newUser.setLogin(login);
+        if (userMapper.findByNameOrMail(login) != null) {
+            throw new IllegalArgumentException("Login already exists");
+        }
+        if (userMapper.findByNameOrMail(mail) != null) {
+            throw new IllegalArgumentException("Mail already exists");
+        }
+        if (userMapper.findByPhone(phone) != null) {
+            throw new IllegalArgumentException("Phone already exists");
+        }
         newUser.setPassword(password);
+        if (Pattern.compile("^\\d{11}$").matcher(phone).matches()) {
+            throw new IllegalArgumentException("Invalid phone number");
+        }
         newUser.setPhone(phone);
         newUser.setCreatedAt(System.currentTimeMillis());
         newUser.setUpdatedAt(System.currentTimeMillis());
