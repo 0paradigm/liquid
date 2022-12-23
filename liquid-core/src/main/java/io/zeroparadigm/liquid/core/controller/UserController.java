@@ -212,8 +212,12 @@ public class UserController {
                 }
             }
             log.info("user/repo: repo is " + repos.get(i));
+            Integer star = repoMapper.countStarers(repos.get(i).getId());
+            Integer fork = repoMapper.countForks(repos.get(i).getId());
+            Integer watch = repoMapper.countWatchers(repos.get(i).getId());
             repoDtos.add(new RepoDto(repos.get(i).getId(), usr.getLogin(), repos.get(i).getName(),
-                repos.get(i).getDescription(), repos.get(i).getLanguage(),forkedFrom, repos.get(i).getPrivated()));
+                repos.get(i).getDescription(), repos.get(i).getLanguage(),forkedFrom, repos.get(i).getPrivated(),
+                star, fork, watch));
         }
         return Result.success(repoDtos);
     }

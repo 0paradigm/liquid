@@ -11,7 +11,7 @@
 
     <insert id="addCollaborator">
         INSERT INTO `t_rel_repo_collaborator`
-        (`repo_id`, `user_id`)
+        (`repo`, `user`)
         VALUES
         (#{repoId}, #{userId});
     </insert>
@@ -51,7 +51,7 @@
     <delete id="removeCollaborator">
         DELETE
         FROM `t_rel_repo_collaborator`
-        WHERE `repo_id` = #{repoId} AND `user_id` = #{userId};
+        WHERE `repo` = #{repoId} AND `user` = #{userId};
     </delete>
 
     <select id="findByOwnerAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
@@ -99,7 +99,7 @@
     </select>
 
     <select id="listForks" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
-        SELECT `owner`
+        SELECT *
         FROM `t_ds_repo`
         WHERE `forked_from` = #{id};
     </select>
@@ -107,7 +107,7 @@
     <select id="listCollaborators" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
         SELECT *
         FROM `t_ds_user`
-        WHERE `id` IN (SELECT `user_id` FROM `t_rel_repo_collaborator` WHERE `repo_id` = #{id});
+        WHERE `id` IN (SELECT `user` FROM `t_rel_repo_collaborator` WHERE `repo` = #{repoId});
     </select>
 
     <select id="findByName" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
@@ -120,7 +120,7 @@
     <select id="verifyAuth" resultType="java.lang.Boolean">
         SELECT COUNT(*) > 0
         FROM `t_rel_repo_collaborator`
-        WHERE `repo_id` = #{repoId} AND `user_id` = #{userId};
+        WHERE `repo` = #{repoId} AND `user` = #{userId};
     </select>
 
     <!--    <select id="countContributors" resultType="java.lang.Integer">-->

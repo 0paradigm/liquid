@@ -33,4 +33,10 @@ public class RepoDto {
 
     private Boolean privateRepo;
 
+    private Integer starCount;
+
+    private Integer forkCount;
+
+    private Integer watchCount;
+
 }

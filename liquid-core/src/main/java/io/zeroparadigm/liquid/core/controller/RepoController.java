@@ -93,7 +93,8 @@ public class RepoController {
         User usr = userMapper.findById(usrId);
         Repo repo = repoMapper.findById(repoId);
         User user = userMapper.findById(userId);
-        if (Objects.isNull(usr) || Objects.isNull(user) || Objects.isNull(repo) || !repo.getOwner().equals(userId)) {
+//        log.info("repo/add_collaborator: " + usr +  repo.getOwner());
+        if (Objects.isNull(usr) || Objects.isNull(user) || Objects.isNull(repo) || !repo.getOwner().equals(usrId)) {
             return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
         }
         repoMapper.addCollaborator(repoId, userId);
@@ -108,14 +109,14 @@ public class RepoController {
         User usr = userMapper.findById(usrId);
         Repo repo = repoMapper.findById(repoId);
         User user = userMapper.findById(userId);
-        if (Objects.isNull(usr) || Objects.isNull(user) || Objects.isNull(repo) || !repo.getOwner().equals(userId)) {
+        if (Objects.isNull(usr) || Objects.isNull(user) || Objects.isNull(repo) || !repo.getOwner().equals(usrId)) {
             return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
         }
         repoMapper.removeCollaborator(repoId, userId);
         return Result.success(true);
     }
 
-    @GetMapping("/get_collaborators")
+    @GetMapping("/get_collaborator")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<List<User>> getCollaborators(@RequestHeader("Authorization") String token, @RequestParam("repoId") Integer repoId) {
         Integer usrId = jwtService.getUserId(token);
@@ -184,12 +185,12 @@ public class RepoController {
     public Result<List<RepoDto>> findRepoByName(@RequestHeader("Authorization") String token, @RequestParam("name") String name){
         Integer userId = jwtService.getUserId(token);
         User usr = userMapper.findById(userId);
-        log.info("testing search ..... user " + usr);
+//        log.info("testing search ..... user " + usr);
         if (Objects.isNull(usr)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
         List<Repo> repos = repoMapper.findByName(userId,name);
-        log.info("testing search ..... repos " + repos);
+//        log.info("testing search ..... repos " + repos);
         if (Objects.isNull(repos)) {
             return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
         }
@@ -203,8 +204,12 @@ public class RepoController {
                     forkedFrom = owner.getLogin() + "/" + repo.getName();
                 }
             }
+            Integer star = repoMapper.countStarers(repos.get(i).getId());
+            Integer fork = repoMapper.countForks(repos.get(i).getId());
+            Integer watch = repoMapper.countWatchers(repos.get(i).getId());
             repoDtos.add(new RepoDto(repos.get(i).getId(), usr.getLogin(), repos.get(i).getName(),
-                repos.get(i).getDescription(), repos.get(i).getLanguage(),forkedFrom, repos.get(i).getPrivated()));
+                repos.get(i).getDescription(), repos.get(i).getLanguage(),forkedFrom, repos.get(i).getPrivated(),
+                star, fork, watch));
         }
         return Result.success(repoDtos);
     }
@@ -255,9 +260,28 @@ public class RepoController {
 
     @GetMapping("/list_forks")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
-    public Result<List<Repo>> listForks(@RequestParam("repoId")Integer repoId){
+    public Result<List<RepoDto>> listForks(@RequestParam("repoId")Integer repoId){
         List<Repo> repos = repoMapper.listForks(repoId);
-        return Result.success(repos);
+//        log.info("testing list forks ..... repos " + repos);
+        List<RepoDto> repoDtos = new ArrayList<>();
+        for (int i = 0; i < repos.size(); i++) {
+            String forkedFrom = null;
+            if (repos.get(i).getForkedFrom() != null) {
+                Repo repo = repoMapper.findById(repos.get(i).getForkedFrom());
+                if (!Objects.isNull(repo)){
+                    User owner = userMapper.findById(repo.getOwner());
+                    forkedFrom = owner.getLogin() + "/" + repo.getName();
+                }
+            }
+            Integer star = repoMapper.countStarers(repos.get(i).getId());
+            Integer fork = repoMapper.countForks(repos.get(i).getId());
+            Integer watch = repoMapper.countWatchers(repos.get(i).getId());
+            String owner = userMapper.findById(repos.get(i).getOwner()).getLogin();
+            repoDtos.add(new RepoDto(repos.get(i).getId(), owner, repos.get(i).getName(),
+                repos.get(i).getDescription(), repos.get(i).getLanguage(),forkedFrom, repos.get(i).getPrivated(),
+                star, fork, watch));
+        }
+        return Result.success(repoDtos);
     }
 
     @GetMapping("/delete")
