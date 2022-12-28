@@ -319,6 +319,9 @@ public class GitWebServiceImpl implements GitWebService {
                 .filter(f -> !".git".equals(f.getName()))
                 .map(f -> new LatestCommitInfo(git, f))
                 .toList();
+        } catch (RefNotFoundException e) {
+            log.error("branch not found", e);
+            return List.of();
         }
     }
 
@@ -334,12 +337,15 @@ public class GitWebServiceImpl implements GitWebService {
 
             File file = new File(repoRoot, filePath);
             String extName = FileUtil.extName(file);
-            Map<String, String> map = new HashMap<>();
+            Map<String, String> map = new HashMap<>(2);
             map.put("extName", extName);
-            // DiskFileItem fileItem = new DiskFileItem("mainFile", Files.probeContentType(file.toPath()), false,
-            // file.getName(), (int) file.length(), file.getParentFile());
-            if (extName.equals("c") || extName.equals("java") || extName.equals("py") ||
-                extName.equals("cpp") || extName.equals("md")) {
+            if (
+                List.of(
+                    "yml", "yaml", "json", "log", "txt", "vue", "js", "ts", "html", "css",
+                    "Dockerfile", "xml", "c", "java", "kt", "py", "cpp",
+                    "md", "rst"
+                ).contains(extName)
+            ) {
                 FileReader fileReader = new FileReader(file);
                 map.put("content", fileReader.readString());
             } else {
@@ -347,7 +353,7 @@ public class GitWebServiceImpl implements GitWebService {
                 map.put("content", "URL");
             }
             return JSON.toJSONString(map);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new IOException();
         }
     }

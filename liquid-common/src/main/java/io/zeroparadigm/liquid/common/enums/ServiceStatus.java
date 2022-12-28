@@ -61,6 +61,7 @@ public enum ServiceStatus {
     GIT_WEB_UPLOAD_FAIL(20000, "Upload failed, please retry or refresh the page", "文件上传失败，请重试或刷新页面"),
     GIT_WEB_COMMIT_FAIL(20001, "Failed to commit: {0}", "提交失败：{0}"),
     GIT_REPO_ALREADY_EXISTS(20002, "Repository already exists: {0}", "仓库已存在：{0}"),
+    GIT_REPO_NOT_FOUND(20003, "Repository not found: {0}", "仓库不存在：{0}"),
     ;
 
     private final int code;

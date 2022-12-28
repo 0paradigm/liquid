@@ -39,4 +39,6 @@ public interface GitBasicService {
      * @throws GitAPIException if cannot init the repo
      */
     void createRepo(String owner, String repo, String initBranch) throws IOException, GitAPIException;
+
+    void forkRepo(String fromOwner, String fromRepo, String toOwner, String toRepo) throws IOException, GitAPIException;
 }

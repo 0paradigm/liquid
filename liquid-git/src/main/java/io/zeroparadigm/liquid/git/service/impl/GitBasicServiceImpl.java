@@ -24,34 +24,57 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Slf4j
-@Service
+@DubboService
 public class GitBasicServiceImpl implements GitBasicService {
 
     @Value("${storage.git}")
     private String gitStorage;
 
     @Override
-    public void createRepo(String owner, String repo, String initBranch) throws IOException, GitAPIException {
+    public void createRepo(String owner, String repo, String initBranch)
+        throws IOException, GitAPIException {
         Path repoPath = Path.of(gitStorage, owner, repo);
         if (Files.exists(repoPath)) {
             throw new RepositoryAlreadyExistsException(String.format("%s/%s", owner, repo));
         }
         Files.createDirectories(repoPath);
         try (
-                Git git = Git.init()
-                        .setBare(true)
-                        .setDirectory(repoPath.toFile())
-                        .setInitialBranch(initBranch)
-                        .call()) {
+            Git git = Git.init()
+                .setBare(true)
+                .setDirectory(repoPath.toFile())
+                .setInitialBranch(initBranch)
+                .call()) {
             log.info("repo created: {}", git.toString());
         } catch (Exception e) {
             log.error("error creating repo", e);
+            FileUtils.deleteQuietly(repoPath.toFile());
+            throw e;
+        }
+    }
+
+    @Override
+    public void forkRepo(String fromOwner, String fromRepo, String toOwner, String toRepo) throws IOException, GitAPIException {
+        Path repoPath = Path.of(gitStorage, toOwner, toRepo);
+        if (Files.exists(repoPath)) {
+            throw new RepositoryAlreadyExistsException(String.format("%s/%s", toOwner, toRepo));
+        }
+        Files.createDirectories(repoPath);
+        try (
+            Git git = Git.cloneRepository()
+                .setBare(true)
+                .setURI(Path.of(gitStorage, fromOwner, fromRepo).toString())
+                .setDirectory(repoPath.toFile())
+                .call()) {
+            log.info("repo forked: {}", git.toString());
+        } catch (Exception e) {
+            log.error("error forking repo", e);
             FileUtils.deleteQuietly(repoPath.toFile());
             throw e;
         }

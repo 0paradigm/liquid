@@ -87,7 +87,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public void register(String mail, String login, String password, String phone) {
         User newUser = new User();
-        if (Pattern.compile("^(.+)@(.+)\\.(.+)$").matcher(mail).matches()) {
+        if (!Pattern.compile("^(.+)@(.+)\\.(.+)$").matcher(mail).matches()) {
             throw new IllegalArgumentException("Invalid email address");
         }
         newUser.setEmail(mail);
@@ -102,7 +102,7 @@ public class UserAuthServiceImpl implements UserAuthService {
             throw new IllegalArgumentException("Phone already exists");
         }
         newUser.setPassword(password);
-        if (Pattern.compile("^\\d{11}$").matcher(phone).matches()) {
+        if (!Pattern.compile("^\\d{11}$").matcher(phone).matches()) {
             throw new IllegalArgumentException("Invalid phone number");
         }
         newUser.setPhone(phone);
