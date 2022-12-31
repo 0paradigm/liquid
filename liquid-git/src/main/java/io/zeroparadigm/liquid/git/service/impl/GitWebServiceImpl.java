@@ -20,6 +20,7 @@ package io.zeroparadigm.liquid.git.service.impl;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
 import com.alibaba.fastjson.JSON;
+import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import io.zeroparadigm.liquid.git.service.GitWebService;
 import java.io.File;
@@ -144,12 +145,18 @@ public class GitWebServiceImpl implements GitWebService {
 
     @Override
     public void commit(String owner, String repo, @Nullable String toBranch, String taskId,
-                       @Nullable List<String> addFiles, String message)
+                       @Nullable List<String> addFiles, String message, @Nullable UserBO committer)
         throws IOException, GitAPIException {
 
-        // TODO: verify auth, get user(committer) info
-        String committerName = "aaa";
-        String committerEmail = "";
+        String committerName;
+        String committerEmail;
+        if (committer == null) {
+            committerName = "liquid-user";
+            committerEmail = "";
+        } else {
+            committerName= committer.getLogin();
+            committerEmail = committer.getEmail();
+        }
 
         File tmpRepo =
             Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();

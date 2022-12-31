@@ -1,0 +1,6 @@
+SECRET_KEY = "192b9bdd22ab9ed4d12e236c78afcb9a393ec15f71bbf5dc987d54727823bcbf"
+SESSION_COOKIE_HTTPONLY = false
+MAX_COOKIE_SIZE = 0
+
+GIT_STORE = "../../liquid-git/storage/git"
+AUTH_API = "http://localhost:8002/internal/v1/auth"

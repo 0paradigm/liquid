@@ -118,6 +118,19 @@ public class UserController {
         return Result.success(user);
     }
 
+    @GetMapping("/getName")
+    @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
+    public Result<String> getUserName(@RequestParam("login") String loginOrEmailOrPhone){
+        User user = userMapper.findByPhone(loginOrEmailOrPhone);
+        if (user == null) {
+            user = userMapper.findByNameOrMail(loginOrEmailOrPhone);
+        }
+        if (Objects.isNull(user)) {
+            return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
+        }
+        return Result.success(user.getName());
+    }
+
     @GetMapping("/find")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
     public Result<User> findUserByNameOrMail(@RequestParam("usr") String name_or_mail) {
@@ -158,7 +171,6 @@ public class UserController {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
         User usr = userMapper.findById(userId);
-//        log.info("user/unstar param  " + usr.getLogin() + " " + id);
         userMapper.unstarRepo(usr.getLogin(), id);
         return Result.success();
     }

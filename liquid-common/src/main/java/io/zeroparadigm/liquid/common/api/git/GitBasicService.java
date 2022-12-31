@@ -17,7 +17,9 @@
 
 package io.zeroparadigm.liquid.common.api.git;
 
+import io.zeroparadigm.liquid.common.bo.UserBO;
 import java.io.IOException;
+import java.util.List;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.stereotype.Service;
 
@@ -32,13 +34,24 @@ public interface GitBasicService {
     /**
      * Creates a repo.
      *
-     * @param owner repo owner
-     * @param repo repo name
+     * @param owner      repo owner
+     * @param repo       repo name
      * @param initBranch initial branch
-     * @throws IOException if cannot create repo in FS
+     * @throws IOException     if cannot create repo in FS
      * @throws GitAPIException if cannot init the repo
      */
-    void createRepo(String owner, String repo, String initBranch) throws IOException, GitAPIException;
+    void createRepo(String owner, String repo, String initBranch)
+        throws IOException, GitAPIException;
 
-    void forkRepo(String fromOwner, String fromRepo, String toOwner, String toRepo) throws IOException, GitAPIException;
+    void addReadMe(String owner, String repo, String initBranch);
+
+    void addGitIgnore(String owner, String repo, String initBranch);
+
+    void forkRepo(String fromOwner, String fromRepo, String toOwner, String toRepo)
+        throws IOException, GitAPIException;
+
+    void webCommit(String owner, String repo, String initBranch, List<String> addFiles,
+                   UserBO committer);
+
+    List<String> listBranches(String owner, String repo);
 }

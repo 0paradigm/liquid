@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.zeroparadigm.liquid.common.api.auth.JWTService;
 import io.zeroparadigm.liquid.common.api.git.GitBasicService;
+import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
@@ -21,6 +22,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
 import java.util.Objects;
@@ -84,10 +86,12 @@ public class RepoController {
                                   @RequestParam("forkedId") Integer forkedId,
                                   @RequestParam("description") String description,
                                   @RequestParam("language") String language,
-                                  @RequestParam("private") Boolean privat) {
+                                  @RequestParam("private") Boolean privat,
+                                  @RequestParam("readme") Boolean readme,
+                                  @RequestParam("gitignore") Boolean gitignore) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
-        log.error("user " + user + " create ");
+        log.error("user " + user + " create " + name);
         if (Objects.isNull(user)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
@@ -101,6 +105,21 @@ public class RepoController {
                     fromRepo.getName(),
                     user.getLogin(),
                     fromRepo.getName());
+            }
+            List<String> addFiles = new ArrayList<>(2);
+            if (readme) {
+                gitBasicService.addReadMe(user.getLogin(), name, "master");
+                addFiles.add("README.md");
+            }
+            if (gitignore) {
+                gitBasicService.addGitIgnore(user.getLogin(), name, "master");
+                addFiles.add(".gitignore");
+            }
+            if (readme || gitignore) {
+                UserBO userBO = new UserBO();
+                userBO.setLogin(user.getLogin());
+                userBO.setEmail(user.getEmail());
+                gitBasicService.webCommit(user.getLogin(), name, "master", addFiles, userBO);
             }
         } catch (Exception e) {
             log.error("create repo error", e);

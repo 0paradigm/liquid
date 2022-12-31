@@ -19,6 +19,7 @@ package io.zeroparadigm.liquid.auth.controller;
 
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
 import com.aliyun.tea.TeaException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -30,6 +31,7 @@ import io.zeroparadigm.liquid.auth.service.AuthService;
 import io.zeroparadigm.liquid.common.api.core.UserAuthService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -60,8 +62,14 @@ public class AuthController {
     @Autowired
     private JwtUtils jwtUtils;
 
-    @Autowired
-    private StringRedisTemplate redisTemplate;
+    ObjectMapper objectMapper = new ObjectMapper();
+
+//    @Autowired
+//    private StringRedisTemplate redisTemplate;
+
+    private Map<String, String> captchas = new HashMap<>();
+
+    Random random = new Random();
 
     @DubboReference(parameters = {"unicast", "false"})
     UserAuthService userAuthService;
@@ -106,10 +114,10 @@ public class AuthController {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         try {
-            String redisCode = redisTemplate.opsForValue().get(phone);
+            String redisCode = captchas.get(phone);
             UserBO user = userAuthService.findByPhone(phone);
-            if (captcha.equals(redisCode) && user != null) {
-                redisTemplate.delete(phone);
+            if (captcha.equals(redisCode) && user.getId() != null) {
+                captchas.remove(phone);
                 return Result.success(
                     Map.of(
                         "token",
@@ -129,16 +137,9 @@ public class AuthController {
     @ApiImplicitParam(name = "phone", value = "user's phone number")
     @PostMapping("/captcha")
     public Result<String> sendCode(@RequestParam(value = "phone") String phone) {
-        //TODO: redis connection failed
-//        String redisCode = redisTemplate.opsForValue().get(phone);
-//        if (redisCode != null) {
-//            //设定发送短信间隔时长1min
-//            long l = Long.parseLong(redisCode.substring(5));
-//            if (System.currentTimeMillis() - l < 60000) {
-//                return Result.error(ServiceStatus.CAPTCHA_DUPLICATE);
-//            }
-//        }
-        Random random = new Random();
+        if (userAuthService.findByPhone(phone).getId() == null) {
+            return Result.error(ServiceStatus.PHONE_NOT_REGISTERED);
+        }
         StringBuilder ss = new StringBuilder();
         for (int i = 0; i < 4; i++) {
             ss.append(random.nextInt(10));
@@ -159,9 +160,10 @@ public class AuthController {
             com.aliyun.teautil.models.RuntimeOptions runtime =
                 new com.aliyun.teautil.models.RuntimeOptions();
             SendSmsResponse sendSmsResponse = client.sendSmsWithOptions(sendSmsRequest, runtime);
-//            redisTemplate.opsForValue().set(phone,
-//                String.valueOf(ss), 3, TimeUnit.MINUTES);
-            return Result.success(sendSmsResponse.toString());
+            captchas.put(phone, ss.toString());
+            log.info("sent {} to {}, resp {}", ss.toString(), phone, sendSmsResponse);
+            log.info("all captchas: {}", captchas);
+            return Result.success(objectMapper.writeValueAsString(sendSmsResponse));
         } catch (Exception error) {
             log.info(error.getMessage());
             return Result.error(ServiceStatus.SENDING_ERROR);

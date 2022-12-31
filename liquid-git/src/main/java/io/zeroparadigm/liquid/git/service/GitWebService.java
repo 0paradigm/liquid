@@ -18,6 +18,7 @@
 package io.zeroparadigm.liquid.git.service;
 
 import com.alibaba.fastjson.JSON;
+import io.zeroparadigm.liquid.common.bo.UserBO;
 import java.io.IOException;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public interface GitWebService {
                       String taskId) throws IOException, GitAPIException;
 
     void commit(String owner, String repo, @Nullable String toBranch, String taskId,
-                @Nullable List<String> addFiles, String message) throws IOException, GitAPIException;
+                @Nullable List<String> addFiles, String message, @Nullable UserBO committer) throws IOException, GitAPIException;
 
     /**
      * Lists the file/dir names with git info.
