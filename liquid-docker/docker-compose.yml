@@ -96,6 +96,20 @@ services:
         condition: service_healthy
       liquid-core-ds:
         condition: service_healthy
+      liquid-core-cache:
+        condition: service_healthy
+
+  liquid-core-cache:
+    image: redis:6.2.5
+    networks:
+      - liquid
+    ports:
+      - "6379:6379"  # redis connection
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
   liquid-core-ds:
     image: mariadb:10.9.3

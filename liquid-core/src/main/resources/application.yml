@@ -21,8 +21,8 @@ spring:
 
   # TODO: nacos
   redis:
-    host: localhost
-    port: 16379
+    host: liquid-core-cache
+    port: 6379
     database: 0
     password:
     timeout: 1200
