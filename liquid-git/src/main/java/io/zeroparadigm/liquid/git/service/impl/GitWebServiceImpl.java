@@ -40,6 +40,7 @@ import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.tika.Tika;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -344,6 +345,8 @@ public class GitWebServiceImpl implements GitWebService {
         }
     }
 
+    Tika tika = new Tika();
+
     @Override
     public String getFile(String owner, String repo, String branchOrCommit,
                           String filePath) throws IOException, GitAPIException {
@@ -356,20 +359,14 @@ public class GitWebServiceImpl implements GitWebService {
 
             File file = new File(repoRoot, filePath);
             String extName = FileUtil.extName(file);
+            String fileType = tika.detect(file);
             Map<String, String> map = new HashMap<>(2);
             map.put("extName", extName);
-            if (
-                List.of(
-                    "yml", "yaml", "json", "log", "txt", "vue", "js", "ts", "html", "css",
-                    "Dockerfile", "xml", "c", "java", "kt", "py", "cpp",
-                    "md", "rst"
-                ).contains(extName)
-            ) {
+            if (fileType.startsWith("text/")) {
                 FileReader fileReader = new FileReader(file);
                 map.put("content", fileReader.readString());
             } else {
-                //TODO: return URL
-                map.put("content", "URL");
+                map.put("content", "<Binary file not shown, please download to local>");
             }
             return JSON.toJSONString(map);
         } catch (Exception e) {
@@ -419,4 +416,6 @@ public class GitWebServiceImpl implements GitWebService {
                 .build();
         }
     }
+
+
 }

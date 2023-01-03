@@ -75,6 +75,12 @@ public class GitBasicServiceImpl implements GitBasicService {
     }
 
     @Override
+    public void deleteRepo(String owner, String repo) {
+        File repoDir = Path.of(gitStorage, owner, repo).toFile();
+        FileUtils.deleteQuietly(repoDir);
+    }
+
+    @Override
     public void addReadMe(String owner, String repo, String desc) {
         Path repoPath = Path.of(gitStorage, owner, repo);
         if (desc.trim().length() == 0) {

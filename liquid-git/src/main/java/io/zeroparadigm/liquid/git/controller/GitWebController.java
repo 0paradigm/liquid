@@ -17,6 +17,8 @@
 
 package io.zeroparadigm.liquid.git.controller;
 
+import static io.zeroparadigm.liquid.git.service.impl.GitBasicServiceImpl.createMfileByPath;
+
 import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -109,6 +111,34 @@ public class GitWebController {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    @Data
+    public static class WebNewDTO {
+        String ctx;
+        String fileName;
+        String path;
+        String taskId;
+    }
+
+    @PostMapping("/upload2/{owner}/{repo}/{branch}")
+    @ApiOperation(value = "upload", notes = "upload files to commit")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "owner", paramType = "path", value = "owner of repo", required = true, dataTypeClass = String.class, example = "apache"),
+        @ApiImplicitParam(name = "repo", paramType = "path", value = "repo name", required = true, dataTypeClass = String.class, example = "dubbo"),
+        @ApiImplicitParam(name = "branch", paramType = "path", value = "base branch ref", required = true, dataTypeClass = String.class, example = "dev-2.x"),
+        @ApiImplicitParam(name = "file", paramType = "form", value = "file", required = true, dataTypeClass = MultipartFile.class, example = "<binary>"),
+        @ApiImplicitParam(name = "path", paramType = "form", value = "relative path from repo root, without filename", required = true, dataTypeClass = String.class, example = "docs"),
+        @ApiImplicitParam(name = "taskId", paramType = "form", value = "task id", required = true, dataTypeClass = String.class, example = "17287390173"),
+    })
+    @SneakyThrows
+    @WrapsException(ServiceStatus.GIT_WEB_UPLOAD_FAIL)
+    public Result uploadText(@PathVariable String owner,
+                             @PathVariable String repo,
+                             @PathVariable String branch,
+                             @RequestBody WebNewDTO dto) {
+        MultipartFile mfile = createMfileByPath(dto.getFileName(), dto.getCtx());
+        return upload(owner, repo, branch, mfile, dto.getPath(), dto.getTaskId());
     }
 
     @PostMapping("/upload/{owner}/{repo}/{branch}/commit")

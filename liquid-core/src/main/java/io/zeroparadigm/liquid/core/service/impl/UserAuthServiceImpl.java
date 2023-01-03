@@ -102,7 +102,10 @@ public class UserAuthServiceImpl implements UserAuthService {
             throw new IllegalArgumentException("Phone already exists");
         }
         newUser.setPassword(password);
-        if (!Pattern.compile("^\\d{11}$").matcher(phone).matches()) {
+        if (phone != null && phone.strip().length() == 0) {
+            phone = null;
+        }
+        if (phone != null && !Pattern.compile("^\\d{11}$").matcher(phone).matches()) {
             throw new IllegalArgumentException("Invalid phone number");
         }
         newUser.setPhone(phone);

@@ -54,4 +54,6 @@ public interface GitBasicService {
                    UserBO committer);
 
     List<String> listBranches(String owner, String repo);
+
+    void deleteRepo(String owner, String repo);
 }

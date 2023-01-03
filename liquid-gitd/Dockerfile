@@ -30,5 +30,5 @@ RUN poetry check
 
 RUN poetry install --no-interaction --no-cache --without dev
 
-EXPOSE 5000
-CMD [ "poetry", "run", "python", "-m", "flask", "run", "--host=0.0.0.0" ]
+EXPOSE 5001
+CMD [ "poetry", "run", "python", "-m", "flask", "run", "--host=0.0.0.0", "--port=5001" ]

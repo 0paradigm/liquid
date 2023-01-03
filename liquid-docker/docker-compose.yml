@@ -149,7 +149,7 @@ services:
     networks:
       - liquid
     ports:
-      - "5000:5000"
+      - "5001:5001"
     volumes:
       - liquid-git-storage:/storage
     environment:

@@ -64,9 +64,6 @@ public class AuthController {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-//    @Autowired
-//    private StringRedisTemplate redisTemplate;
-
     private Map<String, String> captchas = new HashMap<>();
 
     Random random = new Random();
@@ -170,25 +167,25 @@ public class AuthController {
         }
     }
 
-    @Data
-    static class RegisterDTO {
-        String mail;
-        String login;
-        String password;
-        String phone;
-    }
-
-    @ApiOperation(value = "register", notes = "user register")
-    @PostMapping("/register")
-    @SuppressWarnings("rawtype")
-    public Result register(@RequestBody RegisterDTO payload) {
-        try {
-            userAuthService.register(payload.mail, payload.login, payload.password, payload.phone);
-            return Result.success();
-        } catch (Exception e) {
-            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR, e.getMessage());
-        }
-    }
+//    @Data
+//    static class RegisterDTO {
+//        String mail;
+//        String login;
+//        String password;
+//        String phone;
+//    }
+//
+//    @ApiOperation(value = "register", notes = "user register")
+//    @PostMapping("/register")
+//    @SuppressWarnings("rawtype")
+//    public Result register(@RequestBody RegisterDTO payload) {
+//        try {
+//            userAuthService.register(payload.mail, payload.login, payload.password, payload.phone);
+//            return Result.success();
+//        } catch (Exception e) {
+//            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR, e.getMessage());
+//        }
+//    }
 
 
     @ApiOperation(value = "logout", notes = "Destroy current token in backend")

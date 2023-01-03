@@ -62,8 +62,7 @@ public interface GitWebService {
     LatestCommitDTO latestCommitOfCurrentRepo(String owner, String repo, String branchOrCommit,
                                         @Nullable String relPath) throws IOException, GitAPIException;
 
-    void updateCaches(@PathVariable String owner, @PathVariable String repo);
-
+    void updateCaches(String owner, String repo);
 
     @Data
     @SuperBuilder

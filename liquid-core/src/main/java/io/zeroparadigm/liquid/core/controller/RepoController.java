@@ -139,13 +139,22 @@ public class RepoController {
         User usr = userMapper.findById(usrId);
         Repo repo = repoMapper.findById(repoId);
         User user = userMapper.findById(userId);
-//        log.info("repo/add_collaborator: " + usr +  repo.getOwner());
         if (Objects.isNull(usr) || Objects.isNull(user) || Objects.isNull(repo) ||
             !repo.getOwner().equals(usrId)) {
             return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
         }
         repoMapper.addCollaborator(repoId, userId);
         return Result.success(true);
+    }
+
+    @DeleteMapping("/delete/{owner}/{repo}")
+    public Result deleteRepo(@PathVariable String owner,
+                             @PathVariable String repo) {
+
+        var id = repoMapper.findByOwnerAndName(owner, repo);
+        repoMapper.deleteById(id);
+        gitBasicService.deleteRepo(owner, repo);
+        return Result.success();
     }
 
     @GetMapping("/remove_collaborator")

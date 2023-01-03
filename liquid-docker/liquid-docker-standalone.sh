@@ -24,7 +24,7 @@ then
     echo "  rebuild  build the whole backend service and generate docker images"
     echo "  start    run docker compose of liquid backend"
     echo "  stop     stop docker compose of liquid backend"
-    echo "  clean    delete all dangling images (possible caused by rebuild)"
+    echo "  clean    delete all dangling images (possibly caused by rebuild)"
     echo "Examples:"
     echo "  sh liquid-docker-standalone.sh rebuild start"
     echo "  sh liquid-docker-standalone.sh stop clean"

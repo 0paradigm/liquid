@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.zeroparadigm.liquid.common.api.auth.JWTService;
+import io.zeroparadigm.liquid.common.api.core.UserAuthService;
 import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
@@ -31,6 +32,7 @@ import io.zeroparadigm.liquid.core.dao.mapper.RepoMapper;
 import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
 import io.zeroparadigm.liquid.core.dto.RepoDto;
 import java.util.ArrayList;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.ibatis.annotations.Param;
@@ -64,6 +66,9 @@ public class UserController {
 
     @Autowired
     UserMapper userMapper;
+
+    @Autowired
+    UserAuthService userAuthService;
 
     @Autowired
     RepoMapper repoMapper;
@@ -134,6 +139,26 @@ public class UserController {
             return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
         }
         return Result.success(user);
+    }
+
+    @Data
+    static class RegisterDTO {
+        String mail;
+        String login;
+        String password;
+        String phone;
+    }
+
+    @ApiOperation(value = "register", notes = "user register")
+    @PostMapping("/register")
+    @SuppressWarnings("rawtype")
+    public Result register(@RequestBody RegisterDTO payload) {
+        try {
+            userAuthService.register(payload.mail, payload.login, payload.password, payload.phone);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR, e.getMessage());
+        }
     }
 
     @GetMapping("/getName")

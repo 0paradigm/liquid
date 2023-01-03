@@ -83,6 +83,11 @@
             <artifactId>hutool-all</artifactId>
             <version>5.8.10</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>1.25</version>
+        </dependency>
 
         <!-- docs -->
         <dependency>
