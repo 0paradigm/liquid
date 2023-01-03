@@ -55,6 +55,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
@@ -68,6 +69,7 @@ import java.nio.file.Path;
 
 @Slf4j
 @Service
+@RestController
 public class GitWebServiceImpl implements GitWebService {
 
     @Value("${storage.git}")
@@ -269,9 +271,7 @@ public class GitWebServiceImpl implements GitWebService {
         }
     }
 
-    @ResponseBody
-    @PostMapping("/internal/v1/sync/<owner>/<repo>")
-    public void updateCaches(@PathVariable String owner, @PathVariable String repo) {
+    public void updateCaches(String owner, String repo) {
         for (int i = 0; i < cacheObjNum; i++) {
             File cacheRepo =
                 Path.of(gitCacheStorage, owner, String.format("%s-%d", repo, i)).toFile();

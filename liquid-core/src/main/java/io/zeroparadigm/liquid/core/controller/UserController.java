@@ -70,10 +70,16 @@ public class UserController {
 
     @PostMapping("/create")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
-    public Result<Boolean> createUser(@RequestParam("login") String login, @RequestParam("name") String name, @RequestParam("email") String email,
-                                      @Nullable @RequestParam("twitter_username") String twitter_username, @Nullable @RequestParam("bio") String bio,
-                                      @Nullable @RequestParam("company") String company, @Nullable @RequestParam("location") String location,
-                                      @RequestParam("password") String password, @Nullable @RequestParam("phone") String phone){
+    public Result<Boolean> createUser(@RequestParam("login") String login,
+                                      @RequestParam("name") String name,
+                                      @RequestParam("email") String email,
+                                      @Nullable @RequestParam("twitter_username")
+                                      String twitter_username,
+                                      @Nullable @RequestParam("bio") String bio,
+                                      @Nullable @RequestParam("company") String company,
+                                      @Nullable @RequestParam("location") String location,
+                                      @RequestParam("password") String password,
+                                      @Nullable @RequestParam("phone") String phone) {
         User user = new User();
         user.setLogin(login);
         user.setName(name);
@@ -93,23 +99,25 @@ public class UserController {
     @PostMapping("/update")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
     public Result<Boolean> updateUser(@RequestHeader("Authorization") String token,
-                                      @Nullable @RequestParam("twitter_username") String twitter_username,
+                                      @Nullable @RequestParam("twitter_username")
+                                      String twitter_username,
                                       @Nullable @RequestParam("bio") String bio,
                                       @Nullable @RequestParam("company") String company,
                                       @Nullable @RequestParam("location") String location,
-                                       @Nullable @RequestParam("phone") String phone){
+                                      @Nullable @RequestParam("phone") String phone) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.selectById(userId);
         if (Objects.isNull(user)) {
             return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
         }
-        userMapper.updateUserById(userId, twitter_username, bio, company, location, phone, System.currentTimeMillis());
+        userMapper.updateUserById(userId, twitter_username, bio, company, location, phone,
+            System.currentTimeMillis());
         return Result.success();
     }
 
     @GetMapping("/info")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
-    public Result<User> getUserInfo(@RequestHeader("Authorization") String token){
+    public Result<User> getUserInfo(@RequestHeader("Authorization") String token) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.selectById(userId);
         if (Objects.isNull(user)) {
@@ -120,7 +128,7 @@ public class UserController {
 
     @GetMapping("/getName")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
-    public Result<String> getUserName(@RequestParam("login") String loginOrEmailOrPhone){
+    public Result<String> getUserName(@RequestParam("login") String loginOrEmailOrPhone) {
         User user = userMapper.findByPhone(loginOrEmailOrPhone);
         if (user == null) {
             user = userMapper.findByNameOrMail(loginOrEmailOrPhone);
@@ -153,7 +161,8 @@ public class UserController {
 
     @GetMapping("/star")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> star(@RequestHeader("Authorization") String token, @RequestParam("id") Integer id) {
+    public Result<Boolean> star(@RequestHeader("Authorization") String token,
+                                @RequestParam("id") Integer id) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -165,7 +174,8 @@ public class UserController {
 
     @GetMapping("/unstar")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> unstar(@RequestHeader("Authorization") String token, @RequestParam("id") Integer id) {
+    public Result<Boolean> unstar(@RequestHeader("Authorization") String token,
+                                  @RequestParam("id") Integer id) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -177,23 +187,29 @@ public class UserController {
 
     @GetMapping("/watch")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> watch(@RequestHeader("Authorization") String token, @RequestParam("id") Integer id,
-                                 @RequestParam("particip") Boolean participation, @RequestParam("issue") Boolean issue,
-                                 @RequestParam("pull") Boolean pull, @RequestParam("release") Boolean release,
-                                 @RequestParam("discuss") Boolean discussion, @RequestParam("alerts") Boolean security_alerts
+    public Result<Boolean> watch(@RequestHeader("Authorization") String token,
+                                 @RequestParam("id") Integer id,
+                                 @RequestParam("particip") Boolean participation,
+                                 @RequestParam("issue") Boolean issue,
+                                 @RequestParam("pull") Boolean pull,
+                                 @RequestParam("release") Boolean release,
+                                 @RequestParam("discuss") Boolean discussion,
+                                 @RequestParam("alerts") Boolean security_alerts
     ) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
         User usr = userMapper.findById(userId);
-        userMapper.watchRepo(usr.getLogin(), id, participation, issue, pull, release, discussion, security_alerts);
+        userMapper.watchRepo(usr.getLogin(), id, participation, issue, pull, release, discussion,
+            security_alerts);
         return Result.success();
     }
 
     @GetMapping("/unwatch")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> unwatch(@RequestHeader("Authorization") String token, @RequestParam("id") Integer id) {
+    public Result<Boolean> unwatch(@RequestHeader("Authorization") String token,
+                                   @RequestParam("id") Integer id) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -218,7 +234,7 @@ public class UserController {
             String forkedFrom = null;
             if (repos.get(i).getForkedFrom() != null) {
                 Repo repo = repoMapper.findById(repos.get(i).getForkedFrom());
-                if (!Objects.isNull(repo)){
+                if (!Objects.isNull(repo)) {
                     User owner = userMapper.findById(repo.getOwner());
                     forkedFrom = owner.getLogin() + "/" + repo.getName();
                 }
@@ -228,7 +244,8 @@ public class UserController {
             Integer fork = repoMapper.countForks(repos.get(i).getId());
             Integer watch = repoMapper.countWatchers(repos.get(i).getId());
             repoDtos.add(new RepoDto(repos.get(i).getId(), usr.getLogin(), repos.get(i).getName(),
-                repos.get(i).getDescription(), repos.get(i).getLanguage(),forkedFrom, repos.get(i).getPrivated(),
+                repos.get(i).getDescription(), repos.get(i).getLanguage(), forkedFrom,
+                repos.get(i).getPrivated(),
                 star, fork, watch));
         }
         return Result.success(repoDtos);
@@ -245,7 +262,7 @@ public class UserController {
             String forkedFrom = null;
             if (repos.get(i).getForkedFrom() != null) {
                 Repo repo = repoMapper.findById(repos.get(i).getForkedFrom());
-                if (!Objects.isNull(repo)){
+                if (!Objects.isNull(repo)) {
                     User owner = userMapper.findById(repo.getOwner());
                     forkedFrom = owner.getLogin() + "/" + repo.getName();
                 }
@@ -274,14 +291,14 @@ public class UserController {
      */
     @ApiOperation(value = "hello", notes = "says hello to the person")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "name", value = "USER_NAME", required = true, dataTypeClass = String.class, example = "chris")
+        @ApiImplicitParam(name = "name", value = "USER_NAME", required = true, dataTypeClass = String.class, example = "chris")
     })
     @PostMapping(value = "/hello")
     @ResponseStatus(HttpStatus.CREATED)
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<String> hello(
-            @RequestParam String name,
-            @RequestBody(required = false) String ts) {
+        @RequestParam String name,
+        @RequestBody(required = false) String ts) {
         log.debug("User {}", name);
         return Result.success("userService.greet(name)");
     }
@@ -294,7 +311,7 @@ public class UserController {
      */
     @ApiOperation(value = "getUserNamedAs", notes = "queries the first user with that name")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "name", value = "user's name", required = true, dataTypeClass = String.class, example = "foo")
+        @ApiImplicitParam(name = "name", value = "user's name", required = true, dataTypeClass = String.class, example = "foo")
     })
     @PostMapping(value = "/user")
     @ResponseStatus(HttpStatus.OK)
@@ -305,11 +322,11 @@ public class UserController {
 
 
     @PostMapping(value = "/userId")
-    public Result<Integer> getUserIdViaJWT(@RequestHeader(value = "Token") String jwt){
-        log.info("token-->"+jwt);
+    public Result<Integer> getUserIdViaJWT(@RequestHeader(value = "Token") String jwt) {
+        log.info("token-->" + jwt);
         Result<Integer> result;
         Integer id = jwtService.getUserId(jwt);
-        if (id!=null){
+        if (id != null) {
             return Result.success(id);
         } else {
             return Result.error(ServiceStatus.ERROR_LOGGING, -1);

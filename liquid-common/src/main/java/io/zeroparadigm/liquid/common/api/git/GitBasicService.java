@@ -43,7 +43,7 @@ public interface GitBasicService {
     void createRepo(String owner, String repo, String initBranch)
         throws IOException, GitAPIException;
 
-    void addReadMe(String owner, String repo, String initBranch);
+    void addReadMe(String owner, String repo, String desc);
 
     void addGitIgnore(String owner, String repo, String initBranch);
 

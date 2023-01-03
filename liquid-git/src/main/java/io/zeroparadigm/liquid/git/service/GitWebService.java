@@ -27,6 +27,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -57,4 +58,6 @@ public interface GitWebService {
 
     RevCommit latestCommitOfCurrentRepo(String owner, String repo, String branchOrCommit,
                                         @Nullable String relPath) throws IOException, GitAPIException;
+
+    void updateCaches(@PathVariable String owner, @PathVariable String repo);
 }

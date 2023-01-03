@@ -34,6 +34,7 @@ import io.zeroparadigm.liquid.git.dto.WebCreateRepoDTO;
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import io.zeroparadigm.liquid.git.service.GitWebService;
 
+import io.zeroparadigm.liquid.git.service.impl.GitWebServiceImpl;
 import java.io.IOException;
 import java.util.List;
 
@@ -51,6 +52,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -123,9 +125,10 @@ public class GitWebController {
                                @PathVariable String repo,
                                @PathVariable String branch,
                                @RequestBody WebCommitDTO args,
-                               @RequestHeader String auth) {
+                               @RequestHeader("Authorization") String auth) {
         Integer userId = jwtService.getUserId(auth);
         UserBO userBO = userAuthService.findById(userId);
+        log.info("commit with user {}", userBO);
         gitWebService.commit(owner, repo, branch,
             args.getTaskId(), args.getAddFiles(), args.getMessage(), userBO);
         return Result.success();
@@ -191,5 +194,11 @@ public class GitWebController {
     public Result<List<String>> listBranches(@PathVariable String owner,
                                              @PathVariable String repo) {
         return Result.success(gitBasicService.listBranches(owner, repo));
+    }
+
+    @ResponseBody
+    @PostMapping("/internal/v1/sync/{owner}/{repo}")
+    public void updateCaches(@PathVariable String owner, @PathVariable String repo) {
+        gitWebService.updateCaches(owner, repo);
     }
 }

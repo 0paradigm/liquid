@@ -18,6 +18,7 @@ import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
 import io.zeroparadigm.liquid.core.dto.RepoDto;
 import java.util.ArrayList;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -87,8 +88,7 @@ public class RepoController {
                                   @RequestParam("description") String description,
                                   @RequestParam("language") String language,
                                   @RequestParam("private") Boolean privat,
-                                  @RequestParam("readme") Boolean readme,
-                                  @RequestParam("gitignore") Boolean gitignore) {
+                                  @RequestParam("readme") Boolean readme) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         log.error("user " + user + " create " + name);
@@ -108,14 +108,14 @@ public class RepoController {
             }
             List<String> addFiles = new ArrayList<>(2);
             if (readme) {
-                gitBasicService.addReadMe(user.getLogin(), name, "master");
+                gitBasicService.addReadMe(user.getLogin(), name, description);
                 addFiles.add("README.md");
             }
-            if (gitignore) {
-                gitBasicService.addGitIgnore(user.getLogin(), name, "master");
+            if (!StringUtils.isEmpty(language)) {
+                gitBasicService.addGitIgnore(user.getLogin(), name, language);
                 addFiles.add(".gitignore");
             }
-            if (readme || gitignore) {
+            if (readme || !StringUtils.isEmpty(language)) {
                 UserBO userBO = new UserBO();
                 userBO.setLogin(user.getLogin());
                 userBO.setEmail(user.getEmail());
