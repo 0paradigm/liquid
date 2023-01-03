@@ -19,7 +19,6 @@ spring:
     cache-duration: 3600
     encoding: UTF-8
 
-  # TODO: nacos
   redis:
     host: liquid-core-cache
     port: 6379
@@ -34,11 +33,9 @@ spring:
         min-idle: 0
         max-wait: -1
 
-  # TODO: nacos
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:13306/liquid?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
-    url: jdbc:mysql://liquid-core-ds:13306/liquid?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    url: ${JDBC_URL:jdbc:mysql://localhost:13306/liquid?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC}
     username: root
     password: liquid
 

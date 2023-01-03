@@ -15,7 +15,8 @@ AUTH_API = "http://localhost:8002/internal/v1/auth"
 SYNC_API = "http://localhost:8004/web/internal/v1/sync"
 
 # docker
-# GIT_STORE = "storage/git"
-# GIT_CACHE_STORE = "storage/git-cache"
-# AUTH_API = "liquid-git:8002/internal/v1/auth"
-# SYNC_API = "liquid-git:8004/web/internal/v1/sync"
+if os.environ.get("GITD_ENV") == 'DOCKER':
+    GIT_STORE = "/storage/git"
+    GIT_CACHE_STORE = "/storage/git-cache"
+    AUTH_API = "liquid-git:8002/internal/v1/auth"
+    SYNC_API = "liquid-git:8004/web/internal/v1/sync"

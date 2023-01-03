@@ -40,7 +40,6 @@ services:
       timeout: 10s
       retries: 5
 
-
   liquid-gateway:
     image: liquid-gateway
     networks:
@@ -131,9 +130,7 @@ services:
     networks:
       - liquid
     ports:
-      - "8004:8004"  # liquid git api  # FIXME: should delete and let gateway do the job
-#    env_file:
-#      - env/liquid-git.env
+      - "8004:8004"  # liquid git api
     volumes:
       - liquid-git-storage:/storage
     healthcheck:
@@ -145,12 +142,25 @@ services:
       liquid-nacos:
         condition: service_healthy
 
+  liquid-gitd:
+    build:
+      context: ../liquid-gitd
+      dockerfile: ./Dockerfile
+    networks:
+      - liquid
+    ports:
+      - "5000:5000"
+    volumes:
+      - liquid-git-storage:/storage
+    environment:
+      GITD_ENV: "DOCKER"
+
   liquid-media:
     image: liquid-media
     networks:
       - liquid
     ports:
-      - "8003:8003"  # liquid media api  # FIXME: should delete and let gateway do the job
+      - "8003:8003"  # liquid media api
     env_file:
       - env/liquid-media.env
     healthcheck:
