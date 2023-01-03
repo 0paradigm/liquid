@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.util.List;
 
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.lang.Nullable;
@@ -56,8 +59,17 @@ public interface GitWebService {
     String getFile(String owner, String repo, String branchOrCommit,
                  @Nullable String filePath) throws IOException, GitAPIException;
 
-    RevCommit latestCommitOfCurrentRepo(String owner, String repo, String branchOrCommit,
+    LatestCommitDTO latestCommitOfCurrentRepo(String owner, String repo, String branchOrCommit,
                                         @Nullable String relPath) throws IOException, GitAPIException;
 
     void updateCaches(@PathVariable String owner, @PathVariable String repo);
+
+
+    @Data
+    @SuperBuilder
+    @NoArgsConstructor
+    class LatestCommitDTO {
+        LatestCommitInfo latest;
+        Integer cnt;
+    }
 }

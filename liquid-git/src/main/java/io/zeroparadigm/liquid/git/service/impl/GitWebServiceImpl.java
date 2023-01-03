@@ -30,7 +30,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -159,7 +161,7 @@ public class GitWebServiceImpl implements GitWebService {
             committerName = "liquid-user";
             committerEmail = "";
         } else {
-            committerName= committer.getLogin();
+            committerName = committer.getLogin();
             committerEmail = committer.getEmail();
         }
 
@@ -214,8 +216,10 @@ public class GitWebServiceImpl implements GitWebService {
         }
     }
 
+    int i = 0;
+
     private synchronized File selectCache(String owner, String repo) {
-        for (int i = 0; ; i++, i %= cacheObjNum) {
+        for (; ; i++, i %= cacheObjNum) {
             File cacheRepo =
                 Path.of(gitCacheStorage, owner, String.format("%s-%d", repo, i)).toFile();
             if (!Files.exists(cacheRepo.toPath())) {
@@ -226,6 +230,8 @@ public class GitWebServiceImpl implements GitWebService {
                 log.warn("cache {} is busy", i);
                 continue;
             }
+            i++;
+            i %= cacheObjNum;
             log.info("using cache {} for {}/{}", i, owner, repo);
             return cacheRepo;
         }
@@ -330,6 +336,7 @@ public class GitWebServiceImpl implements GitWebService {
                 .map(Path::toFile)
                 .filter(f -> !".git".equals(f.getName()))
                 .map(f -> new LatestCommitInfo(git, f))
+                .sorted(Comparator.comparing(LatestCommitInfo::getName))
                 .toList();
         } catch (RefNotFoundException e) {
             log.error("branch not found", e);
@@ -372,24 +379,44 @@ public class GitWebServiceImpl implements GitWebService {
 
     @Override
     @Nullable
-    public RevCommit latestCommitOfCurrentRepo(String owner, String repo, String branchOrCommit,
-                                               @Nullable String relPath)
-        throws IOException, GitAPIException {
-        // File repoFs = Path.of(gitStorage, owner, repo, Objects.requireNonNullElse(relPath, "")).toFile();
-        //
-        // try (Git git = Git.open(repoFs)) {
-        // git.checkout()
-        // .setName(branchOrCommit)
-        // .call();
-        //
-        // return git.log()
-        // .addPath(relPath)
-        // .setMaxCount(1)
-        // .call()
-        // .iterator()
-        // .next();
-        // }
-        // fetch database to find out the real user
-        return null;
+    @SneakyThrows
+    public LatestCommitDTO latestCommitOfCurrentRepo(String owner, String repo,
+                                                     String branchOrCommit,
+                                                     @Nullable String relPath) {
+        File repoFs = selectCache(owner, repo);
+        try (Git git = Git.open(repoFs)) {
+            git.checkout()
+                .setName(branchOrCommit)
+                .call();
+
+            Iterator iter;
+            if (relPath == null || relPath.strip().length() == 0) {
+                iter = git.log()
+                    .call()
+                    .iterator();
+            } else {
+                iter = git.log()
+                    .addPath(relPath)
+                    .call()
+                    .iterator();
+            }
+            int cnt = 0;
+            while (iter.hasNext()) {
+                cnt++;
+                iter.next();
+            }
+
+            LatestCommitInfo info;
+            if (relPath == null || relPath.strip().length() == 0) {
+                info = new LatestCommitInfo(git, null);
+            } else {
+                info = new LatestCommitInfo(git, new File(relPath));
+            }
+
+            return LatestCommitDTO.builder()
+                .latest(info)
+                .cnt(cnt)
+                .build();
+        }
     }
 }

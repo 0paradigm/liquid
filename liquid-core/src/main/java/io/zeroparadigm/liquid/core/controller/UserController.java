@@ -126,6 +126,16 @@ public class UserController {
         return Result.success(user);
     }
 
+    @GetMapping("/info/{user}")
+    @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
+    public Result<User> getUserInfoByUid(@PathVariable("user") String uid) {
+        User user = userMapper.findByNameOrMail(uid);
+        if (Objects.isNull(user)) {
+            return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
+        }
+        return Result.success(user);
+    }
+
     @GetMapping("/getName")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
     public Result<String> getUserName(@RequestParam("login") String loginOrEmailOrPhone) {

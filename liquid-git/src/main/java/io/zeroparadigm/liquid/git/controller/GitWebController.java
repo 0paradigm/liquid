@@ -38,7 +38,10 @@ import io.zeroparadigm.liquid.git.service.impl.GitWebServiceImpl;
 import java.io.IOException;
 import java.util.List;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -163,13 +166,14 @@ public class GitWebController {
         return Result.success(gitWebService.listFiles(owner, repo, branchOrCommit, relPath));
     }
 
+
     @GetMapping("/latest/{owner}/{repo}/{branchOrCommit}")
     @SneakyThrows
     @WrapsException(wrapped = ServiceStatus.NOT_FOUND, status = HttpStatus.NOT_FOUND)
-    public RevCommit latestCommitOfCurrentRepo(@PathVariable String owner,
-                                               @PathVariable String repo,
-                                               @PathVariable String branchOrCommit,
-                                               @RequestBody(required = false) String relPath) {
+    public GitWebService.LatestCommitDTO latestCommitOfCurrentRepo(@PathVariable String owner,
+                                                                   @PathVariable String repo,
+                                                                   @PathVariable String branchOrCommit,
+                                                                   @RequestParam(required = false) String relPath) {
         return gitWebService.latestCommitOfCurrentRepo(owner, repo, branchOrCommit, relPath);
     }
 
