@@ -7,7 +7,6 @@ post_receive_content = 'git --work-tree=${PROJECT_DIR} checkout --force'
 
 
 def create_repo(repo_name):
-    # print(repo_name)
 
     project_path = os.path.join(PROJECTS_PATH, repo_name)
     git_repo_path = os.path.join(GIT_STORE, repo_name + '.git')

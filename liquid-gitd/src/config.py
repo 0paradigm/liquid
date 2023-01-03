@@ -8,13 +8,14 @@ SECRET_KEY = "192b9bdd22ab9ed4d12e236c78afcb9a393ec15f71bbf5dc987d54727823bcbf"
 SESSION_COOKIE_HTTPONLY = False
 MAX_COOKIE_SIZE = 0
 
-#dev
-GIT_STORE = "../../liquid-git/storage/git"
+# dev
+GIT_STORE = "../liquid-git/storage/git"
+GIT_CACHE_STORE = "../../liquid-git/storage/git-cache"
 AUTH_API = "http://localhost:8002/internal/v1/auth"
+SYNC_API = "http://localhost:8002/internal/v1/sync"
 
-#docker
+# docker
 # GIT_STORE = "storage/git"
-# AUTH_API = "http://localhost:8002/internal/v1/auth/passwd"
-
-# USERNAME = 'admin'
-# PASSWORD = '123456'
+# GIT_CACHE_STORE = "storage/git-cache"
+# AUTH_API = "liquid-git:8002/internal/v1/auth"
+# SYNC_API = "liquid-git:8002/internal/v1/sync"

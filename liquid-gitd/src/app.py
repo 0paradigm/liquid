@@ -1,57 +1,57 @@
-import os
-import toml
 import requests as req
-
-from flask import Flask, request, send_file, make_response, Response
+from flask import Flask, request, make_response, Response, send_file
 from flask_httpauth import HTTPBasicAuth
 
 from git import git_command_with_input, git_command
-from config import GIT_STORE
 
 app = Flask(__name__)
 app.config.from_object('config')
 
 auth = HTTPBasicAuth()
 
-# @auth.get_password
-def password(username):
+
+@auth.get_password
+def verify(username):
+    print('username', username)
     return req.get(app.config['AUTH_API'] + '/passwd', params={'username': username}).text
 
 
-@auth.verify_password
-def verify_pw(username, password):
-    return password == password(username)
+def sync_repo(owner, repo):
+    try:
+        resp = req.get(f"{app.config['SYNC_API']}/{owner}/{repo}")
+        print(resp.text)
+    except Exception as e:
+        print(e)
 
 
-@app.route('/<string:repo_name>/git-upload-pack', methods=['POST'])
-@app.route('/<string:repo_name>.git/git-upload-pack', methods=['POST'])
-def git_upload_pack(repo_name):
-    # print(request.headers.get('Git-Protocol'))
-    repo_name = repo_name + '.git'
+@app.route('/<string:owner>/<string:repo_name>/git-upload-pack', methods=['POST'])
+@app.route('/<string:owner>/<string:repo_name>.git/git-upload-pack', methods=['POST'])
+@auth.login_required
+def git_upload_pack(owner, repo_name):
+    repo_name = owner + '/' + repo_name.rstrip('.git')
     args = ['upload-pack', "--stateless-rpc", '.']
     res = git_command_with_input(repo_name, '', request.data, *args)
-
+    sync_repo(owner, repo_name)
     return Response(res)
 
 
-@app.route('/<string:repo_name>/git-receive-pack', methods=['POST'])
-@app.route('/<string:repo_name>.git/git-receive-pack', methods=['POST'])
+@app.route('/<string:owner>/<string:repo_name>/git-receive-pack', methods=['POST'])
+@app.route('/<string:owner>/<string:repo_name>.git/git-receive-pack', methods=['POST'])
 @auth.login_required
-def git_receive_pack(repo_name):
-    repo = repo_name + '.git'
-    old_version = request.headers.get('Git-Protocol')
+def git_receive_pack(owner, repo_name):
+    repo = owner + '/' + repo_name.rstrip('.git')
     args = ['receive-pack', "--stateless-rpc", '.']
     res = git_command_with_input(repo, '', request.data, *args)
+    sync_repo(owner, repo)
     return Response(res)
 
 
-@app.route('/<string:repo_name>/info/refs', methods=['GET'])
-@app.route('/<string:repo_name>.git/info/refs', methods=['GET'])
-def git_info_refs(repo_name):
-    repo_name = repo_name + '.git'
+@app.route('/<string:owner>/<string:repo_name>/info/refs', methods=['GET'])
+@app.route('/<string:owner>/<string:repo_name>.git/info/refs', methods=['GET'])
+@auth.login_required
+def git_info_refs(owner, repo_name):
+    repo_name = owner + '/' + repo_name.rstrip('.git')
 
-    repo_path = os.path.join(GIT_STORE, repo_name)
-    old_version = request.headers.get('Git-Protocol')
     version = request.headers.get('git/2.17.1')
     service = request.args.get('service')
 
@@ -60,11 +60,7 @@ def git_info_refs(repo_name):
     else:
         service_name = 'upload-pack'
 
-    if service_name == 'receive-pack' and not auth.username():
-        return auth.login_required(git_info_refs)(repo_name)
-
     args = [service_name, "--stateless-rpc", "--advertise-refs", "."]
-
     res = git_command(repo_name, version, *args)
 
     first_line = '# service=git-%s\n0000' % service_name
@@ -75,6 +71,10 @@ def git_info_refs(repo_name):
     return resp
 
 
+@app.route('/file/<string:owner>/<string:repo_name>/<path:path>', methods=['GET'])
+def download_file(owner, repo_name, path):
+    return send_file(f"{app.config['GIT_CACHE_STORE']}/{owner}/{repo_name}-1/{path}")
+
+
 if __name__ == '__main__':
-    print(app.config)
     app.run()

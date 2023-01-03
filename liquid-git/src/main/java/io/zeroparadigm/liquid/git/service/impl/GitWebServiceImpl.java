@@ -52,6 +52,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
@@ -266,7 +269,9 @@ public class GitWebServiceImpl implements GitWebService {
         }
     }
 
-    private void updateCaches(String owner, String repo) {
+    @ResponseBody
+    @PostMapping("/internal/v1/sync/<owner>/<repo>")
+    public void updateCaches(@PathVariable String owner, @PathVariable String repo) {
         for (int i = 0; i < cacheObjNum; i++) {
             File cacheRepo =
                 Path.of(gitCacheStorage, owner, String.format("%s-%d", repo, i)).toFile();
