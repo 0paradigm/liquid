@@ -171,7 +171,7 @@ public class UserController {
         if (Objects.isNull(user)) {
             return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
         }
-        return Result.success(user.getName());
+        return Result.success(user.getLogin());
     }
 
     @GetMapping("/find")

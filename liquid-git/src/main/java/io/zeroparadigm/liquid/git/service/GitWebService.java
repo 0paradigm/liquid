@@ -69,6 +69,10 @@ public interface GitWebService {
     Result webDelete(String owner, String repo, String initBranch, String deleteFile,
                      UserBO committer, String message);
 
+    Result branchDelete(String owner, String repo, String initBranch);
+
+    Result branchCheckoutB(String owner, String repo, String fromBranch, String toBranch);
+
     @Data
     @SuperBuilder
     @NoArgsConstructor

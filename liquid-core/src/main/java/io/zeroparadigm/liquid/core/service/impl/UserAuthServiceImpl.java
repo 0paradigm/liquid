@@ -67,7 +67,13 @@ public class UserAuthServiceImpl implements UserAuthService {
             .email(userRec.getEmail())
             .password(userRec.getPassword())
             .build();
+    }
 
+    @Override
+    public boolean hasAccessTo(Integer uid, String owner, String repo) {
+        var res = userMapper.hasAccessTo(uid, owner, repo);
+        log.info("hasAccessTo: uid={}, owner={}, repo={}, res={}", uid, owner, repo, res);
+        return res;
     }
 
     @Override

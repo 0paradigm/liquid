@@ -349,6 +349,8 @@ public class GitWebServiceImpl implements GitWebService {
             } catch (IOException e) {
                 createCache(owner, repo);
             } catch (GitAPIException e) {
+                FileUtils.deleteQuietly(cacheRepo);
+                createCache(owner, repo);
                 log.error("error updating cache", e);
             }
         }
@@ -472,6 +474,38 @@ public class GitWebServiceImpl implements GitWebService {
     }
 
     @Override
+    @SneakyThrows
+    public Result branchDelete(String owner, String repo, String initBranch) {
+        try (Git git = Git.open(Path.of(gitStorage, owner, repo).toFile())) {
+            git.branchDelete()
+                .setBranchNames(initBranch)
+                .setForce(true)
+                .call();
+        } catch (GitAPIException e) {
+            log.error("error deleting branch", e);
+            throw e;
+        }
+        updateCaches(owner, repo);
+        return Result.success();
+    }
+
+    @Override
+    @SneakyThrows
+    public Result branchCheckoutB(String owner, String repo, String fromBranch, String toBranch) {
+        try (Git git = Git.open(Path.of(gitStorage, owner, repo).toFile())) {
+            git.branchCreate()
+                .setName(toBranch)
+                .setStartPoint(fromBranch)
+                .call();
+        } catch (GitAPIException e) {
+            log.error("error deleting branch", e);
+            throw e;
+        }
+        updateCaches(owner, repo);
+        return Result.success();
+    }
+
+    @Override
     @Nullable
     @SneakyThrows
     public LatestCommitDTO latestCommitOfCurrentRepo(String owner, String repo,
@@ -479,9 +513,7 @@ public class GitWebServiceImpl implements GitWebService {
                                                      @Nullable String relPath) {
         File repoFs = selectCache(owner, repo);
         try (Git git = Git.open(repoFs)) {
-            git.checkout()
-                .setName(branchOrCommit)
-                .call();
+            cacheCheckout(git, branchOrCommit);
 
             Iterator iter;
             if (relPath == null || relPath.strip().length() == 0) {

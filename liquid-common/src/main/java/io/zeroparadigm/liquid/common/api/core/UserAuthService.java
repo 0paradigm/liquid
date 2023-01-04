@@ -28,6 +28,8 @@ public interface UserAuthService {
 
     UserBO findById(Integer userId);
 
+    boolean hasAccessTo(Integer uid, String owner, String repo);
+
     UserBO findByPhone(String phone);
 
     void register(String mail, String login, String password, String phone);

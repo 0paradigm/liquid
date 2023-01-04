@@ -142,6 +142,23 @@ public class GitWebController {
         return upload(owner, repo, branch, mfile, dto.getPath(), dto.getTaskId());
     }
 
+    @DeleteMapping("/deletebranch/{owner}/{repo}/{branch}")
+    @WrapsException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
+    public Result deleteBranch(@PathVariable String owner,
+                               @PathVariable String repo,
+                               @PathVariable String branch) {
+        return gitWebService.branchDelete(owner, repo, branch);
+    }
+
+    @PostMapping("/createbranch/{owner}/{repo}/{fromBranch}/{toBranch}")
+    @WrapsException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
+    public Result createBranch(@PathVariable String owner,
+                               @PathVariable String repo,
+                               @PathVariable String fromBranch,
+                               @PathVariable String toBranch) {
+        return gitWebService.branchCheckoutB(owner, repo, fromBranch, toBranch);
+    }
+
     @PostMapping("/upload/{owner}/{repo}/{branch}/commit")
     @ApiOperation(value = "commitUpload", notes = "commit changes just uploaded")
     @ApiImplicitParams({
@@ -249,7 +266,14 @@ public class GitWebController {
     @SneakyThrows
     @WrapsException(wrapped = ServiceStatus.NOT_FOUND, status = HttpStatus.NOT_FOUND)
     public Result<List<String>> listBranches(@PathVariable String owner,
-                                             @PathVariable String repo) {
+                                             @PathVariable String repo,
+                                             @RequestHeader("Authorization") String auth) {
+
+        Integer userId = jwtService.getUserId(auth);
+        log.info("list branches with user {}", userId);
+        if (!userAuthService.hasAccessTo(userId, owner, repo)) {
+            throw new IOException();
+        }
         return Result.success(gitBasicService.listBranches(owner, repo));
     }
 

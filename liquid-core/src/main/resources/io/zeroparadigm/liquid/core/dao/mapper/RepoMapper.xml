@@ -43,6 +43,13 @@
           AND `name` = #{name};
     </update>
 
+    <update id="setIsPrivate">
+    UPDATE `t_ds_repo`
+    SET `privated` = #{isPrivate}
+    WHERE `owner` = (SELECT `id` FROM `t_ds_user` WHERE `login` = #{owner})
+      AND `name` = #{name};
+    </update>
+
     <select id="findById" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
         SELECT *
         FROM `t_ds_repo`
@@ -128,6 +135,13 @@
         SELECT COUNT(*) > 0
         FROM `t_rel_repo_collaborator`
         WHERE `repo` = #{repoId} AND `user` = #{userId};
+    </select>
+
+    <select id="getIsPrivate">
+        SELECT `privated`
+        FROM `t_ds_repo`
+        WHERE `owner` = (SELECT `id` FROM `t_ds_user` WHERE `login` = #{owner})
+          AND `name` = #{name};
     </select>
 
     <!--    <select id="countContributors" resultType="java.lang.Integer">-->

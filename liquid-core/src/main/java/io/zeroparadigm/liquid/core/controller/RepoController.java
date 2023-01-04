@@ -1,9 +1,6 @@
 package io.zeroparadigm.liquid.core.controller;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import io.zeroparadigm.liquid.common.api.auth.JWTService;
 import io.zeroparadigm.liquid.common.api.git.GitBasicService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
@@ -62,6 +59,23 @@ public class RepoController {
         repoMapper.setAuth(repoId, userId, read, manage, push, settings, admin);
     }
 
+    @GetMapping("/isprivate/{owner}/{repo}")
+    public Result<Boolean> isPrivate(@PathVariable("owner") String owner,
+                                     @PathVariable("repo") String repo) {
+        Repo repoEntity = repoMapper.findByOwnerAndName(owner, repo);
+        return Result.success(repoEntity.getPrivated());
+    }
+
+    @PostMapping("/setprivate/{owner}/{repo}")
+    public Result setPrivate(@PathVariable("owner") String owner,
+                             @PathVariable("repo") String repo,
+                             @RequestParam Boolean privated) {
+        Repo repoEntity = repoMapper.findByOwnerAndName(owner, repo);
+        repoEntity.setPrivated(privated);
+        repoMapper.updateById(repoEntity);
+        return Result.success();
+    }
+
     @Deprecated
     @GetMapping("/auth")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
@@ -82,12 +96,12 @@ public class RepoController {
     }
 
     @PostMapping("/rename")
-    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
+    @WrapsException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
     public Result rename(@RequestParam String owner,
                          @RequestParam String oldName,
                          @RequestParam String newName) {
-        repoMapper.updateNameFindByOwnerAndName(owner, oldName, newName);
         gitBasicService.renameRepo(owner, oldName, newName);
+        repoMapper.updateNameFindByOwnerAndName(owner, oldName, newName);
         return Result.success();
     }
 
@@ -260,12 +274,10 @@ public class RepoController {
                                                 @RequestParam("name") String name) {
         Integer userId = jwtService.getUserId(token);
         User usr = userMapper.findById(userId);
-//        log.info("testing search ..... user " + usr);
         if (Objects.isNull(usr)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
         List<Repo> repos = repoMapper.findByName(userId, name);
-//        log.info("testing search ..... repos " + repos);
         if (Objects.isNull(repos)) {
             return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
         }

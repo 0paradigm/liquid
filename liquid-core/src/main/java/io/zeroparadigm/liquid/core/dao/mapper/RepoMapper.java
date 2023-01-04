@@ -149,6 +149,10 @@ public interface RepoMapper extends BaseMapper<Repo> {
      */
     void addCollaborator(@Param("repoId") Integer repoId, @Param("userId") Integer userId);
 
+    void getIsPrivate(@Param("owner") String login, @Param("name") String repo);
+
+    void setIsPrivate(@Param("owner") String login, @Param("name") String repo, @Param("isPrivate") Boolean isPrivate);
+
     /**
      * remove collaborator
      */

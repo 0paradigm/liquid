@@ -48,6 +48,8 @@ public interface UserMapper extends BaseMapper<User> {
 
     List<User> listAll();
 
+    boolean hasAccessTo(@Param("uid") Integer userId, @Param("owner") String owner, @Param("repo") String repoName);
+
     /**
      * create user.
      */

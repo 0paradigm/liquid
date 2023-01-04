@@ -36,6 +36,7 @@ import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.http.entity.ContentType;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.BranchConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockMultipartFile;
@@ -48,6 +49,9 @@ public class GitBasicServiceImpl implements GitBasicService {
 
     @Value("${storage.git}")
     private String gitStorage;
+
+    @Value("${storage.git-cache}")
+    private String gitCacheStorage;
 
     @Autowired
     private GitWebService gitWebService;
@@ -78,14 +82,27 @@ public class GitBasicServiceImpl implements GitBasicService {
     public void deleteRepo(String owner, String repo) {
         File repoDir = Path.of(gitStorage, owner, repo).toFile();
         FileUtils.deleteQuietly(repoDir);
+        deleteCaches(owner, repo);
     }
 
     @Override
+    @SneakyThrows
     public void renameRepo(String owner, String repo, String newRepoName) {
-        // caches are left over
         File repoDir = Path.of(gitStorage, owner, repo).toFile();
         File newRepoDir = Path.of(gitStorage, owner, newRepoName).toFile();
+        if (newRepoDir.exists()) {
+            throw new RepositoryAlreadyExistsException(String.format("%s/%s", owner, newRepoName));
+        }
+        deleteCaches(owner, repo);
         repoDir.renameTo(newRepoDir);
+    }
+
+    public void deleteCaches(String owner, String repo) {
+        for (int i = 0; i < 10; i++) {
+            File cacheRepo =
+                Path.of(gitCacheStorage, owner, String.format("%s-%d", repo, i)).toFile();
+            FileUtils.deleteQuietly(cacheRepo);
+        }
     }
 
     @Override
