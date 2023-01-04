@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -36,6 +36,7 @@ import java.util.Objects;
 @Api
 @Slf4j
 @RestController
+@Transactional
 @RequestMapping("/api/repo")
 public class RepoController {
 
@@ -78,6 +79,16 @@ public class RepoController {
         }
         repoMapper.setAuth(repoId, userId, read, manage, push, settings, admin);
         return Result.success(true);
+    }
+
+    @PostMapping("/rename")
+    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
+    public Result rename(@RequestParam String owner,
+                         @RequestParam String oldName,
+                         @RequestParam String newName) {
+        repoMapper.updateNameFindByOwnerAndName(owner, oldName, newName);
+        gitBasicService.renameRepo(owner, oldName, newName);
+        return Result.success();
     }
 
     @GetMapping("/create")

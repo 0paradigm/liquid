@@ -36,6 +36,13 @@
         WHERE `id` = #{repoId};
     </update>
 
+    <update id="updateNameFindByOwnerAndName">
+        UPDATE `t_ds_repo`
+        SET `name` = #{newName}
+        WHERE `owner` = (SELECT `id` FROM `t_ds_user` WHERE `login` = #{owner})
+          AND `name` = #{name};
+    </update>
+
     <select id="findById" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
         SELECT *
         FROM `t_ds_repo`

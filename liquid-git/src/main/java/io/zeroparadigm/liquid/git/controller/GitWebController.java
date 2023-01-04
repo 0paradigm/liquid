@@ -49,6 +49,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -202,9 +203,31 @@ public class GitWebController {
     @WrapsException(wrapped = ServiceStatus.NOT_FOUND, status = HttpStatus.NOT_FOUND)
     public GitWebService.LatestCommitDTO latestCommitOfCurrentRepo(@PathVariable String owner,
                                                                    @PathVariable String repo,
-                                                                   @PathVariable String branchOrCommit,
-                                                                   @RequestParam(required = false) String relPath) {
+                                                                   @PathVariable
+                                                                   String branchOrCommit,
+                                                                   @RequestParam(required = false)
+                                                                   String relPath) {
         return gitWebService.latestCommitOfCurrentRepo(owner, repo, branchOrCommit, relPath);
+    }
+
+    @Data
+    public static class WebDeleteFileDTO {
+        String file;
+        String msg;
+    }
+
+    @DeleteMapping("/deletefile/{owner}/{repo}/{branch}")
+    @SneakyThrows
+    @WrapsException(wrapped = ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
+    public Result deleteFile(@PathVariable String owner,
+                             @PathVariable String repo,
+                             @PathVariable String branch,
+                             @RequestBody WebDeleteFileDTO args,
+                             @RequestHeader("Authorization") String auth) {
+        Integer userId = jwtService.getUserId(auth);
+        UserBO userBO = userAuthService.findById(userId);
+        log.info("delete file with user {}", userBO);
+        return gitWebService.webDelete(owner, repo, branch, args.getFile(), userBO, args.getMsg());
     }
 
     @GetMapping("/file/{owner}/{repo}/{branchOrCommit}")

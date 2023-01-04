@@ -56,4 +56,6 @@ public interface GitBasicService {
     List<String> listBranches(String owner, String repo);
 
     void deleteRepo(String owner, String repo);
+
+    void renameRepo(String owner, String repo, String newRepoName);
 }

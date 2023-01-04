@@ -73,6 +73,8 @@ public interface RepoMapper extends BaseMapper<Repo> {
     @Nullable
     Repo findByOwnerAndName(@Param("owner") String owner, @Param("name") String name);
 
+    void updateNameFindByOwnerAndName(@Param("owner") String owner, @Param("name") String name, @Param("newName") String newName);
+
     /**
      * Gets repo "owner/name".
      *

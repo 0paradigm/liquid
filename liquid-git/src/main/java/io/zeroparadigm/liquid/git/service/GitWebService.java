@@ -19,6 +19,7 @@ package io.zeroparadigm.liquid.git.service;
 
 import com.alibaba.fastjson.JSON;
 import io.zeroparadigm.liquid.common.bo.UserBO;
+import io.zeroparadigm.liquid.common.dto.Result;
 import java.io.IOException;
 import java.util.List;
 
@@ -63,6 +64,10 @@ public interface GitWebService {
                                         @Nullable String relPath) throws IOException, GitAPIException;
 
     void updateCaches(String owner, String repo);
+
+
+    Result webDelete(String owner, String repo, String initBranch, String deleteFile,
+                     UserBO committer, String message);
 
     @Data
     @SuperBuilder

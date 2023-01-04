@@ -81,6 +81,14 @@ public class GitBasicServiceImpl implements GitBasicService {
     }
 
     @Override
+    public void renameRepo(String owner, String repo, String newRepoName) {
+        // caches are left over
+        File repoDir = Path.of(gitStorage, owner, repo).toFile();
+        File newRepoDir = Path.of(gitStorage, owner, newRepoName).toFile();
+        repoDir.renameTo(newRepoDir);
+    }
+
+    @Override
     public void addReadMe(String owner, String repo, String desc) {
         Path repoPath = Path.of(gitStorage, owner, repo);
         if (desc.trim().length() == 0) {
@@ -102,7 +110,7 @@ public class GitBasicServiceImpl implements GitBasicService {
     @Override
     public void addGitIgnore(String owner, String repo, String lang) {
         String ctx = switch (lang) {
-            case "c" -> """
+            case "C" -> """
                 # Prerequisites
                 *.d
                                 
@@ -156,7 +164,7 @@ public class GitBasicServiceImpl implements GitBasicService {
                 Mkfile.old
                 dkms.conf
                 """;
-            case "cpp" -> """
+            case "C++" -> """
                 # Prerequisites
                 *.d
                                 
@@ -190,7 +198,7 @@ public class GitBasicServiceImpl implements GitBasicService {
                 *.out
                 *.app
                 """;
-            case "java" -> """
+            case "Java" -> """
                 # Compiled class file
                 *.class
                                 
@@ -216,7 +224,7 @@ public class GitBasicServiceImpl implements GitBasicService {
                 hs_err_pid*
                 replay_pid*
                 """;
-            case "python" -> """
+            case "Python" -> """
                 # Byte-compiled / optimized / DLL files
                 __pycache__/
                 *.py[cod]
@@ -380,6 +388,8 @@ public class GitBasicServiceImpl implements GitBasicService {
                 """;
             default -> "";
         };
+        log.error("create gitignore of " + lang);
+        System.out.println(ctx);
         Path repoPath = Path.of(gitStorage, owner, repo);
         try {
             MultipartFile mfile = createMfileByPath(repoPath + "/.gitignore", ctx);
@@ -443,7 +453,7 @@ public class GitBasicServiceImpl implements GitBasicService {
             FileInputStream fileInputStream = new FileInputStream(file);
             String fileName = path.substring((path.lastIndexOf("/") + 1));
             mFile = new MockMultipartFile(fileName, fileName,
-                ContentType.APPLICATION_OCTET_STREAM.toString(), fileInputStream);
+                ContentType.TEXT_PLAIN.getMimeType(), fileInputStream);
         } catch (Exception e) {
             log.error("Create multipart file error ：{}", e);
         }
