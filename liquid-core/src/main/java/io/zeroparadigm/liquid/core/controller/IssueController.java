@@ -13,6 +13,13 @@ import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
 import io.zeroparadigm.liquid.core.dao.UserDao;
 import io.zeroparadigm.liquid.core.dao.entity.*;
 import io.zeroparadigm.liquid.core.dao.mapper.*;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.stream.Collectors;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.ibatis.annotations.Param;
@@ -57,26 +64,32 @@ public class IssueController {
 
     @GetMapping("/new")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> newIssue(@RequestHeader("Authorization") String token, @RequestParam("display_id") Integer displayId,
+    public Result<Boolean> newIssue(@RequestHeader("Authorization") String token,
+                                    @RequestParam("display_id") Integer displayId,
                                     @RequestParam("repo_id") Integer repoId,
-                                    @RequestParam("title") String title, @RequestParam("closed") Boolean closed) {
+                                    @RequestParam("title") String title,
+                                    @RequestParam("closed") Boolean closed) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
-        issueMapper.createIssue(displayId, repoId, userId, title, System.currentTimeMillis(), closed);
+        issueMapper.createIssue(displayId, repoId, userId, title, System.currentTimeMillis(),
+            closed);
         return Result.success(true);
     }
 
     @GetMapping("/comment")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> commentIssue(@RequestHeader("Authorization") String token, @RequestParam("repo_id") Integer repoId,
-                                        @RequestParam("issue_id") Integer issueId, @RequestParam("content") String content) {
+    public Result<Boolean> commentIssue(@RequestHeader("Authorization") String token,
+                                        @RequestParam("repo_id") Integer repoId,
+                                        @RequestParam("issue_id") Integer issueId,
+                                        @RequestParam("content") String content) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
-        issueCommentMapper.createIssueComment(repoId, issueId, userId, content, System.currentTimeMillis());
+        issueCommentMapper.createIssueComment(repoId, issueId, userId, content,
+            System.currentTimeMillis());
         return Result.success(true);
     }
 
@@ -93,7 +106,8 @@ public class IssueController {
 
     @GetMapping("/delete_comment")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> deleteIssueComment(@RequestHeader("Authorization") String token, @RequestParam("comment_id") Integer commentId) {
+    public Result<Boolean> deleteIssueComment(@RequestHeader("Authorization") String token,
+                                              @RequestParam("comment_id") Integer commentId) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -133,7 +147,8 @@ public class IssueController {
 
     @GetMapping("/search_by_ids")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Issue> findByIds(@RequestParam("displayId") Integer displayedId, @RequestParam("repoId") Integer repoId) {
+    public Result<Issue> findByIds(@RequestParam("displayId") Integer displayedId,
+                                   @RequestParam("repoId") Integer repoId) {
         Issue issues = issueMapper.findByDisplayedIdandRepoId(displayedId, repoId);
         if (Objects.isNull(issues)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
@@ -141,19 +156,60 @@ public class IssueController {
         return Result.success(issues);
     }
 
-    @GetMapping("/repo_list")
+    @Data
+    @Builder
+    public static class IssueListDTO {
+        Integer id;
+        String title;
+        Integer cmtCnt;
+        Long openAt;
+        String openBy;
+        List<IssueTagDTO> tags;
+    }
+
+    @Data
+    @Builder
+    public static class IssueTagDTO {
+        String content;
+        String color;
+    }
+
+    @GetMapping("/issuelist/{owner}/{repo}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<List<Issue>> listIssueByRepoId(@RequestParam("repoId") Integer repoId) {
-        List<Issue> issues = issueMapper.findByRepoId(repoId);
-        if (Objects.isNull(issues)) {
-            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+    public Result listIssueByRepoId(@PathVariable String owner,
+                                                 @PathVariable String repo) {
+        var id = repoMapper.findByOwnerAndName(owner, repo).getId();
+        List<Issue> issues = issueMapper.findByRepoId(id);
+
+        List<IssueListDTO> opens = new LinkedList<>();
+        List<IssueListDTO> closes = new LinkedList<>();
+        for (Issue issue : issues) {
+            IssueListDTO dto = IssueListDTO.builder()
+                .id(issue.getDisplayId())
+                .title(issue.getTitle())
+                .cmtCnt(issueCommentMapper.cntByIssueId(issue.getId()))
+                .openAt(issue.getCreatedAt())
+                .openBy(userMapper.findById(issue.getOpener()).getLogin())
+                .tags(issueLabelMapper.listAllLabelsOfIssue(id, issue.getId()).stream()
+                    .map(label -> IssueTagDTO.builder()
+                        .content(label.getLabel())
+                        .color(label.getColor())
+                        .build())
+                    .collect(Collectors.toList()))
+                .build();
+            if (issue.getClosed()) {
+                closes.add(dto);
+            } else {
+                opens.add(dto);
+            }
         }
-        return Result.success(issues);
+        return Result.success(Map.of("opens", opens, "closes", closes));
     }
 
     @GetMapping("/repo_user_list")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<List<Issue>> listIssueByRepoIdAndUserId(@RequestParam("repoId") Integer repoId, @RequestParam("userId") Integer userId) {
+    public Result<List<Issue>> listIssueByRepoIdAndUserId(@RequestParam("repoId") Integer repoId,
+                                                          @RequestParam("userId") Integer userId) {
         List<Issue> issues = issueMapper.findByRepoIdandOwnerId(repoId, userId);
         if (Objects.isNull(issues)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
@@ -163,7 +219,8 @@ public class IssueController {
 
     @GetMapping("/repo_label_list")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<List<Issue>> listIssueByRepoIdAndLabel(@RequestParam("repoId") Integer repoId, @RequestParam("label") String label) {
+    public Result<List<Issue>> listIssueByRepoIdAndLabel(@RequestParam("repoId") Integer repoId,
+                                                         @RequestParam("label") String label) {
         IssueLabel issueLabel = issueLabelMapper.findByRepoIdAndName(repoId, label);
         if (Objects.isNull(issueLabel)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
@@ -177,7 +234,8 @@ public class IssueController {
 
     @GetMapping("/user_close_list")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<List<Issue>> listIssueByUserIdAndClose(@RequestHeader("Authorization") String token, @RequestParam("closed") Boolean closed) {
+    public Result<List<Issue>> listIssueByUserIdAndClose(
+        @RequestHeader("Authorization") String token, @RequestParam("closed") Boolean closed) {
         Integer userId = jwtService.getUserId(token);
         List<Issue> issues = issueMapper.findByUserIdandClosed(userId, closed);
         if (Objects.isNull(issues)) {
@@ -199,7 +257,9 @@ public class IssueController {
     // FIXME: authorization?
     @GetMapping("/assign")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> assignIssue(@RequestHeader("Authorization") String token, @RequestParam("issueId") Integer issueId, @RequestParam("assigneeId") Integer assigneeId) {
+    public Result<Boolean> assignIssue(@RequestHeader("Authorization") String token,
+                                       @RequestParam("issueId") Integer issueId,
+                                       @RequestParam("assigneeId") Integer assigneeId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
@@ -224,7 +284,9 @@ public class IssueController {
 
     @GetMapping("/unassign")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> unassignIssue(@RequestHeader("Authorization") String token, @RequestParam("issueId") Integer issueId, @RequestParam("assigneeId") Integer assigneeId) {
+    public Result<Boolean> unassignIssue(@RequestHeader("Authorization") String token,
+                                         @RequestParam("issueId") Integer issueId,
+                                         @RequestParam("assigneeId") Integer assigneeId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
 //        log.info("user: {}", user);
@@ -261,7 +323,9 @@ public class IssueController {
 
     @GetMapping("/assign_label")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> assignLabel(@RequestHeader("Authorization") String token, @RequestParam("issueId") Integer issueId, @RequestParam("labelId") Integer labelId) {
+    public Result<Boolean> assignLabel(@RequestHeader("Authorization") String token,
+                                       @RequestParam("issueId") Integer issueId,
+                                       @RequestParam("labelId") Integer labelId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
@@ -282,7 +346,9 @@ public class IssueController {
 
     @GetMapping("/unassign_label")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> unassignLabel(@RequestHeader("Authorization") String token, @RequestParam("issueId") Integer issueId, @RequestParam("labelId") Integer labelId) {
+    public Result<Boolean> unassignLabel(@RequestHeader("Authorization") String token,
+                                         @RequestParam("issueId") Integer issueId,
+                                         @RequestParam("labelId") Integer labelId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
@@ -303,7 +369,9 @@ public class IssueController {
 
     @GetMapping("/assign_milestone")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> assignMilestone(@RequestHeader("Authorization") String token, @RequestParam("issueId") Integer issueId, @RequestParam("milestoneId") Integer milestoneId) {
+    public Result<Boolean> assignMilestone(@RequestHeader("Authorization") String token,
+                                           @RequestParam("issueId") Integer issueId,
+                                           @RequestParam("milestoneId") Integer milestoneId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
@@ -315,7 +383,7 @@ public class IssueController {
         }
         Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
         Repo repo = repoMapper.findById(issue.getRepo());
-        if (Objects.isNull(repo) ||(!auth && !repo.getOwner().equals(userId))) {
+        if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         issueMapper.assignMilestone(issueId, milestoneId);
@@ -324,7 +392,9 @@ public class IssueController {
 
     @GetMapping("/unassign_milestone")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> unassignMilestone(@RequestHeader("Authorization") String token, @RequestParam("issueId") Integer issueId, @RequestParam("milestoneId") Integer milestoneId) {
+    public Result<Boolean> unassignMilestone(@RequestHeader("Authorization") String token,
+                                             @RequestParam("issueId") Integer issueId,
+                                             @RequestParam("milestoneId") Integer milestoneId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
@@ -345,7 +415,8 @@ public class IssueController {
 
     @GetMapping("/close")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> closeIssue(@RequestHeader("Authorization") String token, @RequestParam("issueId") Integer issueId) {
+    public Result<Boolean> closeIssue(@RequestHeader("Authorization") String token,
+                                      @RequestParam("issueId") Integer issueId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {

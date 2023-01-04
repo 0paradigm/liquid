@@ -20,6 +20,8 @@ public interface IssueCommentMapper extends BaseMapper<IssueComment> {
      */
     List<IssueComment> findByIssueId(@Param("issue_id") Integer issueId);
 
+    Integer cntByIssueId(@Param("issue_id") Integer issueId);
+
     /**
      * Delete issue comment by id.
      */

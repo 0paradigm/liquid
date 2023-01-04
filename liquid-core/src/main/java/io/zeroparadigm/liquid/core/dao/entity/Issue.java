@@ -67,7 +67,7 @@ public class Issue implements Serializable {
      */
     @TableField("created_at")
     @NonNull
-    private Long createdTime;
+    private Long createdAt;
 
     /**
      * issue closed

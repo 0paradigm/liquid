@@ -40,4 +40,10 @@
         WHERE `repo` = #{repo_id}
           AND LOWER(`name`) like LOWER(concat('%',#{name,jdbcType=VARCHAR},'%'));
     </select>
+    <select id="listAllLabelsOfIssue" resultType="io.zeroparadigm.liquid.core.dao.entity.IssueLabelDisp">
+        SELECT *
+        FROM `t_ds_v2_issue_label`
+        WHERE `repo_id` = #{repo_id}
+          AND `issue_display_id` = #{issue_display_id};
+    </select>
 </mapper>

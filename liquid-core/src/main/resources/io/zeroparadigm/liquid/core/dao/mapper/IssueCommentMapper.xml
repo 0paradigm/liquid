@@ -27,4 +27,10 @@
         FROM `t_ds_issue_comment`
         WHERE `id` = #{id};
     </select>
+
+    <select id="cntByIssueId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `t_ds_issue_comment`
+        WHERE `issue` = #{issue_id};
+    </select>
 </mapper>
