@@ -28,7 +28,8 @@
             `company`          = #{company},
             `location`         = #{location},
             `phone`            = #{phone},
-            `updated_at`       = #{updated_at}
+            `updated_at`       = #{updated_at},
+            `name`             = #{name}
         WHERE `id` = #{id};
     </update>
 

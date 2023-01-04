@@ -155,20 +155,14 @@ public class RepoController {
         return Result.success(true);
     }
 
-    @GetMapping("/add_collaborator")
-    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> addCollaborator(@RequestHeader("Authorization") String token,
-                                           @RequestParam("repoId") Integer repoId,
-                                           @RequestParam("userId") Integer userId) {
-        Integer usrId = jwtService.getUserId(token);
-        User usr = userMapper.findById(usrId);
-        Repo repo = repoMapper.findById(repoId);
-        User user = userMapper.findById(userId);
-        if (Objects.isNull(usr) || Objects.isNull(user) || Objects.isNull(repo) ||
-            !repo.getOwner().equals(usrId)) {
-            return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
-        }
-        repoMapper.addCollaborator(repoId, userId);
+    @GetMapping("/add_collaborator/{owner}/{repo}")
+    @WrapsException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
+    public Result<Boolean> addCollaborator(@PathVariable("owner") String owner,
+                                           @PathVariable("repo") String repoName,
+                                           @RequestParam("colab") String colabName) {
+        Repo repo = repoMapper.findByOwnerAndName(owner, repoName);
+        User user = userMapper.findByNameOrMail(colabName);
+        repoMapper.addCollaborator(repo.getId(), user.getId());
         return Result.success(true);
     }
 
@@ -182,34 +176,53 @@ public class RepoController {
         return Result.success();
     }
 
-    @GetMapping("/remove_collaborator")
-    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> removeCollaborator(@RequestHeader("Authorization") String token,
-                                              @RequestParam("repoId") Integer repoId,
-                                              @RequestParam("userId") Integer userId) {
-        Integer usrId = jwtService.getUserId(token);
-        User usr = userMapper.findById(usrId);
-        Repo repo = repoMapper.findById(repoId);
-        User user = userMapper.findById(userId);
-        if (Objects.isNull(usr) || Objects.isNull(user) || Objects.isNull(repo) ||
-            !repo.getOwner().equals(usrId)) {
-            return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
-        }
-        repoMapper.removeCollaborator(repoId, userId);
+    @GetMapping("/remove_collaborator/{owner}/{repo}")
+    @WrapsException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
+    public Result<Boolean> removeCollaborator(@PathVariable("owner") String owner,
+                                              @PathVariable("repo") String repoName,
+                                              @RequestParam("colab") String colabName) {
+        Repo repo = repoMapper.findByOwnerAndName(owner, repoName);
+        User user = userMapper.findByNameOrMail(colabName);
+        repoMapper.removeCollaborator(repo.getId(), user.getId());
         return Result.success(true);
     }
 
-    @GetMapping("/get_collaborator")
-    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<List<User>> getCollaborators(@RequestHeader("Authorization") String token,
-                                               @RequestParam("repoId") Integer repoId) {
-        Integer usrId = jwtService.getUserId(token);
-        User user = userMapper.findById(usrId);
-        if (Objects.isNull(user)) {
-            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+    @GetMapping("/addable_collaborator/{owner}/{repo}")
+    @WrapsException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
+    public Result<List<String>> getAddableCollaborator(@PathVariable("owner") String owner,
+                                                       @PathVariable("repo") String repoName) {
+        Repo repo = repoMapper.findByOwnerAndName(owner, repoName);
+        List<String> collaborators = repoMapper.listCollaborators(repo.getId()).stream()
+            .map(User::getLogin).toList();
+        List<String> allUsers = userMapper.listAll().stream()
+            .map(User::getLogin).toList();
+        allUsers = new ArrayList<>(allUsers);
+        allUsers.removeAll(collaborators);
+        allUsers.remove(owner);
+        return Result.success(allUsers);
+    }
+
+    @GetMapping("/get_collaborator/{owner}/{repo}")
+    @WrapsException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
+    public Result<List<String>> getCollaborators(@PathVariable("owner") String owner,
+                                                 @PathVariable("repo") String repoName) {
+        var repo = repoMapper.findByOwnerAndName(owner, repoName);
+        List<User> collaborators = repoMapper.listCollaborators(repo.getId());
+        return Result.success(collaborators.stream().map(User::getLogin).toList());
+    }
+
+    @GetMapping("/is_collaborator/{owner}/{repo}")
+    @WrapsException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
+    public Result<Boolean> isCollaborator(@PathVariable("owner") String owner,
+                                          @PathVariable("repo") String repoName,
+                                          @RequestParam("colab") String colab) {
+        if (owner.equals(colab)) {
+            return Result.success(true);
         }
-        List<User> collaborators = repoMapper.listCollaborators(repoId);
-        return Result.success(collaborators);
+        var repo = repoMapper.findByOwnerAndName(owner, repoName);
+        List<User> collaborators = repoMapper.listCollaborators(repo.getId());
+        return Result.success(
+            collaborators.stream().anyMatch(user -> user.getLogin().equals(colab)));
     }
 
     @GetMapping("/set_public")
@@ -268,38 +281,26 @@ public class RepoController {
     }
 
     // star, forked name, fork, watch      description language
-    @GetMapping("/search")
-    @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
-    public Result<List<RepoDto>> findRepoByName(@RequestHeader("Authorization") String token,
-                                                @RequestParam("name") String name) {
-        Integer userId = jwtService.getUserId(token);
-        User usr = userMapper.findById(userId);
-        if (Objects.isNull(usr)) {
-            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
-        }
-        List<Repo> repos = repoMapper.findByName(userId, name);
-        if (Objects.isNull(repos)) {
-            return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
-        }
-        List<RepoDto> repoDtos = new ArrayList<>();
-        for (int i = 0; i < repos.size(); i++) {
-            String forkedFrom = null;
-            if (repos.get(i).getForkedFrom() != null) {
-                Repo repo = repoMapper.findById(repos.get(i).getForkedFrom());
-                if (!Objects.isNull(repo)) {
-                    User owner = userMapper.findById(repo.getOwner());
-                    forkedFrom = owner.getLogin() + "/" + repo.getName();
-                }
+    @GetMapping("/meta/{owner}/{repo}")
+    @WrapsException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
+    public Result<RepoDto> findRepoByName(@PathVariable("owner") String owner,
+                                                @PathVariable("repo") String name) {
+        Repo repo = repoMapper.findByOwnerAndName(owner, name);
+        String forkedFrom = null;
+        if (repo.getForkedFrom() != null) {
+            Repo repo1 = repoMapper.findById(repo.getForkedFrom());
+            if (!Objects.isNull(repo1)) {
+                User owner1 = userMapper.findById(repo.getOwner());
+                forkedFrom = owner1.getLogin() + "/" + repo1.getName();
             }
-            Integer star = repoMapper.countStarers(repos.get(i).getId());
-            Integer fork = repoMapper.countForks(repos.get(i).getId());
-            Integer watch = repoMapper.countWatchers(repos.get(i).getId());
-            repoDtos.add(new RepoDto(repos.get(i).getId(), usr.getLogin(), repos.get(i).getName(),
-                repos.get(i).getDescription(), repos.get(i).getLanguage(), forkedFrom,
-                repos.get(i).getPrivated(),
-                star, fork, watch));
         }
-        return Result.success(repoDtos);
+        Integer star = repoMapper.countStarers(repo.getId());
+        Integer fork = repoMapper.countForks(repo.getId());
+        Integer watch = repoMapper.countWatchers(repo.getId());
+        var dto = new RepoDto(repo.getId(), owner, repo.getName(),
+                repo.getDescription(), repo.getLanguage(), forkedFrom,
+                repo.getPrivated(), star, fork, watch);
+        return Result.success(dto);
     }
 
     @GetMapping("count_star")

@@ -55,7 +55,7 @@ public enum ServiceStatus {
     PHONE_NOT_REGISTERED(2003, "Phone is not registered", "该手机号未注册"),
 
     // general errors
-    INTERNAL_SERVER_ERROR_ARGS(10000, "Internal server error: {0}", "服务端异常: {0}"),
+    INTERNAL_SERVER_ERROR_ARGS(10000, "Internal server error", "服务端异常"),
     REQUEST_PARAMS_NOT_VALID_ERROR(10001, "Request parameter {0} is not valid", "请求参数[{0}]无效"),
 
     // git errors

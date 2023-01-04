@@ -277,6 +277,8 @@ public class GitWebController {
         return Result.success(gitBasicService.listBranches(owner, repo));
     }
 
+
+
     @ResponseBody
     @PostMapping("/internal/v1/sync/{owner}/{repo}")
     public void updateCaches(@PathVariable String owner, @PathVariable String repo) {

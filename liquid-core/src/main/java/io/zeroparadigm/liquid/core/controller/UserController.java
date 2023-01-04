@@ -106,6 +106,7 @@ public class UserController {
     public Result<Boolean> updateUser(@RequestHeader("Authorization") String token,
                                       @Nullable @RequestParam("twitter_username")
                                       String twitter_username,
+                                      @Nullable @RequestParam("name") String name,
                                       @Nullable @RequestParam("bio") String bio,
                                       @Nullable @RequestParam("company") String company,
                                       @Nullable @RequestParam("location") String location,
@@ -115,7 +116,7 @@ public class UserController {
         if (Objects.isNull(user)) {
             return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
         }
-        userMapper.updateUserById(userId, twitter_username, bio, company, location, phone,
+        userMapper.updateUserById(userId, twitter_username, bio, company, name, location, phone,
             System.currentTimeMillis());
         return Result.success();
     }

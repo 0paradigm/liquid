@@ -64,7 +64,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @return
      */
     void updateUserById(@Param("id") Integer id, @Nullable @Param("twitter_username") String twitter_username,
-                    @Nullable @Param("bio") String bio, @Nullable @Param("company") String company,
+                    @Nullable @Param("bio") String bio, @Nullable @Param("company") String company, @Nullable @Param("name") String name,
                     @Nullable @Param("location") String location, @Nullable @Param("phone") String phone,
                         @Param("updated_at") Long updated_at);
 
