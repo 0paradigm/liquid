@@ -24,9 +24,11 @@ import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import io.zeroparadigm.liquid.git.service.GitWebService;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,9 +47,17 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.BranchConfig;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
@@ -402,6 +412,75 @@ public class GitWebServiceImpl implements GitWebService {
             return List.of();
         }
     }
+
+    @Override
+    public List<String> listFilesChangesOfCommit(String owner,
+                                                 String repo,
+                                                 String sha1,
+                                                 @Nullable String relPath)
+        throws IOException, GitAPIException {
+        relPath =
+            URLDecoder.decode(Objects.requireNonNullElse(relPath, ""), StandardCharsets.UTF_8);
+        File repoRoot = selectCache(owner, repo);
+        File repoFs = Path.of(repoRoot.getPath(), relPath).toFile();
+
+        if (!repoFs.exists()) {
+            throw new FileNotFoundException(repoFs.getCanonicalPath());
+        }
+        List<String> changes = new ArrayList<>();
+        try (Git git = Git.open(repoRoot)) {
+            ObjectId commitId = ObjectId.fromString(sha1);
+            RevWalk revWalk = new RevWalk(git.getRepository());
+
+            RevCommit headCommit = revWalk.parseCommit(commitId);
+            RevCommit diffWith = headCommit.getParent(0);
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            DiffFormatter diffFormatter = new DiffFormatter(out);
+            diffFormatter.setRepository(git.getRepository());
+
+            for (DiffEntry entry : diffFormatter.scan(diffWith, headCommit)) {
+                diffFormatter.format(diffFormatter.toFileHeader(entry));
+                changes.add(out.toString());
+                // Is it correct to flush the stream?
+                diffFormatter.flush();
+                out.flush();
+            }
+        }
+        return changes;
+    }
+
+    @Override
+    public List<String> findBranchCommit(String owner,
+                                         String repo,
+                                         String branchOrCommit,
+                                         @Nullable String relPath)
+        throws IOException, GitAPIException {
+        relPath =
+            URLDecoder.decode(Objects.requireNonNullElse(relPath, ""), StandardCharsets.UTF_8);
+        File repoRoot = selectCache(owner, repo);
+        File repoFs = Path.of(repoRoot.getPath(), relPath).toFile();
+
+        if (!repoFs.exists()) {
+            throw new FileNotFoundException(repoFs.getCanonicalPath());
+        }
+        List<String> commits = new ArrayList<>();
+        try (Git git = Git.open(repoRoot)) {
+            Iterable<RevCommit> logs = git.log()
+                .not(git.getRepository().resolve("master"))
+                // Is revstr right
+                .add(git.getRepository().resolve("origin/" + branchOrCommit))
+                .call();
+            for (RevCommit rev : logs) {
+                commits.add(rev.toString());
+            }
+        } catch (RefNotFoundException e) {
+            log.error("branch not found", e);
+            return List.of();
+        }
+        return commits;
+    }
+
 
     Tika tika = new Tika();
 

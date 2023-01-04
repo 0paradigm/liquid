@@ -29,7 +29,7 @@ import java.util.Objects;
 @Slf4j
 @RestController
 @RequestMapping("/api/pr")
-public class PRContoller {
+public class PRController {
 
     @Autowired
     UserDao userDao;
