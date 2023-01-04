@@ -30,9 +30,14 @@
         (#{display_id}, #{repo_id}, #{opener}, #{title}, #{createdTime}, #{closed});
     </insert>
 
+    <insert id="addLabel">
+        INSERT INTO `t_ds_v2_issue_label`
+        VALUES (#{repo}, #{issue_id}, #{tag}, #{color});
+    </insert>
+
     <update id="closeIssue">
         UPDATE `t_ds_issue`
-        SET `closed` = 1
+        SET `closed` = ${closed}
         WHERE `id` = #{issue_id};
     </update>
 

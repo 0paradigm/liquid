@@ -225,35 +225,6 @@ public class RepoController {
             collaborators.stream().anyMatch(user -> user.getLogin().equals(colab)));
     }
 
-    @GetMapping("/set_public")
-    @WrapsException(ServiceStatus.METHOD_NOT_ALLOWED)
-    public Result<Boolean> setPublic(@RequestHeader("Authorization") String token,
-                                     @RequestParam("repoId") Integer repoId) {
-        Integer usrId = jwtService.getUserId(token);
-        User user = userMapper.findById(usrId);
-        Repo repo = repoMapper.findById(repoId);
-        if (Objects.isNull(user) || Objects.isNull(repo) || !repo.getOwner().equals(usrId)) {
-            return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
-        }
-        repoMapper.setPublic(repoId);
-        return Result.success(true);
-    }
-
-    @GetMapping("/set_private")
-    @WrapsException(ServiceStatus.METHOD_NOT_ALLOWED)
-    public Result<Boolean> setPrivate(@RequestHeader("Authorization") String token,
-                                      @RequestParam("repoId") Integer repoId) {
-        Integer usrId = jwtService.getUserId(token);
-        User user = userMapper.findById(usrId);
-        Repo repo = repoMapper.findById(repoId);
-        if (Objects.isNull(user) || Objects.isNull(repo) || !repo.getOwner().equals(usrId)) {
-            return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
-        }
-        repoMapper.setPrivate(repoId);
-        return Result.success(true);
-    }
-
-
     @GetMapping("/find")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Repo> findRepoByOwnerIdAndName(@RequestHeader("Authorization") String token,

@@ -16,6 +16,7 @@ import io.zeroparadigm.liquid.core.dao.mapper.*;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -62,33 +63,63 @@ public class IssueController {
     @Autowired
     IssueCommentMapper issueCommentMapper;
 
-    @GetMapping("/new")
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NewIssueDTO {
+        String title;
+        List<TagDTO> tags;
+        String submitStr;
+    }
+
+    @Data
+    public static class TagDTO {
+        String content;
+        String color;
+    }
+
+    @PostMapping("/new/{owner}/{repo}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<Boolean> newIssue(@RequestHeader("Authorization") String token,
-                                    @RequestParam("display_id") Integer displayId,
-                                    @RequestParam("repo_id") Integer repoId,
-                                    @RequestParam("title") String title,
-                                    @RequestParam("closed") Boolean closed) {
+                                    @PathVariable("owner") String owner,
+                                    @PathVariable("repo") String repoName,
+                                    @RequestBody NewIssueDTO dto) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
-        issueMapper.createIssue(displayId, repoId, userId, title, System.currentTimeMillis(),
-            closed);
+        var repo = repoMapper.findByOwnerAndName(owner, repoName);
+        var issueId = issueMapper.findByRepoId(repo.getId()).size() + 1;
+        log.info("{}", dto);
+        log.info("issueId: {}", issueId);
+        issueMapper.createIssue(issueId, repo.getId(), userId, dto.getTitle(),
+            System.currentTimeMillis(), false);
+        for (var tag : dto.getTags()) {
+            issueMapper.addLabel(repo.getId(), issueId, tag.getContent(), tag.getColor());
+        }
+        issueCommentMapper.createIssueComment(repo.getId(), issueId, userId, dto.getSubmitStr(),
+            System.currentTimeMillis());
         return Result.success(true);
     }
 
-    @GetMapping("/comment")
+    @Data
+    public static class AddCmtDTO {
+        String ctx;
+    }
+
+    @PostMapping("/comment/{owner}/{repo}/{issueId}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<Boolean> commentIssue(@RequestHeader("Authorization") String token,
-                                        @RequestParam("repo_id") Integer repoId,
-                                        @RequestParam("issue_id") Integer issueId,
-                                        @RequestParam("content") String content) {
+                                        @PathVariable("owner") String owner,
+                                        @PathVariable("repo") String repoName,
+                                        @PathVariable("issueId") Integer issueId,
+                                        @RequestBody AddCmtDTO dto) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
-        issueCommentMapper.createIssueComment(repoId, issueId, userId, content,
+        var repo = repoMapper.findByOwnerAndName(owner, repoName);
+        issueCommentMapper.createIssueComment(repo.getId(), issueId, userId, dto.getCtx(),
             System.currentTimeMillis());
         return Result.success(true);
     }
@@ -145,15 +176,72 @@ public class IssueController {
         return Result.success(issues);
     }
 
-    @GetMapping("/search_by_ids")
+
+    @Data
+    @Builder
+    public static class IssueDetailDTO {
+        String title;
+        Boolean isOpening;
+        String openBy;
+        Long openAt;
+        List<IssueEventDTO> events;
+        List<String> participants;
+    }
+
+    @Data
+    @Builder
+    public static class IssueEventDTO {
+        String ctx;
+        String author;
+        String cred;
+        Long time;
+    }
+
+    @GetMapping("/details/{owner}/{repo}/{displayId}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Issue> findByIds(@RequestParam("displayId") Integer displayedId,
-                                   @RequestParam("repoId") Integer repoId) {
-        Issue issues = issueMapper.findByDisplayedIdandRepoId(displayedId, repoId);
-        if (Objects.isNull(issues)) {
-            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
-        }
-        return Result.success(issues);
+    public Result<IssueDetailDTO> findByIds(@PathVariable("owner") String owner,
+                                            @PathVariable("repo") String repoName,
+                                            @PathVariable("displayId") Integer displayId) {
+        var repo = repoMapper.findByOwnerAndName(owner, repoName);
+        var issue = issueMapper.findByDisplayedIdandRepoId(displayId, repo.getId());
+        var events = issueCommentMapper.findByIssueId(issue.getId());
+        List<IssueEventDTO> eventDTOs = events.stream()
+            .map(event -> {
+                    var author = userMapper.findById(event.getAuthor());
+                    var isOwner = owner.equals(author.getLogin());
+                    var isColab = false;
+                    var isContributor = false;
+                    if (!isOwner) {
+                        List<User> collaborators = repoMapper.listCollaborators(repo.getId());
+                        isColab = collaborators.stream().anyMatch(user -> user.getId().equals(author.getId()));
+                    }
+                    if (!isOwner && !isColab) {
+                        List<User> conts = repoMapper.listContributors(repo.getId());
+                        isContributor = conts.stream().anyMatch(user -> user.getId().equals(author.getId()));
+                    }
+                    return IssueEventDTO.builder()
+                        .author(author.getLogin())
+                        .ctx(event.getComment())
+                        .cred(isOwner ? "Owner" : isColab ? "Collaborator" : isContributor ? "Contributor" : "")
+                        .time(Long.parseLong(event.getCreatedAt()))
+                        .build();
+                }
+            )
+            .toList();
+        List<String> parts = events.stream()
+            .map(IssueComment::getAuthor)
+            .distinct()
+            .map(id -> userMapper.findById(id).getLogin())
+            .toList();
+        IssueDetailDTO dto = IssueDetailDTO.builder()
+            .title(issue.getTitle())
+            .isOpening(!issue.getClosed())
+            .openBy(userMapper.findById(issue.getOpener()).getLogin())
+            .openAt(issue.getCreatedAt())
+            .events(eventDTOs)
+            .participants(parts)
+            .build();
+        return Result.success(dto);
     }
 
     @Data
@@ -177,7 +265,7 @@ public class IssueController {
     @GetMapping("/issuelist/{owner}/{repo}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result listIssueByRepoId(@PathVariable String owner,
-                                                 @PathVariable String repo) {
+                                    @PathVariable String repo) {
         var id = repoMapper.findByOwnerAndName(owner, repo).getId();
         List<Issue> issues = issueMapper.findByRepoId(id);
 
@@ -289,18 +377,15 @@ public class IssueController {
                                          @RequestParam("assigneeId") Integer assigneeId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
-//        log.info("user: {}", user);
         if (Objects.isNull(user)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         Issue issue = issueMapper.findById(issueId);
-//        log.info("issue: {}", issue);
         if (Objects.isNull(issue)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
         List<User> assignee = issueMapper.findAssigneeById(issueId);
         Boolean flag = false;
-//        log.info("assignee: {}", assignee);
         for (int i = 0; i < assignee.size(); i++) {
             if (assignee.get(i).getId().equals(assigneeId)) {
                 flag = true;
@@ -312,7 +397,6 @@ public class IssueController {
         }
         Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
         Repo repo = repoMapper.findById(issue.getRepo());
-//        log.info("repo: {}", repo);
 
         if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
@@ -413,26 +497,19 @@ public class IssueController {
         return Result.success(true);
     }
 
-    @GetMapping("/close")
+    @GetMapping("/setclose/{owner}/{repo}/{issue}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<Boolean> closeIssue(@RequestHeader("Authorization") String token,
-                                      @RequestParam("issueId") Integer issueId) {
+                                      @PathVariable("owner") String owner,
+                                      @PathVariable("repo") String repoName,
+                                      @PathVariable("issue") Integer issueDisplayId,
+                                      @RequestParam("close") Boolean close) {
         Integer userId = jwtService.getUserId(token);
-        User user = userMapper.findById(userId);
-        if (Objects.isNull(user)) {
-            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
-        }
-        Issue issue = issueMapper.findById(issueId);
-        if (Objects.isNull(issue)) {
-            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
-        }
-        Boolean auth = repoMapper.verifyAuth(userId, issue.getRepo());
-        Repo repo = repoMapper.findById(issue.getRepo());
-        if (Objects.isNull(repo) || (!auth && !repo.getOwner().equals(userId))) {
-            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
-        }
-        issueMapper.closeIssue(issueId);
+        var repo = repoMapper.findByOwnerAndName(owner, repoName);
+        Issue issue = issueMapper.findByDisplayedIdandRepoId(issueDisplayId, repo.getId());
+        issueMapper.closeIssue(issue.getId(), close);
+        issueCommentMapper.createIssueComment(repo.getId(), issueDisplayId, userId,
+            close ? "[[[close]]]" : "[[[reopen]]]", System.currentTimeMillis());
         return Result.success(true);
     }
-
 }

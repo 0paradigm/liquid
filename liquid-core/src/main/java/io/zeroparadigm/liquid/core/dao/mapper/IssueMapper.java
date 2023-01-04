@@ -29,6 +29,8 @@ public interface IssueMapper extends BaseMapper<Issue> {
                      @Param("opener") Integer opener, @Param("title") String title, @Param("createdTime") Long createdTime,
                      @Param("closed") Boolean closed);
 
+    void addLabel(@Param("repo") Integer repoId, @Param("issue_id") Integer displayId, @Param("tag") String tag, @Param("color") String color);
+
     /**
      * Gets issue by id.
      *
@@ -154,7 +156,7 @@ public interface IssueMapper extends BaseMapper<Issue> {
      * Close issue
      * @param issueId issue id
      */
-    void closeIssue(@Param("issue_id") Integer issueId);
+    void closeIssue(@Param("issue_id") Integer issueId, @Param("closed") Boolean closed);
 
     /**
      * Assign issue to milestone
