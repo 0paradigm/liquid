@@ -425,10 +425,10 @@ public class GitWebServiceImpl implements GitWebService {
         Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
      */
     @Override
-    public String changesOfCommit(String owner,
-                                  String repo,
-                                  String branch,
-                                  String sha1
+    public List<Map<String, String>> changesOfCommit(String owner,
+                                                     String repo,
+                                                     String branch,
+                                                     String sha1
     )
         throws IOException, GitAPIException {
         File repoRoot = selectCache(owner, repo);
@@ -442,19 +442,20 @@ public class GitWebServiceImpl implements GitWebService {
             diffFormatter.setRepository(git.getRepository());
             List<DiffEntry> diffEntries = diffFormatter.scan(diffWith, headCommit);
             ObjectReader objectReader = git.getRepository().newObjectReader();
-            Map<String, String> changes = new HashMap<>();
+            List<Map<String, String>> changes = new ArrayList<>();
             for (DiffEntry entry : diffEntries) {
                 Map<String, String> tmp = new HashMap<>();
                 byte[] oldContent = objectReader.open(entry.getOldId().toObjectId()).getBytes();
                 byte[] newContent = objectReader.open(entry.getNewId().toObjectId()).getBytes();
-                tmp.put("oldValue", new String(oldContent));
-                tmp.put("newValue", new String(newContent));
-                changes.put(entry.getNewPath(), JSON.toJSONString(tmp));
+                tmp.put("file", entry.getNewPath());
+                tmp.put("old", new String(oldContent));
+                tmp.put("new", new String(newContent));
+                changes.add(tmp);
             }
-            return JSON.toJSONString(changes);
+            return changes;
         } catch (Exception e) {
             log.error("Exception: ", e);
-            return "";
+            return List.of();
         }
 
     }

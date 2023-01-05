@@ -58,7 +58,7 @@ public interface GitWebService {
     List<LatestCommitInfo> listFiles(String owner, String repo, String branchOrCommit,
                                      @Nullable String relPath) throws IOException, GitAPIException;
 
-    String changesOfCommit(String owner, String repo, String branch, String sha1
+    List<Map<String, String>> changesOfCommit(String owner, String repo, String branch, String sha1
     ) throws IOException, GitAPIException;
 
     List<String> findBranchCommit(String owner, String repo, String branchOrCommit

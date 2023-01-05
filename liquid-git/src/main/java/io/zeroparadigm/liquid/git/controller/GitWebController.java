@@ -38,6 +38,7 @@ import io.zeroparadigm.liquid.git.service.GitWebService;
 import java.io.IOException;
 import java.util.List;
 
+import java.util.Map;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -300,12 +301,12 @@ public class GitWebController {
 
     @GetMapping("/diff/{owner}/{repo}")
     @ApiOperation(value = "diff", notes = "Return is JSON String")
-    public Result<String> diff(@PathVariable String owner,
+    public Result<List<Map<String, String>>> diff(@PathVariable String owner,
                                @PathVariable String repo,
                                @RequestParam String branch,
                                @RequestParam String sha){
         try{
-            String res = gitWebService.changesOfCommit(owner, repo, branch, sha);
+            List<Map<String, String>> res = gitWebService.changesOfCommit(owner, repo, branch, sha);
             return Result.success(res);
         }catch (Exception e){
             log.error("list commits error", e);
