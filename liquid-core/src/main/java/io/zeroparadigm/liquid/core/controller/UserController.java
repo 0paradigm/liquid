@@ -343,7 +343,7 @@ public class UserController {
             Integer star = repoMapper.countStarers(repos.get(i).getId());
             Integer fork = repoMapper.countForks(repos.get(i).getId());
             Integer watch = repoMapper.countWatchers(repos.get(i).getId());
-            repoDtos.add(new RepoDto(repos.get(i).getId(), login, repos.get(i).getName(),
+            repoDtos.add(new RepoDto(repos.get(i).getId(), userMapper.findById(repos.get(i).getOwner()).getLogin(), repos.get(i).getName(),
                 repos.get(i).getDescription(), repos.get(i).getLanguage(), forkedFrom,
                 repos.get(i).getPrivated(),
                 star, fork, watch));

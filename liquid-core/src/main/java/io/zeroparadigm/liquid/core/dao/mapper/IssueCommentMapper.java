@@ -22,7 +22,7 @@ public interface IssueCommentMapper extends BaseMapper<IssueComment> {
 
     List<IssueComment> findByRepoIdAndIssueDisplayId(@Param("repo_id") Integer repoId, @Param("issue_display_id") Integer issueDisplayId);
 
-    Integer cntByIssueId(@Param("issue_id") Integer issueId);
+    Integer cntByRepoAndIssueId(@Param("repo_id") Integer repoId, @Param("issue_id") Integer issueId);
 
     /**
      * Delete issue comment by id.

@@ -275,7 +275,7 @@ public class IssueController {
             IssueListDTO dto = IssueListDTO.builder()
                 .id(issue.getDisplayId())
                 .title(issue.getTitle())
-                .cmtCnt(issueCommentMapper.cntByIssueId(issue.getId()))
+                .cmtCnt(issueCommentMapper.cntByRepoAndIssueId(id, issue.getDisplayId()))
                 .openAt(issue.getCreatedAt())
                 .openBy(userMapper.findById(issue.getOpener()).getLogin())
                 .tags(issueLabelMapper.listAllLabelsOfIssue(id, issue.getDisplayId()).stream()

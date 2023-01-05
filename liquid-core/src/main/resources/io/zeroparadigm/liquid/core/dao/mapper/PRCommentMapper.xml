@@ -27,4 +27,11 @@
         FROM `t_ds_pr_comment`
         WHERE `pr` = #{pr_id};
     </select>
+
+    <select id="cntByRepoAndPr" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `t_ds_pr_comment`
+        WHERE `repo` = #{repo_id}
+          AND `pr` = #{pr_id};
+    </select>
 </mapper>

@@ -40,4 +40,11 @@
         WHERE `repo` = #{repo_id}
           AND `issue` = #{issue_display_id};
     </select>
+
+    <select id="cntByRepoAndIssueId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `t_ds_issue_comment`
+        WHERE `repo` = #{repo_id}
+          AND `issue` = #{issue_id};
+    </select>
 </mapper>

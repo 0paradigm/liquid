@@ -93,7 +93,7 @@ public class PRController {
                 .title(pr.getTitle())
                 .openBy(userMapper.findById(pr.getOpener()).getLogin())
                 .openAt(pr.getCreatedAt())
-                .cmtCnt(prCommentMapper.cntByPRId(pr.getId()))
+                .cmtCnt(prCommentMapper.cntByRepoAndPr(repoE.getId(), pr.getDisplayId()))
                 .build()
             ).toList();
         var opens = res.stream()
@@ -104,6 +104,8 @@ public class PRController {
             .toList();
         return Result.success(Map.of("opens", opens, "closes", closes));
     }
+
+
 
     @GetMapping("/get")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
