@@ -54,6 +54,7 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -420,35 +421,42 @@ public class GitWebServiceImpl implements GitWebService {
         }
     }
 
+    /*
+        Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
+     */
     @Override
-    public List<String> listFilesChangesOfCommit(String owner,
+    public String listFilesChangesOfCommit(String owner,
                                                  String repo,
                                                  String sha1
     )
         throws IOException, GitAPIException {
         File repoRoot = selectCache(owner, repo);
-
-        List<String> changes = new ArrayList<>();
         try (Git git = Git.open(repoRoot)) {
             ObjectId commitId = ObjectId.fromString(sha1);
             RevWalk revWalk = new RevWalk(git.getRepository());
 
             RevCommit headCommit = revWalk.parseCommit(commitId);
             RevCommit diffWith = headCommit.getParent(0);
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            DiffFormatter diffFormatter = new DiffFormatter(out);
+            DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
             diffFormatter.setRepository(git.getRepository());
+            List<DiffEntry> diffEntries = diffFormatter.scan(diffWith, headCommit);
+            ObjectReader objectReader = git.getRepository().newObjectReader();
 
-            for (DiffEntry entry : diffFormatter.scan(diffWith, headCommit)) {
-                diffFormatter.format(diffFormatter.toFileHeader(entry));
-                changes.add(out.toString());
-                // Is it correct to flush the stream?
-                diffFormatter.flush();
-                out.flush();
+            Map<String, String> changes = new HashMap<>();
+            for (DiffEntry entry : diffEntries) {
+                Map<String, String> tmp = new HashMap<>();
+                byte[] oldContent = objectReader.open(entry.getOldId().toObjectId()).getBytes();
+                byte[] newContent = objectReader.open(entry.getNewId().toObjectId()).getBytes();
+                tmp.put("oldValue", new String(oldContent));
+                tmp.put("newValue", new String(newContent));
+                changes.put(entry.getNewPath(), JSON.toJSONString(tmp));
             }
+            return JSON.toJSONString(changes);
+        } catch (Exception e) {
+            log.error("Exception: ", e);
+            return "";
         }
-        return changes;
+
     }
 
     @Override
@@ -508,7 +516,10 @@ public class GitWebServiceImpl implements GitWebService {
         }
     }
 
-    public List<String> listFilesChangesOfRepo(String headOwner,
+    /*
+        Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
+     */
+    public String listFilesChangesOfRepo(String headOwner,
                                                String headRepo,
                                                String baseOwner,
                                                String baseRepo)
@@ -526,27 +537,26 @@ public class GitWebServiceImpl implements GitWebService {
                     .iterator().next();
             RevTree newTree = newCommit.getTree();
 
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            DiffFormatter df = new DiffFormatter(out);
+            DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
             df.setRepository(baseGit.getRepository());
-
             df.setDiffComparator(RawTextComparator.DEFAULT);
             df.setDetectRenames(true);
             List<DiffEntry> diffs = df.scan(oldTree, newTree);
+            ObjectReader objectReader = headGit.getRepository().newObjectReader();
 
-            List<String> changes = new ArrayList<>();
+            Map<String, String> changes = new HashMap<>();
             for (DiffEntry diff : diffs) {
-                df.format(df.toFileHeader(diff));
-                df.format(df.toFileHeader(diff));
-                changes.add(out.toString());
-                // Is it correct to flush the stream?
-                df.flush();
-                out.flush();
+                Map<String, String> tmp = new HashMap<>();
+                byte[] oldContent = objectReader.open(diff.getOldId().toObjectId()).getBytes();
+                byte[] newContent = objectReader.open(diff.getNewId().toObjectId()).getBytes();
+                tmp.put("oldValue", new String(oldContent));
+                tmp.put("newValue", new String(newContent));
+                changes.put(diff.getNewPath(), JSON.toJSONString(tmp));
             }
-            return changes;
+            return JSON.toJSONString(changes);
         } catch (RefNotFoundException e) {
             log.error("branch not found", e);
-            return List.of();
+            return "";
         }
     }
 
@@ -670,9 +680,9 @@ public class GitWebServiceImpl implements GitWebService {
 
         try (Git git = Git.open(tmpRepo)) {
             git.checkout().setName(branch).call();
-            RevCommit commit =
-                git.log().add(git.getRepository().resolve(toSha)).setMaxCount(1).call().iterator()
-                    .next();
+            ObjectId commitId = ObjectId.fromString(toSha);
+            RevWalk revWalk = new RevWalk(git.getRepository());
+            RevCommit commit = revWalk.parseCommit(commitId);
             git.checkout().addPath(".").setStartPoint(commit).call();
             git.add().addFilepattern(".").call();
             git.commit()
