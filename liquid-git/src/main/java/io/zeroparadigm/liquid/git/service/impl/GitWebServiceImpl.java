@@ -447,12 +447,20 @@ public class GitWebServiceImpl implements GitWebService {
             List<Map<String, String>> cache = new ArrayList<>();
             for (DiffEntry entry : diffEntries) {
                 Map<String, String> tmp = new HashMap<>();
-                byte[] oldContent = objectReader.open(entry.getOldId().toObjectId()).getBytes();
-                byte[] newContent = objectReader.open(entry.getNewId().toObjectId()).getBytes();
-                tmp.put("file", entry.getNewPath());
-                tmp.put("old", new String(oldContent));
-                tmp.put("new", new String(newContent));
-                cache.add(tmp);
+                try{
+                    byte[] oldContent = objectReader.open(entry.getOldId().toObjectId()).getBytes();
+                    byte[] newContent = objectReader.open(entry.getNewId().toObjectId()).getBytes();
+                    tmp.put("file", entry.getNewPath());
+                    tmp.put("old", new String(oldContent));
+                    tmp.put("new", new String(newContent));
+                    cache.add(tmp);
+                }catch (Exception e){
+                    byte[] newContent = objectReader.open(entry.getNewId().toObjectId()).getBytes();
+                    tmp.put("file", entry.getNewPath());
+                    tmp.put("old", "");
+                    tmp.put("new", new String(newContent));
+                    cache.add(tmp);
+                }
             }
             return handleDiff(cache);
         } catch (Exception e) {
@@ -477,12 +485,20 @@ public class GitWebServiceImpl implements GitWebService {
             List<Map<String, String>> changes = new ArrayList<>();
             for (DiffEntry entry : diffEntries) {
                 Map<String, String> tmp = new HashMap<>();
-                byte[] oldContent = objectReader.open(entry.getOldId().toObjectId()).getBytes();
-                byte[] newContent = objectReader.open(entry.getNewId().toObjectId()).getBytes();
-                tmp.put("file", entry.getNewPath());
-                tmp.put("old", new String(oldContent));
-                tmp.put("new", new String(newContent));
-                changes.add(tmp);
+                try {
+                    byte[] oldContent = objectReader.open(entry.getOldId().toObjectId()).getBytes();
+                    byte[] newContent = objectReader.open(entry.getNewId().toObjectId()).getBytes();
+                    tmp.put("file", entry.getNewPath());
+                    tmp.put("old", new String(oldContent));
+                    tmp.put("new", new String(newContent));
+                    changes.add(tmp);
+                }catch (Exception e){
+                    byte[] newContent = objectReader.open(entry.getNewId().toObjectId()).getBytes();
+                    tmp.put("file", entry.getNewPath());
+                    tmp.put("old", "");
+                    tmp.put("new", new String(newContent));
+                    changes.add(tmp);
+                }
             }
             return changes;
         } catch (Exception e) {
@@ -617,12 +633,20 @@ public class GitWebServiceImpl implements GitWebService {
             List<Map<String, String>> cache = new ArrayList<>();
             for (DiffEntry diff : diffs) {
                 Map<String, String> tmp = new HashMap<>();
-                byte[] oldContent = objectReader.open(diff.getOldId().toObjectId()).getBytes();
-                byte[] newContent = objectReader.open(diff.getNewId().toObjectId()).getBytes();
-                tmp.put("file", diff.getNewPath());
-                tmp.put("old", new String(oldContent));
-                tmp.put("new", new String(newContent));
-                cache.add(tmp);
+                try{
+                    byte[] oldContent = objectReader.open(diff.getOldId().toObjectId()).getBytes();
+                    byte[] newContent = objectReader.open(diff.getNewId().toObjectId()).getBytes();
+                    tmp.put("file", diff.getNewPath());
+                    tmp.put("old", new String(oldContent));
+                    tmp.put("new", new String(newContent));
+                    cache.add(tmp);
+                }catch (Exception e){
+                    byte[] newContent = objectReader.open(diff.getNewId().toObjectId()).getBytes();
+                    tmp.put("file", diff.getNewPath());
+                    tmp.put("old", "");
+                    tmp.put("new", new String(newContent));
+                    cache.add(tmp);
+                }
             }
             return handleDiff(cache);
         } catch (RefNotFoundException e) {
