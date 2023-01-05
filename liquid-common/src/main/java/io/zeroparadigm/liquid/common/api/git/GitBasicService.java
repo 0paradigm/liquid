@@ -18,6 +18,7 @@
 package io.zeroparadigm.liquid.common.api.git;
 
 import io.zeroparadigm.liquid.common.bo.UserBO;
+import io.zeroparadigm.liquid.common.dto.Result;
 import java.io.IOException;
 import java.util.List;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -58,5 +59,7 @@ public interface GitBasicService {
     void deleteRepo(String owner, String repo);
 
     void renameRepo(String owner, String repo, String newRepoName);
+
+    void mergePR(String baseOwner, String baseRepo, String headOwner, String headRepo, String PRTitle)throws IOException, GitAPIException;
 
 }

@@ -62,7 +62,8 @@ public interface GitWebService {
     List<Map<String, Object>> changesOfCommit(String owner, String repo, String branch, String sha1
     ) throws IOException, GitAPIException;
 
-    List<Map<String, String>> changesOfCommitV2(String owner, String repo, String branch, String sha1
+    List<Map<String, String>> changesOfCommitV2(String owner, String repo, String branch,
+                                                String sha1
     ) throws IOException, GitAPIException;
 
     List<String> findBranchCommit(String owner, String repo, String branchOrCommit
@@ -99,6 +100,9 @@ public interface GitWebService {
     }
 
     List<BriefCommitDTO> listCommits(String owner, String repo, String branchOrCommit);
+
+    void mergePR(String baseOwner, String baseRepo, String headOwner, String headRepo,
+                   String PRTitle);
 
     Result webDelete(String owner, String repo, String initBranch, String deleteFile,
                      UserBO committer, String message);

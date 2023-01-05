@@ -23,6 +23,7 @@ import com.alibaba.fastjson.JSON;
 import io.zeroparadigm.liquid.common.api.core.GitMetaService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.common.dto.Result;
+import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import io.zeroparadigm.liquid.git.service.GitWebService;
 import java.io.ByteArrayOutputStream;
@@ -60,6 +61,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.springframework.beans.factory.annotation.Value;
@@ -797,6 +799,22 @@ public class GitWebServiceImpl implements GitWebService {
 
     @Override
     @SneakyThrows
+    public void mergePR(String baseOwner, String baseRepo, String headOwner, String headRepo, String PRTitle){
+        File headRepoRoot = selectCache(headOwner, headRepo);
+        File baseRepoRoot = selectCache(baseOwner, baseRepo);
+        try (Git headGit = Git.open(headRepoRoot); Git baseGit = Git.open(baseRepoRoot)){
+            baseGit.remoteAdd().setName("head").setUri(new URIish(headRepoRoot.toURI().toString())).call();
+            baseGit.pull().setRemote("head").setRemoteBranchName("master").call();
+            baseGit.commit().setMessage(PRTitle).call();
+            updateCaches(baseOwner, baseRepo);
+        }catch (GitAPIException e){
+            log.error("error deleting branch", e);
+            throw e;
+        }
+    }
+
+    @Override
+    @SneakyThrows
     public Result branchDelete(String owner, String repo, String initBranch) {
         try (Git git = Git.open(Path.of(gitStorage, owner, repo).toFile())) {
             git.branchDelete()
@@ -867,4 +885,6 @@ public class GitWebServiceImpl implements GitWebService {
                 .build();
         }
     }
+
+
 }

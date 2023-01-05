@@ -131,8 +131,11 @@ services:
       - liquid
     ports:
       - "8004:8004"  # liquid git api
+      - "5006:5006"  #debug port
     volumes:
       - liquid-git-storage:/storage
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8004/actuator/health" ]
       interval: 10s

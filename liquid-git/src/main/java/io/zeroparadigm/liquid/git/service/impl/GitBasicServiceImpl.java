@@ -19,6 +19,7 @@ package io.zeroparadigm.liquid.git.service.impl;
 
 import io.zeroparadigm.liquid.common.api.git.GitBasicService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
+import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.git.exceptions.RepositoryAlreadyExistsException;
 import io.zeroparadigm.liquid.git.service.GitWebService;
 import java.io.File;
@@ -460,6 +461,12 @@ public class GitBasicServiceImpl implements GitBasicService {
         }
     }
 
+    @Override
+    @SneakyThrows
+    public void mergePR(String baseOwner, String baseRepo, String headOwner, String headRepo, String PRTitle)throws IOException, GitAPIException{
+        gitWebService.mergePR(baseOwner, baseRepo, headOwner, headRepo, PRTitle);
+    }
+
     public static MultipartFile createMfileByPath(String path, String ctx) {
         MultipartFile mFile = null;
         try {
@@ -476,4 +483,5 @@ public class GitBasicServiceImpl implements GitBasicService {
         }
         return mFile;
     }
+
 }

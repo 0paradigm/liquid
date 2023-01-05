@@ -2,6 +2,7 @@ package io.zeroparadigm.liquid.core.controller;
 
 import io.swagger.annotations.Api;
 import io.zeroparadigm.liquid.common.api.auth.JWTService;
+import io.zeroparadigm.liquid.common.api.git.GitBasicService;
 import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
@@ -12,11 +13,13 @@ import io.zeroparadigm.liquid.core.dao.entity.PRComment;
 import io.zeroparadigm.liquid.core.dao.entity.Repo;
 import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.dao.mapper.*;
+import java.io.IOException;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +42,9 @@ public class PRController {
 
     @DubboReference(parameters = {"unicast", "false"})
     JWTService jwtService;
+
+    @DubboReference(parameters = {"unicast", "false"})
+    GitBasicService gitBasicService;
 
     @Autowired
     RepoMapper repoMapper;
@@ -275,18 +281,25 @@ public class PRController {
                         @PathVariable("displayId") Integer displayId,
                         @RequestHeader("Authorization") String token) {
         Integer userId = jwtService.getUserId(token);
-        var repo = repoMapper.findByOwnerAndName(owner, repoName);
-        PR pr = prMapper.findByRepoIdAndDisplayedId(repo.getId(), displayId);
+        var baseRepo = repoMapper.findByOwnerAndName(owner, repoName);
+        PR pr = prMapper.findByRepoIdAndDisplayedId(baseRepo.getId(), displayId);
+        var headRepo = repoMapper.findById(pr.getHead());
+        var user = userMapper.findById(headRepo.getOwner());
 
-
-        // TODO: call git api to merge this pr, can get more detailed info by `PR` object
+        try{
+            gitBasicService.mergePR(owner, repoName, user.getName(), headRepo.getName(), pr.getTitle());
+        } catch (Exception e) {
+            prMapper.setClosed(pr.getId(), true);
+            return Result.error(ServiceStatus.GIT_REPO_NOT_FOUND);
+        }
 
         prMapper.setClosed(pr.getId(), true);
         prCommentMapper.createPRComment(
-            repo.getId(), pr.getDisplayId(), userId,
+            baseRepo.getId(), pr.getDisplayId(), userId,
             "[[[merge]]]",
             System.currentTimeMillis()
         );
         return Result.success();
     }
+
 }
