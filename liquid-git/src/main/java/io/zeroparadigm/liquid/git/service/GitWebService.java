@@ -62,13 +62,16 @@ public interface GitWebService {
     List<Map<String, Object>> changesOfCommit(String owner, String repo, String branch, String sha1
     ) throws IOException, GitAPIException;
 
+    List<Map<String, String>> changesOfCommitV2(String owner, String repo, String branch, String sha1
+    ) throws IOException, GitAPIException;
+
     List<String> findBranchCommit(String owner, String repo, String branchOrCommit
     ) throws IOException, GitAPIException;
 
-    String diffOfRepo(String headOwner,
-                                  String headRepo,
-                                  String baseOwner,
-                                  String baseRepo)
+    List<Map<String, Object>> diffOfRepo(String headOwner,
+                                         String headRepo,
+                                         String baseOwner,
+                                         String baseRepo)
         throws IOException, GitAPIException;
 
     List<BriefCommitDTO> listPRCommit(String headOwner,

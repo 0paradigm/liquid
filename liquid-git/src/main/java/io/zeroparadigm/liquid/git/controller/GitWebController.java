@@ -315,6 +315,21 @@ public class GitWebController {
         }
     }
 
+    @GetMapping("/diffV2/{owner}/{repo}")
+    @ApiOperation(value = "diff2", notes = "Return is JSON String")
+    public Result<List<Map<String, String>>> diffV2(@PathVariable String owner,
+                                                  @PathVariable String repo,
+                                                  @RequestParam String branch,
+                                                  @RequestParam String sha){
+        try{
+            List<Map<String, String>> res = gitWebService.changesOfCommitV2(owner, repo, branch, sha);
+            return Result.success(res);
+        }catch (Exception e){
+            log.error("Diff error", e);
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
+    }
+
     @ResponseBody
     @PostMapping("/internal/v1/sync/{owner}/{repo}")
     public void updateCaches(@PathVariable String owner, @PathVariable String repo) {
@@ -336,6 +351,21 @@ public class GitWebController {
                                                                   @RequestParam("base_repo") String baseRepo){
         try{
             List<GitWebService.BriefCommitDTO> list = gitWebService.listPRCommit(headOwner, headRepo, baseOwner, baseRepo);
+            return Result.success(list);
+        }catch (Exception e){
+            log.error("List commits error", e);
+            return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
+        }
+    }
+
+    @GetMapping("/getPRDiff")
+    @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
+    public Result<List<Map<String, Object>>> getPRDiff(@RequestParam("head_owner") String headOwner,
+                                                                  @RequestParam("head_repo") String headRepo,
+                                                                  @RequestParam("base_owner") String baseOwner,
+                                                                  @RequestParam("base_repo") String baseRepo){
+        try{
+            List<Map<String, Object>> list = gitWebService.diffOfRepo(headOwner, headRepo, baseOwner, baseRepo);
             return Result.success(list);
         }catch (Exception e){
             log.error("List commits error", e);

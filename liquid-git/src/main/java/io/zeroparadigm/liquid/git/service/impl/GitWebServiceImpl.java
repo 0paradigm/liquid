@@ -457,7 +457,36 @@ public class GitWebServiceImpl implements GitWebService {
             log.error("Exception: ", e);
             return List.of();
         }
+    }
 
+    public List<Map<String, String>> changesOfCommitV2(String owner, String repo, String branch, String sha1
+    ) throws IOException, GitAPIException{
+        File repoRoot = selectCache(owner, repo);
+        try (Git git = Git.open(repoRoot)) {
+            git.checkout().setName(branch).call();
+            ObjectId commitId = ObjectId.fromString(sha1);
+            RevWalk revWalk = new RevWalk(git.getRepository());
+            RevCommit headCommit = revWalk.parseCommit(commitId);
+            RevCommit diffWith = headCommit.getParent(0);
+            DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
+            diffFormatter.setRepository(git.getRepository());
+            List<DiffEntry> diffEntries = diffFormatter.scan(diffWith, headCommit);
+            ObjectReader objectReader = git.getRepository().newObjectReader();
+            List<Map<String, String>> changes = new ArrayList<>();
+            for (DiffEntry entry : diffEntries) {
+                Map<String, String> tmp = new HashMap<>();
+                byte[] oldContent = objectReader.open(entry.getOldId().toObjectId()).getBytes();
+                byte[] newContent = objectReader.open(entry.getNewId().toObjectId()).getBytes();
+                tmp.put("file", entry.getNewPath());
+                tmp.put("old", new String(oldContent));
+                tmp.put("new", new String(newContent));
+                changes.add(tmp);
+            }
+            return changes;
+        } catch (Exception e) {
+            log.error("Exception: ", e);
+            return List.of();
+        }
     }
 
     private List<Map<String, Object>> handleDiff(List<Map<String, String>> data) {
@@ -559,7 +588,7 @@ public class GitWebServiceImpl implements GitWebService {
     /*
         Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
      */
-    public String diffOfRepo(String headOwner,
+    public List<Map<String, Object>> diffOfRepo(String headOwner,
                                          String headRepo,
                                          String baseOwner,
                                          String baseRepo)
@@ -583,20 +612,20 @@ public class GitWebServiceImpl implements GitWebService {
             df.setDetectRenames(true);
             List<DiffEntry> diffs = df.scan(oldTree, newTree);
             ObjectReader objectReader = headGit.getRepository().newObjectReader();
-
-            Map<String, String> changes = new HashMap<>();
+            List<Map<String, String>> cache = new ArrayList<>();
             for (DiffEntry diff : diffs) {
                 Map<String, String> tmp = new HashMap<>();
                 byte[] oldContent = objectReader.open(diff.getOldId().toObjectId()).getBytes();
                 byte[] newContent = objectReader.open(diff.getNewId().toObjectId()).getBytes();
-                tmp.put("oldValue", new String(oldContent));
-                tmp.put("newValue", new String(newContent));
-                changes.put(diff.getNewPath(), JSON.toJSONString(tmp));
+                tmp.put("file", diff.getNewPath());
+                tmp.put("old", new String(oldContent));
+                tmp.put("new", new String(newContent));
+                cache.add(tmp);
             }
-            return JSON.toJSONString(changes);
+            return handleDiff(cache);
         } catch (RefNotFoundException e) {
             log.error("branch not found", e);
-            return "";
+            return List.of();
         }
     }
 
@@ -688,35 +717,35 @@ public class GitWebServiceImpl implements GitWebService {
         String taskId = String.valueOf(System.currentTimeMillis());
         File tmpRepo =
             Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
-        if (Files.notExists(tmpRepo.toPath())) {
-            File originalRepo = Path.of(gitStorage, owner, repo).toFile();
-
-            boolean originAlreadyInit;
-            try (Git origin = Git.open(originalRepo)) {
-                originAlreadyInit = !origin.branchList().call().isEmpty();
-
-            } catch (Exception e) {
-                log.error("error fetching branch list of remote {}/{}", owner, repo, e);
-                originAlreadyInit = false;
-            }
-
-            if (originAlreadyInit) {
-                Git.cloneRepository()
-                    .setURI(originalRepo.toURI().toString())
-                    .setDirectory(tmpRepo)
-                    .setBranchesToClone(Collections.singleton("refs/heads/" + branch))
-                    .setBranch(branch)
-                    .call()
-                    .close();
-            } else {
-                Git.cloneRepository()
-                    .setURI(originalRepo.toURI().toString())
-                    .setDirectory(tmpRepo)
-                    .setBranch(branch)
-                    .call()
-                    .close();
-            }
-        }
+//        if (Files.notExists(tmpRepo.toPath())) {
+//            File originalRepo = Path.of(gitStorage, owner, repo).toFile();
+//
+//            boolean originAlreadyInit;
+//            try (Git origin = Git.open(originalRepo)) {
+//                originAlreadyInit = !origin.branchList().call().isEmpty();
+//
+//            } catch (Exception e) {
+//                log.error("error fetching branch list of remote {}/{}", owner, repo, e);
+//                originAlreadyInit = false;
+//            }
+//
+//            if (originAlreadyInit) {
+//                Git.cloneRepository()
+//                    .setURI(originalRepo.toURI().toString())
+//                    .setDirectory(tmpRepo)
+//                    .setBranchesToClone(Collections.singleton("refs/heads/" + branch))
+//                    .setBranch(branch)
+//                    .call()
+//                    .close();
+//            } else {
+//                Git.cloneRepository()
+//                    .setURI(originalRepo.toURI().toString())
+//                    .setDirectory(tmpRepo)
+//                    .setBranch(branch)
+//                    .call()
+//                    .close();
+//            }
+//        }
 
         try (Git git = Git.open(tmpRepo)) {
             git.checkout().setName(branch).call();
