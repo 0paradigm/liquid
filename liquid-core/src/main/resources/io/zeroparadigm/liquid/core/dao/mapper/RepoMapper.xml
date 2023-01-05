@@ -15,8 +15,12 @@
     </insert>
 
     <insert id="addContributor">
-        INSERT IGNORE INTO `t_ds_v3_repo_contributors` (`repo_id`, `user_login`)
-        VALUES (#{repoId}, #{userId});
+        INSERT
+        IGNORE INTO `t_ds_v3_repo_contributors` (`repo_id`, `user_login`)
+        VALUES (
+        #{repoId},
+        #{userId}
+        );
     </insert>
 
     <update id="setAuth">
@@ -91,6 +95,12 @@
         WHERE `repo` = ${id};
     </select>
 
+    <insert id="addStarer">
+        INSERT INTO `t_rel_user_star`
+            (`user`, `repo`)
+        VALUES (#{userId}, #{repoId});
+    </insert>
+
     <select id="listStarers" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
         SELECT *
         FROM `t_ds_user`
@@ -102,6 +112,30 @@
         FROM `t_rel_user_watch`
         WHERE `repo` = ${id};
     </select>
+
+
+    <insert id="addWatcher">
+        INSERT
+        IGNORE INTO `t_rel_user_watch` (`repo`, `user`)
+        VALUES (
+        #{repoId},
+        #{userId}
+        );
+    </insert>
+
+    <delete id="removeWatcher">
+        DELETE
+        FROM `t_rel_user_watch`
+        WHERE `repo` = #{repoId}
+          AND `user` = #{userId};
+    </delete>
+
+    <delete id="deleteStarer">
+        DELETE
+        FROM `t_rel_user_star`
+        WHERE `repo` = #{repoId}
+          AND `user` = #{userId};
+    </delete>
 
     <select id="listWatchers" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
         SELECT *

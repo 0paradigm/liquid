@@ -15,6 +15,9 @@ import io.zeroparadigm.liquid.core.dao.mapper.RepoMapper;
 import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
 import io.zeroparadigm.liquid.core.dto.RepoDto;
 import java.util.ArrayList;
+import java.util.Map;
+import lombok.Builder;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -122,7 +125,8 @@ public class RepoController {
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Boolean> create(@RequestHeader("Authorization") String token,
                                   @RequestParam("name") String name,
-                                  @RequestParam("forkedId") Integer forkedId,
+                                  @RequestParam(value = "forkedId", required = false)
+                                  String forkedStr,
                                   @RequestParam("description") String description,
                                   @RequestParam("language") String language,
                                   @RequestParam("private") Boolean privat,
@@ -133,16 +137,19 @@ public class RepoController {
         if (Objects.isNull(user)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
+        Repo fromRepo = null;
         try {
-            if (forkedId <= -1) {
+            if (forkedStr == null) {
                 gitBasicService.createRepo(user.getLogin(), name, "master");
             } else {
-                Repo fromRepo = Objects.requireNonNull(repoMapper.findById(forkedId));
+                var ownerAndName = forkedStr.split("/");
+                fromRepo = Objects.requireNonNull(
+                    repoMapper.findByOwnerAndName(ownerAndName[0], ownerAndName[1]));
                 gitBasicService.forkRepo(
                     Objects.requireNonNull(userMapper.findById(fromRepo.getOwner())).getLogin(),
                     fromRepo.getName(),
                     user.getLogin(),
-                    fromRepo.getName());
+                    name);
             }
             List<String> addFiles = new ArrayList<>(2);
             if (readme) {
@@ -163,7 +170,14 @@ public class RepoController {
             log.error("create repo error", e);
             return Result.error(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS, e.getMessage());
         }
-        repoMapper.createRepo(userId, name, forkedId <= -1 ? null : forkedId, description, language,
+        if (description == null || description.isEmpty()) {
+            description = fromRepo == null ? "" : fromRepo.getDescription();
+        }
+        if (language == null || language.isEmpty()) {
+            language = fromRepo == null ? "" : fromRepo.getLanguage();
+        }
+        repoMapper.createRepo(userId, name, fromRepo == null ? null : fromRepo.getId(), description,
+            language,
             privat);
         return Result.success(true);
     }
@@ -274,7 +288,7 @@ public class RepoController {
         if (repo.getForkedFrom() != null) {
             Repo repo1 = repoMapper.findById(repo.getForkedFrom());
             if (!Objects.isNull(repo1)) {
-                User owner1 = userMapper.findById(repo.getOwner());
+                User owner1 = userMapper.findById(repo1.getOwner());
                 forkedFrom = owner1.getLogin() + "/" + repo1.getName();
             }
         }
@@ -324,45 +338,89 @@ public class RepoController {
         return Result.success(count);
     }
 
-    @GetMapping("/list_starers")
-    @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
-    public Result<List<User>> listStarers(@RequestParam("repoId") Integer repoId) {
-        List<User> user = repoMapper.listStarers(repoId);
-        return Result.success(user);
+    @GetMapping("/list_starers/{owner}/{repo}")
+    public Result<List<String>> listStarers(@PathVariable("owner") String owner,
+                                            @PathVariable("repo") String repoName) {
+        Repo repo = repoMapper.findByOwnerAndName(owner, repoName);
+        List<User> user = repoMapper.listStarers(repo.getId());
+        var res = user.stream().map(User::getLogin).toList();
+        return Result.success(res);
     }
 
-    @GetMapping("/list_watchers")
-    @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
-    public Result<List<User>> listWatchers(@RequestParam("repoId") Integer repoId) {
-        List<User> user = repoMapper.listWatchers(repoId);
-        return Result.success(user);
+    @GetMapping("/list_watchers/{owner}/{repo}")
+    public Result<List<String>> listWatchers(@PathVariable("owner") String owner,
+                                             @PathVariable("repo") String repoName) {
+        Repo repo = repoMapper.findByOwnerAndName(owner, repoName);
+        List<User> user = repoMapper.listWatchers(repo.getId());
+        var res = user.stream().map(User::getLogin).toList();
+        return Result.success(res);
     }
 
-    @GetMapping("/list_forks")
-    @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
-    public Result<List<RepoDto>> listForks(@RequestParam("repoId") Integer repoId) {
-        List<Repo> repos = repoMapper.listForks(repoId);
-//        log.info("testing list forks ..... repos " + repos);
-        List<RepoDto> repoDtos = new ArrayList<>();
-        for (int i = 0; i < repos.size(); i++) {
-            String forkedFrom = null;
-            if (repos.get(i).getForkedFrom() != null) {
-                Repo repo = repoMapper.findById(repos.get(i).getForkedFrom());
-                if (!Objects.isNull(repo)) {
-                    User owner = userMapper.findById(repo.getOwner());
-                    forkedFrom = owner.getLogin() + "/" + repo.getName();
-                }
-            }
-            Integer star = repoMapper.countStarers(repos.get(i).getId());
-            Integer fork = repoMapper.countForks(repos.get(i).getId());
-            Integer watch = repoMapper.countWatchers(repos.get(i).getId());
-            String owner = userMapper.findById(repos.get(i).getOwner()).getLogin();
-            repoDtos.add(new RepoDto(repos.get(i).getId(), owner, repos.get(i).getName(),
-                repos.get(i).getDescription(), repos.get(i).getLanguage(), forkedFrom,
-                repos.get(i).getPrivated(),
-                star, fork, watch));
+    @GetMapping("/toggle_watch/{owner}/{repo}")
+    public Result toggleWatch(@RequestHeader("Authorization") String token,
+                              @PathVariable("owner") String owner,
+                              @PathVariable("repo") String repoName) {
+        Integer userId = jwtService.getUserId(token);
+        Repo repo = repoMapper.findByOwnerAndName(owner, repoName);
+        var isWatching = repoMapper.listWatchers(repo.getId()).stream()
+            .anyMatch(user -> user.getId().equals(userId));
+        if (isWatching) {
+            repoMapper.removeWatcher(repo.getId(), userId);
+            return Result.success(Map.of(
+                "msg", String.format("You unwatched %s/%s", owner, repoName),
+                "cnt", repoMapper.countWatchers(repo.getId())
+            ));
+        } else {
+            repoMapper.addWatcher(repo.getId(), userId);
+            return Result.success(Map.of(
+                "msg", String.format("Start watching %s/%s", owner, repoName),
+                "cnt", repoMapper.countWatchers(repo.getId())
+            ));
         }
-        return Result.success(repoDtos);
+    }
+
+    @GetMapping("/toggle_star/{owner}/{repo}")
+    public Result toggleStar(@RequestHeader("Authorization") String token,
+                             @PathVariable("owner") String owner,
+                             @PathVariable("repo") String repoName) {
+        Integer userId = jwtService.getUserId(token);
+        Repo repo = repoMapper.findByOwnerAndName(owner, repoName);
+        var isStarring = repoMapper.listStarers(repo.getId()).stream()
+            .anyMatch(user -> user.getId().equals(userId));
+        if (isStarring) {
+            repoMapper.deleteStarer(repo.getId(), userId);
+            return Result.success(Map.of(
+                "msg", String.format("You unstarred %s/%s", owner, repoName),
+                "cnt", repoMapper.countStarers(repo.getId())
+            ));
+        } else {
+            repoMapper.addStarer(repo.getId(), userId);
+            return Result.success(Map.of(
+                "msg", String.format("You starred %s/%s", owner, repoName),
+                "cnt", repoMapper.countStarers(repo.getId())
+            ));
+        }
+    }
+
+    @Data
+    @Builder
+    public static class ListForkDTO {
+        String owner;
+        String name;
+    }
+
+    @GetMapping("/list_forks/{owner}/{repo}")
+    public Result<List<ListForkDTO>> listForks(@PathVariable("owner") String owner,
+                                               @PathVariable("repo") String repoName) {
+        var repo = repoMapper.findByOwnerAndName(owner, repoName);
+        List<Repo> repos = repoMapper.listForks(repo.getId());
+        var dtos = repos.stream().map(r ->
+            ListForkDTO.builder()
+                .owner(userMapper.findById(r.getOwner()).getLogin())
+                .name(r.getName())
+                .build()
+        ).toList();
+        return Result.success(dtos);
     }
 
     @GetMapping("/delete")

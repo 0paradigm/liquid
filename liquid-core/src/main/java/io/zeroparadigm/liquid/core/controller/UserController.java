@@ -32,6 +32,7 @@ import io.zeroparadigm.liquid.core.dao.mapper.RepoMapper;
 import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
 import io.zeroparadigm.liquid.core.dto.RepoDto;
 import java.util.ArrayList;
+import java.util.Comparator;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -256,17 +257,32 @@ public class UserController {
     }
 
     // forked from
-    @GetMapping("/repo")
+    @GetMapping("/repo/{user}")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<List<RepoDto>> getRepo(@RequestHeader("Authorization") String token) {
+    public Result<List<RepoDto>> getRepo(@PathVariable("user") String login,
+                                         @RequestHeader("Authorization") String token) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
-        User usr = userMapper.findById(userId);
-        List<Repo> repos = userMapper.listUserRepos(usr.getLogin());
+
+        List<Repo> repos = userMapper.listUserRepos(login);
         List<RepoDto> repoDtos = new ArrayList<>();
         for (int i = 0; i < repos.size(); i++) {
+
+            boolean canAccess = !repos.get(i).getPrivated();
+            if (!canAccess && Objects.nonNull(userId)) {
+                canAccess = repos.get(i).getOwner().equals(userId);
+                if (!canAccess) {
+                    List<User> collaborators = repoMapper.listCollaborators(repos.get(i).getId());
+                    canAccess =
+                        collaborators.stream().anyMatch(user -> user.getId().equals(userId));
+                }
+            }
+            if (!canAccess) {
+                continue;
+            }
+
             String forkedFrom = null;
             if (repos.get(i).getForkedFrom() != null) {
                 Repo repo = repoMapper.findById(repos.get(i).getForkedFrom());
@@ -279,11 +295,60 @@ public class UserController {
             Integer star = repoMapper.countStarers(repos.get(i).getId());
             Integer fork = repoMapper.countForks(repos.get(i).getId());
             Integer watch = repoMapper.countWatchers(repos.get(i).getId());
-            repoDtos.add(new RepoDto(repos.get(i).getId(), usr.getLogin(), repos.get(i).getName(),
+            repoDtos.add(new RepoDto(repos.get(i).getId(), login, repos.get(i).getName(),
                 repos.get(i).getDescription(), repos.get(i).getLanguage(), forkedFrom,
                 repos.get(i).getPrivated(),
                 star, fork, watch));
         }
+        repoDtos.sort((o1, o2) -> -o1.getId().compareTo(o2.getId()));
+        return Result.success(repoDtos);
+    }
+
+    // forked from
+    @GetMapping("/stars/{user}")
+    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
+    public Result<List<RepoDto>> getStars(@PathVariable("user") String login,
+                                          @RequestHeader("Authorization") String token) {
+        Integer userId = jwtService.getUserId(token);
+        if (Objects.isNull(userId)) {
+            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
+        }
+
+        List<Repo> repos = userMapper.listStarredRepos(userMapper.findByNameOrMail(login).getId());
+        List<RepoDto> repoDtos = new ArrayList<>();
+        for (int i = 0; i < repos.size(); i++) {
+
+            boolean canAccess = !repos.get(i).getPrivated();
+            if (!canAccess && Objects.nonNull(userId)) {
+                canAccess = repos.get(i).getOwner().equals(userId);
+                if (!canAccess) {
+                    List<User> collaborators = repoMapper.listCollaborators(repos.get(i).getId());
+                    canAccess =
+                        collaborators.stream().anyMatch(user -> user.getId().equals(userId));
+                }
+            }
+            if (!canAccess) {
+                continue;
+            }
+
+            String forkedFrom = null;
+            if (repos.get(i).getForkedFrom() != null) {
+                Repo repo = repoMapper.findById(repos.get(i).getForkedFrom());
+                if (!Objects.isNull(repo)) {
+                    User owner = userMapper.findById(repo.getOwner());
+                    forkedFrom = owner.getLogin() + "/" + repo.getName();
+                }
+            }
+            log.info("user/repo: repo is " + repos.get(i));
+            Integer star = repoMapper.countStarers(repos.get(i).getId());
+            Integer fork = repoMapper.countForks(repos.get(i).getId());
+            Integer watch = repoMapper.countWatchers(repos.get(i).getId());
+            repoDtos.add(new RepoDto(repos.get(i).getId(), login, repos.get(i).getName(),
+                repos.get(i).getDescription(), repos.get(i).getLanguage(), forkedFrom,
+                repos.get(i).getPrivated(),
+                star, fork, watch));
+        }
+        repoDtos.sort((o1, o2) -> -o1.getStarCount().compareTo(o2.getStarCount()));
         return Result.success(repoDtos);
     }
 

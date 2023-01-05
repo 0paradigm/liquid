@@ -20,7 +20,6 @@ _sched.start()
 
 @auth.get_password
 def verify(username):
-    print('username', username)
     return req.get(app.config['AUTH_API'] + '/passwd', params={'username': username}).text
 
 
@@ -38,6 +37,11 @@ def sync_repo(full):
         wrapper,
         args=(full,)
     )
+
+
+def add_contrib(to):
+    print(f"{app.config['CONTRIB_API']}/{to}/{auth.current_user()}")
+    print(req.get(f"{app.config['CONTRIB_API']}/{to}/{auth.current_user()}").text)
 
 
 @app.route('/<string:owner>/<string:repo_name>/git-upload-pack', methods=['POST'])
@@ -85,6 +89,7 @@ def git_info_refs(owner, repo_name):
     resp = make_response(first_line + res.decode())
     resp.headers['Content-Type'] = 'application/x-git-%s-advertisement' % service_name
     sync_repo(repo_name)
+    add_contrib(repo_name)
     return resp
 
 

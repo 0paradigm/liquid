@@ -449,7 +449,7 @@ public class GitBasicServiceImpl implements GitBasicService {
         try (
             Git git = Git.cloneRepository()
                 .setBare(true)
-                .setURI(Path.of(gitStorage, fromOwner, fromRepo).toString())
+                .setURI(Path.of(gitStorage, fromOwner, fromRepo).toUri().toString())
                 .setDirectory(repoPath.toFile())
                 .call()) {
             log.info("repo forked: {}", git.toString());

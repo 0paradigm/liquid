@@ -13,6 +13,7 @@ GIT_STORE = "../liquid-git/storage/git"
 GIT_CACHE_STORE = "../liquid-git/storage/git-cache"
 AUTH_API = "http://localhost:8002/internal/v1/auth"
 SYNC_API = "http://localhost:8004/web/internal/v1/sync"
+CONTRIB_API = "http://localhost:8002/api/repo/addcontributor"
 
 # docker
 if os.environ.get("GITD_ENV") == 'DOCKER':
@@ -20,3 +21,4 @@ if os.environ.get("GITD_ENV") == 'DOCKER':
     GIT_CACHE_STORE = "/storage/git-cache"
     AUTH_API = "http://liquid-core:8002/internal/v1/auth"
     SYNC_API = "http://liquid-git:8004/web/internal/v1/sync"
+    CONTRIB_API = "http://liquid-core:8002/api/repo/addcontributor"

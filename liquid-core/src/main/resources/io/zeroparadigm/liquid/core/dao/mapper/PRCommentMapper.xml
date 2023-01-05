@@ -21,4 +21,10 @@
         FROM `t_ds_pr_comment`
         WHERE `pr` = #{pr_id};
     </select>
+
+    <select id="cntByPRId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `t_ds_pr_comment`
+        WHERE `pr` = #{pr_id};
+    </select>
 </mapper>

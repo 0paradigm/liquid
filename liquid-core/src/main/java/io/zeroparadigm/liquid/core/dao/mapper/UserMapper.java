@@ -135,6 +135,8 @@ public interface UserMapper extends BaseMapper<User> {
     @Nullable
     List<Repo> listUserRepos(@Param("user") String login);
 
+    List<Repo> listStarredRepos(@Param("user") Integer user);
+
     /**
      * Fuzzy search using login or main.
      */

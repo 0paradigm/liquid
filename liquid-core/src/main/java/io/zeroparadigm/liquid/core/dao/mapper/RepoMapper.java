@@ -116,11 +116,19 @@ public interface RepoMapper extends BaseMapper<Repo> {
     @Nullable
     List<User> listStarers(@Param("id") Integer repoId);
 
+    void addStarer(@Param("repoId") Integer repoId, @Param("userId") Integer userId);
+
+    void deleteStarer(@Param("repoId") Integer repoId, @Param("userId") Integer userId);
+
     /**
      *  Count watchers.
      */
     @Nullable
     Integer countWatchers(@Param("id") Integer repoId);
+
+    void addWatcher(@Param("repoId") Integer repoId, @Param("userId") Integer userId);
+
+    void removeWatcher(@Param("repoId") Integer repoId, @Param("userId") Integer userId);
 
     /**
      * List watchers.

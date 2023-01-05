@@ -110,4 +110,12 @@
           AND `user` = #{uid};
     </select>
 
+    <select id="listStarredRepos" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
+        SELECT *
+        FROM `t_ds_repo`
+        WHERE `id` IN (SELECT `repo`
+                       FROM `t_rel_user_star`
+                       WHERE `user` = #{user});
+    </select>
+
 </mapper>

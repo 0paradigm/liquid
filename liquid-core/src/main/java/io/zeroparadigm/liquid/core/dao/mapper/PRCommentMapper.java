@@ -20,6 +20,8 @@ public interface PRCommentMapper extends BaseMapper<PRComment> {
      */
     List<PRComment> findByPRId(@Param("pr_id") Integer prId);
 
+    Integer cntByPRId(@Param("pr_id") Integer prId);
+
     /**
      * Delete pr comment by id.
      */

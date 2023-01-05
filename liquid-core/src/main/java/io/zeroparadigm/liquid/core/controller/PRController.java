@@ -11,9 +11,11 @@ import io.zeroparadigm.liquid.core.dao.entity.PR;
 import io.zeroparadigm.liquid.core.dao.entity.PRComment;
 import io.zeroparadigm.liquid.core.dao.entity.Repo;
 import io.zeroparadigm.liquid.core.dao.mapper.*;
+import java.util.Map;
+import lombok.Builder;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,10 +53,12 @@ public class PRController {
 
     @GetMapping("/new")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> newPR(@RequestHeader("Authorization") String token, @RequestParam("display_id") Integer displayId,
+    public Result<Boolean> newPR(@RequestHeader("Authorization") String token,
+                                 @RequestParam("display_id") Integer displayId,
                                  @RequestParam("repo_id") Integer repoId,
-                                 @RequestParam("title") String title, @RequestParam("head") Integer head,
-                                 @RequestParam("base") Integer base){
+                                 @RequestParam("title") String title,
+                                 @RequestParam("head") Integer head,
+                                 @RequestParam("base") Integer base) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -63,9 +67,48 @@ public class PRController {
         return Result.success(true);
     }
 
+    @Data
+    @Builder
+    public static class PrListDTO {
+        Integer id;
+        Boolean isClosed;
+        String title;
+        String openBy;
+        Long openAt;
+        Integer cmtCnt;
+    }
+
+    @GetMapping("/list/{owner}/{repo}")
+    public Result listPr(@PathVariable("owner") String owner,
+                                          @PathVariable("repo") String repo) {
+        Repo repoE = repoMapper.findByOwnerAndName(owner, repo);
+        if (Objects.isNull(repoE)) {
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
+        var prs = prMapper.findByRepoId(repoE.getId());
+        var res = prs.stream()
+            .map(pr -> PrListDTO.builder()
+                .id(pr.getDisplayId())
+                .isClosed(pr.getClosed())
+                .title(pr.getTitle())
+                .openBy(userMapper.findById(pr.getOpener()).getLogin())
+                .openAt(pr.getCreatedAt())
+                .cmtCnt(prCommentMapper.cntByPRId(pr.getId()))
+                .build()
+            ).toList();
+        var opens = res.stream()
+            .filter(pr -> !pr.getIsClosed())
+            .toList();
+        var closes = res.stream()
+            .filter(pr -> pr.getIsClosed())
+            .toList();
+        return Result.success(Map.of("opens", opens, "closes", closes));
+    }
+
     @GetMapping("/get")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<List<PR>> getPR(@RequestParam("repo_id") Integer repoId){
+
+    public Result<List<PR>> getPR(@RequestParam("repo_id") Integer repoId) {
         Repo repo = repoMapper.findById(repoId);
         if (Objects.isNull(repo)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
@@ -76,7 +119,7 @@ public class PRController {
 
     @GetMapping("/get_by_user")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<List<PR>> getPRByUser(@RequestHeader("Authorization") String token){
+    public Result<List<PR>> getPRByUser(@RequestHeader("Authorization") String token) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -87,7 +130,8 @@ public class PRController {
 
     @GetMapping("/getByClosed")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<List<PR>> getPRByClosed(@RequestParam("repo_id") Integer repoId, @RequestParam("closed") Boolean closed){
+    public Result<List<PR>> getPRByClosed(@RequestParam("repo_id") Integer repoId,
+                                          @RequestParam("closed") Boolean closed) {
         Repo repo = repoMapper.findById(repoId);
         if (Objects.isNull(repo)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
@@ -98,7 +142,9 @@ public class PRController {
 
     @GetMapping("/setClosed")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> setClosed(@RequestHeader("Authorization") String token, @RequestParam("pr_id") Integer prId, @RequestParam("closed") Boolean closed) {
+    public Result<Boolean> setClosed(@RequestHeader("Authorization") String token,
+                                     @RequestParam("pr_id") Integer prId,
+                                     @RequestParam("closed") Boolean closed) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -108,7 +154,8 @@ public class PRController {
         if (Objects.isNull(pr)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
-        if (!pr.getOpener().equals(userId) || !Objects.requireNonNull(repo).getOwner().equals(userId)) {
+        if (!pr.getOpener().equals(userId) ||
+            !Objects.requireNonNull(repo).getOwner().equals(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
         prMapper.setClosed(prId, closed);
@@ -118,7 +165,7 @@ public class PRController {
 
     @GetMapping("/get_comment")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<List<PRComment>> getPRComment(@RequestParam("pr_id") Integer prId){
+    public Result<List<PRComment>> getPRComment(@RequestParam("pr_id") Integer prId) {
         PR pr = prMapper.findById(prId);
         if (Objects.isNull(pr)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
@@ -129,8 +176,10 @@ public class PRController {
 
     @GetMapping("/new_comment")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> newPRComment(@RequestHeader("Authorization") String token, @RequestParam("repo_id") Integer repoId,
-                                        @RequestParam("pr_id") Integer prId, @RequestParam("content") String content) {
+    public Result<Boolean> newPRComment(@RequestHeader("Authorization") String token,
+                                        @RequestParam("repo_id") Integer repoId,
+                                        @RequestParam("pr_id") Integer prId,
+                                        @RequestParam("content") String content) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
