@@ -20,6 +20,8 @@ public interface IssueCommentMapper extends BaseMapper<IssueComment> {
      */
     List<IssueComment> findByIssueId(@Param("issue_id") Integer issueId);
 
+    List<IssueComment> findByRepoIdAndIssueDisplayId(@Param("repo_id") Integer repoId, @Param("issue_display_id") Integer issueDisplayId);
+
     Integer cntByIssueId(@Param("issue_id") Integer issueId);
 
     /**

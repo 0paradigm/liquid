@@ -204,7 +204,7 @@ public class IssueController {
                                             @PathVariable("displayId") Integer displayId) {
         var repo = repoMapper.findByOwnerAndName(owner, repoName);
         var issue = issueMapper.findByDisplayedIdandRepoId(displayId, repo.getId());
-        var events = issueCommentMapper.findByIssueId(issue.getId());
+        var events = issueCommentMapper.findByRepoIdAndIssueDisplayId(repo.getId(), displayId);
         List<IssueEventDTO> eventDTOs = events.stream()
             .map(event -> {
                     var author = userMapper.findById(event.getAuthor());
@@ -278,7 +278,7 @@ public class IssueController {
                 .cmtCnt(issueCommentMapper.cntByIssueId(issue.getId()))
                 .openAt(issue.getCreatedAt())
                 .openBy(userMapper.findById(issue.getOpener()).getLogin())
-                .tags(issueLabelMapper.listAllLabelsOfIssue(id, issue.getId()).stream()
+                .tags(issueLabelMapper.listAllLabelsOfIssue(id, issue.getDisplayId()).stream()
                     .map(label -> IssueTagDTO.builder()
                         .content(label.getLabel())
                         .color(label.getColor())
