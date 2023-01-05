@@ -49,12 +49,16 @@ import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
@@ -413,17 +417,11 @@ public class GitWebServiceImpl implements GitWebService {
     @Override
     public List<String> listFilesChangesOfCommit(String owner,
                                                  String repo,
-                                                 String sha1,
-                                                 @Nullable String relPath)
+                                                 String sha1
+    )
         throws IOException, GitAPIException {
-        relPath =
-            URLDecoder.decode(Objects.requireNonNullElse(relPath, ""), StandardCharsets.UTF_8);
         File repoRoot = selectCache(owner, repo);
-        File repoFs = Path.of(repoRoot.getPath(), relPath).toFile();
 
-        if (!repoFs.exists()) {
-            throw new FileNotFoundException(repoFs.getCanonicalPath());
-        }
         List<String> changes = new ArrayList<>();
         try (Git git = Git.open(repoRoot)) {
             ObjectId commitId = ObjectId.fromString(sha1);
@@ -450,17 +448,11 @@ public class GitWebServiceImpl implements GitWebService {
     @Override
     public List<String> findBranchCommit(String owner,
                                          String repo,
-                                         String branchOrCommit,
-                                         @Nullable String relPath)
+                                         String branchOrCommit
+    )
         throws IOException, GitAPIException {
-        relPath =
-            URLDecoder.decode(Objects.requireNonNullElse(relPath, ""), StandardCharsets.UTF_8);
         File repoRoot = selectCache(owner, repo);
-        File repoFs = Path.of(repoRoot.getPath(), relPath).toFile();
 
-        if (!repoFs.exists()) {
-            throw new FileNotFoundException(repoFs.getCanonicalPath());
-        }
         List<String> commits = new ArrayList<>();
         try (Git git = Git.open(repoRoot)) {
             Iterable<RevCommit> logs = git.log()
@@ -476,6 +468,44 @@ public class GitWebServiceImpl implements GitWebService {
             return List.of();
         }
         return commits;
+    }
+
+    public List<String> listFilesChangesOfRepo(String headOwner,
+                                               String headRepo,
+                                               String baseOwner,
+                                               String baseRepo)
+        throws IOException, GitAPIException {
+        File headRepoRoot = selectCache(headOwner, headRepo);
+        File baseRepoRoot = selectCache(baseOwner, baseRepo);
+        try (Git headGit = Git.open(headRepoRoot); Git baseGit = Git.open(baseRepoRoot)) {
+            RevCommit oldCommit = baseGit.log().add(baseGit.getRepository().resolve("HEAD")).setMaxCount(1).call().iterator().next();
+            RevTree oldTree = oldCommit.getTree();
+
+            RevCommit newCommit = headGit.log().add(headGit.getRepository().resolve("HEAD")).setMaxCount(1).call().iterator().next();
+            RevTree newTree = newCommit.getTree();
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            DiffFormatter df = new DiffFormatter(out);
+            df.setRepository(baseGit.getRepository());
+
+            df.setDiffComparator(RawTextComparator.DEFAULT);
+            df.setDetectRenames(true);
+            List<DiffEntry> diffs = df.scan(oldTree, newTree);
+
+            List<String> changes = new ArrayList<>();
+            for (DiffEntry diff : diffs) {
+                df.format(df.toFileHeader(diff));
+                df.format(df.toFileHeader(diff));
+                changes.add(out.toString());
+                // Is it correct to flush the stream?
+                df.flush();
+                out.flush();
+            }
+            return changes;
+        } catch (RefNotFoundException e) {
+            log.error("branch not found", e);
+            return List.of();
+        }
     }
 
 
