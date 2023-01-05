@@ -278,6 +278,18 @@ public class GitWebController {
     }
 
 
+    @GetMapping("/listcommits/{owner}/{repo}/{branchOrCommit}")
+    public Result<List<GitWebService.BriefCommitDTO>> listCommits(@PathVariable String owner,
+                                                                  @PathVariable String repo,
+                                                                  @PathVariable
+                                                                  String branchOrCommit) {
+        try {
+            return Result.success(gitWebService.listCommits(owner, repo, branchOrCommit));
+        } catch (Exception e) {
+            log.error("list commits error", e);
+            return Result.success(List.of());
+        }
+    }
 
     @ResponseBody
     @PostMapping("/internal/v1/sync/{owner}/{repo}")

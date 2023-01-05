@@ -17,31 +17,31 @@
 
 package io.zeroparadigm.liquid.git.service;
 
-import com.alibaba.fastjson.JSON;
 import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.common.dto.Result;
 import java.io.IOException;
 import java.util.List;
 
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public interface GitWebService {
 
-    String uploadFile(String owner, String repo, String fromBranch, MultipartFile file, @Nullable String relPath,
+    String uploadFile(String owner, String repo, String fromBranch, MultipartFile file,
+                      @Nullable String relPath,
                       String taskId) throws IOException, GitAPIException;
 
     void commit(String owner, String repo, @Nullable String toBranch, String taskId,
-                @Nullable List<String> addFiles, String message, @Nullable UserBO committer) throws IOException, GitAPIException;
+                @Nullable List<String> addFiles, String message, @Nullable UserBO committer)
+        throws IOException, GitAPIException;
 
     /**
      * Lists the file/dir names with git info.
@@ -58,19 +58,31 @@ public interface GitWebService {
                                      @Nullable String relPath) throws IOException, GitAPIException;
 
     List<String> listFilesChangesOfCommit(String owner, String repo, String sha1,
-                                          @Nullable String relPath) throws IOException, GitAPIException;
+                                          @Nullable String relPath)
+        throws IOException, GitAPIException;
 
     List<String> findBranchCommit(String owner, String repo, String branchOrCommit,
                                   @Nullable String relPath) throws IOException, GitAPIException;
 
     String getFile(String owner, String repo, String branchOrCommit,
-                 @Nullable String filePath) throws IOException, GitAPIException;
+                   @Nullable String filePath) throws IOException, GitAPIException;
 
     LatestCommitDTO latestCommitOfCurrentRepo(String owner, String repo, String branchOrCommit,
-                                        @Nullable String relPath) throws IOException, GitAPIException;
+                                              @Nullable String relPath)
+        throws IOException, GitAPIException;
 
     void updateCaches(String owner, String repo);
 
+    @Data
+    @Builder
+    class BriefCommitDTO {
+        Integer ts;
+        String id;
+        String label;
+        String user;
+    }
+
+    List<BriefCommitDTO> listCommits(String owner, String repo, String branchOrCommit);
 
     Result webDelete(String owner, String repo, String initBranch, String deleteFile,
                      UserBO committer, String message);

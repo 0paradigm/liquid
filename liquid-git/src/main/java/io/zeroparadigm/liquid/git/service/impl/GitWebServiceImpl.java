@@ -49,15 +49,12 @@ import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RefSpec;
-import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
@@ -550,6 +547,29 @@ public class GitWebServiceImpl implements GitWebService {
 
         rmCommit(owner, repo, initBranch, taskId, deleteFile, message, committer);
         return Result.success();
+    }
+
+    @Override
+    @SneakyThrows
+    public List<BriefCommitDTO> listCommits(String owner, String repo, String branchOrCommit) {
+        File repoFs = selectCache(owner, repo);
+        try (Git git = Git.open(repoFs)) {
+            cacheCheckout(git, branchOrCommit);
+
+            List<BriefCommitDTO> res = new ArrayList<>();
+            git.log()
+                .call()
+                .forEach(commit -> {
+                    var brief = BriefCommitDTO.builder()
+                        .id(commit.getId().getName())
+                        .user(commit.getAuthorIdent().getName())
+                        .ts(commit.getCommitTime())
+                        .label(commit.getShortMessage())
+                        .build();
+                    res.add(brief);
+                });
+            return res;
+        }
     }
 
     @Override
