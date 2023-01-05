@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.util.List;
 
 import java.util.Map;
+import java.util.Objects;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -301,15 +302,15 @@ public class GitWebController {
 
     @GetMapping("/diff/{owner}/{repo}")
     @ApiOperation(value = "diff", notes = "Return is JSON String")
-    public Result<List<Map<String, String>>> diff(@PathVariable String owner,
+    public Result<List<Map<String, Object>>> diff(@PathVariable String owner,
                                @PathVariable String repo,
                                @RequestParam String branch,
                                @RequestParam String sha){
         try{
-            List<Map<String, String>> res = gitWebService.changesOfCommit(owner, repo, branch, sha);
+            List<Map<String, Object>> res = gitWebService.changesOfCommit(owner, repo, branch, sha);
             return Result.success(res);
         }catch (Exception e){
-            log.error("list commits error", e);
+            log.error("Diff error", e);
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
     }
@@ -326,4 +327,20 @@ public class GitWebController {
 //                             @PathVariable String sha) {
 //        return Result.success(gitWebService.listFilesChangesOfCommit(owner, repo, sha));
 //    }
+
+    @GetMapping("/getPRCommit")
+    @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
+    public Result<List<GitWebService.BriefCommitDTO>> getPRCommit(@RequestParam("head_owner") String headOwner,
+                                                                  @RequestParam("head_repo") String headRepo,
+                                                                  @RequestParam("base_owner") String baseOwner,
+                                                                  @RequestParam("base_repo") String baseRepo){
+        try{
+            List<GitWebService.BriefCommitDTO> list = gitWebService.listPRCommit(headOwner, headRepo, baseOwner, baseRepo);
+            return Result.success(list);
+        }catch (Exception e){
+            log.error("List commits error", e);
+            return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
+        }
+    }
+
 }

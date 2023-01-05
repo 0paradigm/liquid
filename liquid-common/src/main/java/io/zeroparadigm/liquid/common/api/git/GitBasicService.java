@@ -58,4 +58,5 @@ public interface GitBasicService {
     void deleteRepo(String owner, String repo);
 
     void renameRepo(String owner, String repo, String newRepoName);
+
 }
