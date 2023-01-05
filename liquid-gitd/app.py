@@ -1,4 +1,6 @@
 import time
+import os
+import zipfile
 
 import requests as req
 from flask import Flask, request, make_response, Response, send_file
@@ -89,6 +91,24 @@ def git_info_refs(owner, repo_name):
 @app.route('/file/<string:owner>/<string:repo_name>/<path:path>', methods=['GET'])
 def download_file(owner, repo_name, path):
     return send_file(f"{app.config['GIT_CACHE_STORE']}/{owner}/{repo_name}-1/{path}")
+
+
+def zipDir(dirpath, outFullName):
+    if os.path.exists(outFullName):
+        os.remove(outFullName)
+    zip = zipfile.ZipFile(outFullName, "w", zipfile.ZIP_DEFLATED)
+    for path, dirnames, filenames in os.walk(dirpath):
+        fpath = path.replace(dirpath, '')
+        for filename in filenames:
+            zip.write(os.path.join(path, filename), os.path.join(fpath, filename))
+    zip.close()
+
+
+@app.route('/zip/<string:owner>/<string:repo_name>', methods=['GET'])
+def download_zip(owner, repo_name):
+    repo_name = owner + '/' + repo_name.rstrip('.git')
+    zipDir(f"{app.config['GIT_CACHE_STORE']}/{repo_name}-1", f"{app.config['GIT_CACHE_STORE']}/{repo_name}.zip")
+    return send_file(f"{app.config['GIT_CACHE_STORE']}/{repo_name}.zip")
 
 
 if __name__ == '__main__':

@@ -216,8 +216,8 @@ public class IssueController {
                         isColab = collaborators.stream().anyMatch(user -> user.getId().equals(author.getId()));
                     }
                     if (!isOwner && !isColab) {
-                        List<User> conts = repoMapper.listContributors(repo.getId());
-                        isContributor = conts.stream().anyMatch(user -> user.getId().equals(author.getId()));
+                        List<String> conts = repoMapper.listContributors(repo.getId());
+                        isContributor = conts.stream().anyMatch(user -> user.equals(author.getLogin()));
                     }
                     return IssueEventDTO.builder()
                         .author(author.getLogin())

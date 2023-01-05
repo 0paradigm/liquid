@@ -15,7 +15,7 @@
     </insert>
 
     <insert id="addContributor">
-        INSERT INTO `t_ds_v2_repo_contributors` (`repo_id`, `user_id`)
+        INSERT IGNORE INTO `t_ds_v3_repo_contributors` (`repo_id`, `user_login`)
         VALUES (#{repoId}, #{userId});
     </insert>
 
@@ -148,9 +148,9 @@
           AND `name` = #{name};
     </select>
 
-    <select id="listContributors" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
-        SELECT *
-        FROM `t_ds_user`
-        WHERE `id` IN (SELECT `user_id` FROM `t_ds_v2_repo_contributors` WHERE `repo_id` = #{repoId});
+    <select id="listContributors" resultType="java.lang.String">
+        SELECT `user_login`
+        FROM `t_ds_v3_repo_contributors`
+        WHERE `repo_id` = #{repoId};
     </select>
 </mapper>

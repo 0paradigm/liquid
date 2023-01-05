@@ -2,6 +2,7 @@ package io.zeroparadigm.liquid.core.controller;
 
 import io.swagger.annotations.Api;
 import io.zeroparadigm.liquid.common.api.auth.JWTService;
+import io.zeroparadigm.liquid.common.api.core.GitMetaService;
 import io.zeroparadigm.liquid.common.api.git.GitBasicService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.common.dto.Result;
@@ -35,6 +36,7 @@ import java.util.Objects;
 @RestController
 @Transactional
 @RequestMapping("/api/repo")
+@SuppressWarnings("rawtypes")
 public class RepoController {
 
     @Autowired
@@ -52,6 +54,9 @@ public class RepoController {
     @Autowired
     UserMapper userMapper;
 
+    @Autowired
+    GitMetaService gitMetaService;
+
     @Deprecated
     public void changeAuth(Integer userId, Integer repoId, Boolean read, Boolean manage,
                            Boolean push, Boolean settings,
@@ -64,6 +69,14 @@ public class RepoController {
                                      @PathVariable("repo") String repo) {
         Repo repoEntity = repoMapper.findByOwnerAndName(owner, repo);
         return Result.success(repoEntity.getPrivated());
+    }
+
+    @GetMapping("/addcontributor/{owner}/{repo}/{contributor}")
+    public Result addContributor(@PathVariable("owner") String owner,
+                                 @PathVariable("repo") String repo,
+                                 @PathVariable("contributor") String contributor) {
+        gitMetaService.recordContributor(owner, repo, contributor);
+        return Result.success();
     }
 
     @PostMapping("/setprivate/{owner}/{repo}")
@@ -255,7 +268,7 @@ public class RepoController {
     @GetMapping("/meta/{owner}/{repo}")
     @WrapsException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
     public Result<RepoDto> findRepoByName(@PathVariable("owner") String owner,
-                                                @PathVariable("repo") String name) {
+                                          @PathVariable("repo") String name) {
         Repo repo = repoMapper.findByOwnerAndName(owner, name);
         String forkedFrom = null;
         if (repo.getForkedFrom() != null) {
@@ -269,9 +282,16 @@ public class RepoController {
         Integer fork = repoMapper.countForks(repo.getId());
         Integer watch = repoMapper.countWatchers(repo.getId());
         var dto = new RepoDto(repo.getId(), owner, repo.getName(),
-                repo.getDescription(), repo.getLanguage(), forkedFrom,
-                repo.getPrivated(), star, fork, watch);
+            repo.getDescription(), repo.getLanguage(), forkedFrom,
+            repo.getPrivated(), star, fork, watch);
         return Result.success(dto);
+    }
+
+    @GetMapping("/listcontributors/{owner}/{repo}")
+    public Result<List<String>> listContributors(@PathVariable("owner") String owner,
+                                                 @PathVariable("repo") String repoName) {
+        Repo repo = repoMapper.findByOwnerAndName(owner, repoName);
+        return Result.success(repoMapper.listContributors(repo.getId()));
     }
 
     @GetMapping("count_star")

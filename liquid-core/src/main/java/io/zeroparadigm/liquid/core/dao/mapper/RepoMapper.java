@@ -47,9 +47,9 @@ public interface RepoMapper extends BaseMapper<Repo> {
                     @Param("forkedId") Integer forkedId, @Param("description") String description,
                     @Param("language") String language, @Param("private") Boolean privat);
 
-    List<User> listContributors(@Param("repoId") Integer repoId);
+    List<String> listContributors(@Param("repoId") Integer repoId);
 
-    void addContributor(@Param("repoId") Integer repoId, @Param("userId") Integer userId);
+    void addContributor(@Param("repoId") Integer repoId, @Param("userId") String userLogin);
 
     /**
      * Gets repo by id.

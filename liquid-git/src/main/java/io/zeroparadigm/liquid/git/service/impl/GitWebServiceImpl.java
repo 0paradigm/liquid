@@ -20,6 +20,7 @@ package io.zeroparadigm.liquid.git.service.impl;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
 import com.alibaba.fastjson.JSON;
+import io.zeroparadigm.liquid.common.api.core.GitMetaService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
@@ -41,6 +42,7 @@ import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.tika.Tika;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
@@ -93,6 +95,9 @@ public class GitWebServiceImpl implements GitWebService {
     @Value("${git.cache-num}")
     @Min(value = 1, message = "in memory cache is not supported yet")
     private int cacheObjNum;
+
+    @DubboReference(parameters = {"unicast", "false"})
+    GitMetaService gitMetaService;
 
     private static final String TMPDIR_PATTERN = "%s-%s";
 
@@ -211,7 +216,7 @@ public class GitWebServiceImpl implements GitWebService {
                 .setMessage(message)
                 .setCommitter(committerName, committerEmail)
                 .call();
-
+            gitMetaService.recordContributor(owner, repo, committerName);
             String refSpec = git.getRepository().getBranch() + ":" + toBranch;
             log.info("pushing to remote, spec={}", refSpec);
             git.push()
@@ -271,6 +276,7 @@ public class GitWebServiceImpl implements GitWebService {
                 .setMessage(message)
                 .setCommitter(committerName, committerEmail)
                 .call();
+            gitMetaService.recordContributor(owner, repo, committerName);
 
             String refSpec = git.getRepository().getBranch() + ":" + toBranch;
             log.info("pushing to remote, spec={}", refSpec);
@@ -674,6 +680,7 @@ public class GitWebServiceImpl implements GitWebService {
                 .setMessage("Rollback to " + toSha)
                 .setCommitter(committerName, committerEmail)
                 .call();
+            gitMetaService.recordContributor(owner, repo, committerName);
 
             String refSpec = git.getRepository().getBranch() + ":" + branch;
             log.info("pushing to remote, spec={}", refSpec);
