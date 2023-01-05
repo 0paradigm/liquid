@@ -581,6 +581,73 @@ public class GitWebServiceImpl implements GitWebService {
 
     @Override
     @SneakyThrows
+    public void webRevert(String owner, String repo, String branch, String toSha,
+                          UserBO committer) {
+        String committerName;
+        String committerEmail;
+        if (committer == null) {
+            committerName = "liquid-user";
+            committerEmail = "";
+        } else {
+            committerName = committer.getLogin();
+            committerEmail = committer.getEmail();
+        }
+
+        String taskId = String.valueOf(System.currentTimeMillis());
+        File tmpRepo =
+            Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
+        if (Files.notExists(tmpRepo.toPath())) {
+            File originalRepo = Path.of(gitStorage, owner, repo).toFile();
+
+            boolean originAlreadyInit;
+            try (Git origin = Git.open(originalRepo)) {
+                originAlreadyInit = !origin.branchList().call().isEmpty();
+            } catch (Exception e) {
+                log.error("error fetching branch list of remote {}/{}", owner, repo, e);
+                originAlreadyInit = false;
+            }
+
+            if (originAlreadyInit) {
+                Git.cloneRepository()
+                    .setURI(originalRepo.toURI().toString())
+                    .setDirectory(tmpRepo)
+                    .setBranchesToClone(Collections.singleton("refs/heads/" + branch))
+                    .setBranch(branch)
+                    .call()
+                    .close();
+            } else {
+                Git.cloneRepository()
+                    .setURI(originalRepo.toURI().toString())
+                    .setDirectory(tmpRepo)
+                    .setBranch(branch)
+                    .call()
+                    .close();
+            }
+        }
+
+        try (Git git = Git.open(tmpRepo)) {
+            git.checkout().setName(branch).call();
+            git.checkout().setName(toSha).call();
+            git.add().addFilepattern(".").call();
+            git.commit()
+                .setAllowEmpty(false)
+                .setMessage("Rollback to " + toSha)
+                .setCommitter(committerName, committerEmail)
+                .call();
+
+            String refSpec = git.getRepository().getBranch() + ":" + branch;
+            log.info("pushing to remote, spec={}", refSpec);
+            git.push()
+                .setRemote("origin")
+                .setRefSpecs(new RefSpec(refSpec))
+                .call();
+
+            updateCaches(owner, repo);
+        }
+    }
+
+    @Override
+    @SneakyThrows
     public List<BriefCommitDTO> listCommits(String owner, String repo, String branchOrCommit) {
         File repoFs = selectCache(owner, repo);
         try (Git git = Git.open(repoFs)) {

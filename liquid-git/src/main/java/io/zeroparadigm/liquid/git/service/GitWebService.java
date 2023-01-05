@@ -93,6 +93,8 @@ public interface GitWebService {
     Result webDelete(String owner, String repo, String initBranch, String deleteFile,
                      UserBO committer, String message);
 
+    void webRevert(String owner, String repo, String branch, String toSha, UserBO committer);
+
     Result branchDelete(String owner, String repo, String initBranch);
 
     Result branchCheckoutB(String owner, String repo, String fromBranch, String toBranch);

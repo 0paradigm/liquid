@@ -19,7 +19,6 @@ package io.zeroparadigm.liquid.git.controller;
 
 import static io.zeroparadigm.liquid.git.service.impl.GitBasicServiceImpl.createMfileByPath;
 
-import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -36,17 +35,13 @@ import io.zeroparadigm.liquid.git.dto.WebCreateRepoDTO;
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import io.zeroparadigm.liquid.git.service.GitWebService;
 
-import io.zeroparadigm.liquid.git.service.impl.GitWebServiceImpl;
 import java.io.IOException;
 import java.util.List;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -291,9 +286,28 @@ public class GitWebController {
         }
     }
 
+    @GetMapping("/revert/{owner}/{repo}")
+    public Result revert(@PathVariable String owner,
+                         @PathVariable String repo,
+                         @RequestParam String branch,
+                         @RequestParam String sha,
+                         @RequestHeader("Authorization") String auth) {
+        Integer userId = jwtService.getUserId(auth);
+        UserBO userBO = userAuthService.findById(userId);
+        gitWebService.webRevert(owner, repo, branch, sha, userBO);
+        return Result.success();
+    }
+
     @ResponseBody
     @PostMapping("/internal/v1/sync/{owner}/{repo}")
     public void updateCaches(@PathVariable String owner, @PathVariable String repo) {
         gitWebService.updateCaches(owner, repo);
     }
+
+//    @GetMapping("/commitdiff/{owner}/{repo}/{sha}")
+//    public Result commitDiff(@PathVariable String owner,
+//                             @PathVariable String repo,
+//                             @PathVariable String sha) {
+//        return Result.success(gitWebService.listFilesChangesOfCommit(owner, repo, sha));
+//    }
 }
