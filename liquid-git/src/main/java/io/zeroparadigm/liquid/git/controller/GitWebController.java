@@ -38,6 +38,7 @@ import io.zeroparadigm.liquid.git.service.GitWebService;
 import java.io.IOException;
 import java.util.List;
 
+import java.util.Map;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -296,6 +297,21 @@ public class GitWebController {
         UserBO userBO = userAuthService.findById(userId);
         gitWebService.webRevert(owner, repo, branch, sha, userBO);
         return Result.success();
+    }
+
+    @GetMapping("/diff/{owner}/{repo}")
+    @ApiOperation(value = "diff", notes = "Return is JSON String")
+    public Result<List<Map<String, String>>> diff(@PathVariable String owner,
+                               @PathVariable String repo,
+                               @RequestParam String branch,
+                               @RequestParam String sha){
+        try{
+            List<Map<String, String>> res = gitWebService.changesOfCommit(owner, repo, branch, sha);
+            return Result.success(res);
+        }catch (Exception e){
+            log.error("list commits error", e);
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
     }
 
     @ResponseBody
