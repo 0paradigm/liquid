@@ -425,7 +425,7 @@ public class GitWebServiceImpl implements GitWebService {
         Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
      */
     @Override
-    public List<Map<String, String>> changesOfCommit(String owner,
+    public List<Map<String, Object>> changesOfCommit(String owner,
                                                      String repo,
                                                      String branch,
                                                      String sha1
@@ -442,7 +442,7 @@ public class GitWebServiceImpl implements GitWebService {
             diffFormatter.setRepository(git.getRepository());
             List<DiffEntry> diffEntries = diffFormatter.scan(diffWith, headCommit);
             ObjectReader objectReader = git.getRepository().newObjectReader();
-            List<Map<String, String>> changes = new ArrayList<>();
+            List<Map<String, String>> cache = new ArrayList<>();
             for (DiffEntry entry : diffEntries) {
                 Map<String, String> tmp = new HashMap<>();
                 byte[] oldContent = objectReader.open(entry.getOldId().toObjectId()).getBytes();
@@ -450,15 +450,54 @@ public class GitWebServiceImpl implements GitWebService {
                 tmp.put("file", entry.getNewPath());
                 tmp.put("old", new String(oldContent));
                 tmp.put("new", new String(newContent));
-                changes.add(tmp);
+                cache.add(tmp);
             }
-            return changes;
+            return handleDiff(cache);
         } catch (Exception e) {
             log.error("Exception: ", e);
             return List.of();
         }
 
     }
+
+    private List<Map<String, Object>> handleDiff(List<Map<String, String>> data) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (Map<String, String> map : data) {
+            String[] path = map.get("file").split("/");
+            String key = "";
+            List<Map<String, Object>> root = list;
+            for (int i = 0; i < path.length - 1; i++) {
+                if(i==0){
+                    key = path[0];
+                }else{
+                    key = key + "/" + path[i];
+                }
+                root = searchPath(root, key, path[i]);
+            }
+            Map<String, Object> file = new HashMap<>();
+            file.put("title", path[path.length-1]);
+            file.put("key", key + "/" + path[path.length-1]);
+            file.put("old", map.get("old"));
+            file.put("new", map.get("new"));
+            root.add(file);
+        }
+        return list;
+    }
+
+    private List<Map<String, Object>> searchPath(List<Map<String, Object>> root, String key, String path){
+        for (Map<String, Object> map: root){
+            if (map.get("title").equals(path)){
+                return (List<Map<String, Object>>) map.get("children");
+            }
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("title", path);
+        map.put("key", key);
+        map.put("children", new ArrayList<>());
+        root.add(map);
+        return (List<Map<String, Object>>) map.get("children");
+    }
+
 
     @Override
     public List<String> findBranchCommit(String owner,
@@ -520,7 +559,7 @@ public class GitWebServiceImpl implements GitWebService {
     /*
         Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
      */
-    public String listFilesChangesOfRepo(String headOwner,
+    public String diffOfRepo(String headOwner,
                                          String headRepo,
                                          String baseOwner,
                                          String baseRepo)

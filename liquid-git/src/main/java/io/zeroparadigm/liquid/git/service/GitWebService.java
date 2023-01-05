@@ -24,6 +24,7 @@ import java.util.List;
 
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import java.util.Map;
+import java.util.Objects;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -58,13 +59,13 @@ public interface GitWebService {
     List<LatestCommitInfo> listFiles(String owner, String repo, String branchOrCommit,
                                      @Nullable String relPath) throws IOException, GitAPIException;
 
-    List<Map<String, String>> changesOfCommit(String owner, String repo, String branch, String sha1
+    List<Map<String, Object>> changesOfCommit(String owner, String repo, String branch, String sha1
     ) throws IOException, GitAPIException;
 
     List<String> findBranchCommit(String owner, String repo, String branchOrCommit
     ) throws IOException, GitAPIException;
 
-    String listFilesChangesOfRepo(String headOwner,
+    String diffOfRepo(String headOwner,
                                   String headRepo,
                                   String baseOwner,
                                   String baseRepo)
