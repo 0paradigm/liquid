@@ -602,6 +602,7 @@ public class GitWebServiceImpl implements GitWebService {
             boolean originAlreadyInit;
             try (Git origin = Git.open(originalRepo)) {
                 originAlreadyInit = !origin.branchList().call().isEmpty();
+
             } catch (Exception e) {
                 log.error("error fetching branch list of remote {}/{}", owner, repo, e);
                 originAlreadyInit = false;
@@ -627,7 +628,8 @@ public class GitWebServiceImpl implements GitWebService {
 
         try (Git git = Git.open(tmpRepo)) {
             git.checkout().setName(branch).call();
-            git.checkout().setName(toSha).call();
+            RevCommit commit = git.log().add(git.getRepository().resolve(toSha)).setMaxCount(1).call().iterator().next();
+            git.checkout().addPath(".").setStartPoint(commit).call();
             git.add().addFilepattern(".").call();
             git.commit()
                 .setAllowEmpty(false)
