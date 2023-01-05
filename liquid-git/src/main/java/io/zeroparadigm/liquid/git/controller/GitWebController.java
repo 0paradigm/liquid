@@ -298,6 +298,21 @@ public class GitWebController {
         return Result.success();
     }
 
+    @GetMapping("/diff/{owner}/{repo}")
+    @ApiOperation(value = "diff", notes = "Return is JSON String")
+    public Result<String> diff(@PathVariable String owner,
+                               @PathVariable String repo,
+                               @RequestParam String branch,
+                               @RequestParam String sha){
+        try{
+            String res = gitWebService.changesOfCommit(owner, repo, branch, sha);
+            return Result.success(res);
+        }catch (Exception e){
+            log.error("list commits error", e);
+            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
+        }
+    }
+
     @ResponseBody
     @PostMapping("/internal/v1/sync/{owner}/{repo}")
     public void updateCaches(@PathVariable String owner, @PathVariable String repo) {

@@ -58,17 +58,16 @@ public interface GitWebService {
     List<LatestCommitInfo> listFiles(String owner, String repo, String branchOrCommit,
                                      @Nullable String relPath) throws IOException, GitAPIException;
 
-    String listFilesChangesOfCommit(String owner, String repo, String sha1
-                                          )
-        throws IOException, GitAPIException;
+    String changesOfCommit(String owner, String repo, String branch, String sha1
+    ) throws IOException, GitAPIException;
 
     List<String> findBranchCommit(String owner, String repo, String branchOrCommit
-                                  ) throws IOException, GitAPIException;
+    ) throws IOException, GitAPIException;
 
     String listFilesChangesOfRepo(String headOwner,
-                                        String headRepo,
-                                        String baseOwner,
-                                        String baseRepo)
+                                  String headRepo,
+                                  String baseOwner,
+                                  String baseRepo)
         throws IOException, GitAPIException;
 
     List<BriefCommitDTO> listPRCommit(String headOwner,

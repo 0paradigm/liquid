@@ -425,23 +425,23 @@ public class GitWebServiceImpl implements GitWebService {
         Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
      */
     @Override
-    public String listFilesChangesOfCommit(String owner,
-                                                 String repo,
-                                                 String sha1
+    public String changesOfCommit(String owner,
+                                  String repo,
+                                  String branch,
+                                  String sha1
     )
         throws IOException, GitAPIException {
         File repoRoot = selectCache(owner, repo);
         try (Git git = Git.open(repoRoot)) {
+            git.checkout().setName(branch).call();
             ObjectId commitId = ObjectId.fromString(sha1);
             RevWalk revWalk = new RevWalk(git.getRepository());
-
             RevCommit headCommit = revWalk.parseCommit(commitId);
             RevCommit diffWith = headCommit.getParent(0);
             DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
             diffFormatter.setRepository(git.getRepository());
             List<DiffEntry> diffEntries = diffFormatter.scan(diffWith, headCommit);
             ObjectReader objectReader = git.getRepository().newObjectReader();
-
             Map<String, String> changes = new HashMap<>();
             for (DiffEntry entry : diffEntries) {
                 Map<String, String> tmp = new HashMap<>();
@@ -520,9 +520,9 @@ public class GitWebServiceImpl implements GitWebService {
         Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
      */
     public String listFilesChangesOfRepo(String headOwner,
-                                               String headRepo,
-                                               String baseOwner,
-                                               String baseRepo)
+                                         String headRepo,
+                                         String baseOwner,
+                                         String baseRepo)
         throws IOException, GitAPIException {
         File headRepoRoot = selectCache(headOwner, headRepo);
         File baseRepoRoot = selectCache(baseOwner, baseRepo);
