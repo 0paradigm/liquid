@@ -32,6 +32,13 @@
         SELECT COUNT(*)
         FROM `t_ds_pr_comment`
         WHERE `repo` = #{repo_id}
-          AND `pr` = #{pr_id};
+          AND `pr` = #{display_id};
+    </select>
+    <select id="findByRepoAndPrDisp" resultType="io.zeroparadigm.liquid.core.dao.entity.PRComment">
+        SELECT *
+        FROM `t_ds_pr_comment`
+        WHERE `repo` = #{repo_id}
+          AND `pr` = #{display_id}
+        ORDER BY `created_at` ASC;
     </select>
 </mapper>

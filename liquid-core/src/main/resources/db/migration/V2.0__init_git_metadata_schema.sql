@@ -158,8 +158,8 @@ CREATE TABLE `t_ds_issue_comment`
 
     `created_at` bigint NOT NULL,
 
-    CONSTRAINT `fk__ds_issue_comment__repo` FOREIGN KEY (`repo`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk__ds_issue_comment__issue` FOREIGN KEY (`issue`) REFERENCES `t_ds_issue` (`id`) ON DELETE CASCADE
+    CONSTRAINT `fk__ds_issue_comment__repo` FOREIGN KEY (`repo`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE
+--     CONSTRAINT `fk__ds_issue_comment__issue` FOREIGN KEY (`issue`) REFERENCES `t_ds_issue` (`id`) ON DELETE CASCADE
 --     CONSTRAINT `uniq__ds_issue_comment__display_id` UNIQUE (`issue`, `repo`, `author`)
 );
 
@@ -195,8 +195,8 @@ CREATE TABLE `t_ds_pr_comment`
 
     `created_at` bigint NOT NULL,
 
-    CONSTRAINT `fk__ds_pr_comment__repo` FOREIGN KEY (`repo`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk__ds_pr_comment__pr` FOREIGN KEY (`pr`) REFERENCES `t_ds_pr` (`id`) ON DELETE CASCADE
+    CONSTRAINT `fk__ds_pr_comment__repo` FOREIGN KEY (`repo`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE
+--     CONSTRAINT `fk__ds_pr_comment__pr` FOREIGN KEY (`pr`) REFERENCES `t_ds_pr` (`id`) ON DELETE CASCADE
 --     CONSTRAINT `uniq__ds_issue_comment__display_id` UNIQUE (`issue`, `repo`, `author`)
 );
 

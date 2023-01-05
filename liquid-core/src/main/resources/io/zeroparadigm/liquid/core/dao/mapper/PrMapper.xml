@@ -52,4 +52,11 @@
         FROM `t_ds_pr`
         WHERE `opener` = #{user_id};
     </select>
+
+    <select id="findByRepoIdAndDisplayedId" resultType="io.zeroparadigm.liquid.core.dao.entity.PR">
+        SELECT *
+        FROM `t_ds_pr`
+        WHERE `repo` = #{repo_id}
+          AND `display_id` = #{display_id};
+    </select>
 </mapper>

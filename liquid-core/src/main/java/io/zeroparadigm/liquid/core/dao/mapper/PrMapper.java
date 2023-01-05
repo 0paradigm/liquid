@@ -34,7 +34,7 @@ public interface PrMapper extends BaseMapper<PR> {
     /**
      * Gets pr by displayed id.
      */
-    PR findByDisplayedId(@Param("display_id") Integer displayId);
+    PR findByRepoIdAndDisplayedId(@Param("repo_id") Integer repoId, @Param("display_id") Integer displayId);
 
     /**
      * Gets pr by repo id and state.

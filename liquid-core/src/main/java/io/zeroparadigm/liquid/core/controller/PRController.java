@@ -1,16 +1,16 @@
 package io.zeroparadigm.liquid.core.controller;
 
 import io.swagger.annotations.Api;
-import io.swagger.models.auth.In;
 import io.zeroparadigm.liquid.common.api.auth.JWTService;
-import io.zeroparadigm.liquid.common.api.git.GitBasicService;
 import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
 import io.zeroparadigm.liquid.core.dao.UserDao;
+import io.zeroparadigm.liquid.core.dao.entity.IssueComment;
 import io.zeroparadigm.liquid.core.dao.entity.PR;
 import io.zeroparadigm.liquid.core.dao.entity.PRComment;
 import io.zeroparadigm.liquid.core.dao.entity.Repo;
+import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.dao.mapper.*;
 import java.util.Map;
 import lombok.Builder;
@@ -80,9 +80,82 @@ public class PRController {
         Integer cmtCnt;
     }
 
+
+    @Data
+    @Builder
+    public static class PrDetailDTO {
+        String title;
+        Boolean isOpening;
+        Boolean isMerged;
+        String openBy;
+        Long openAt;
+        List<PrEventDTO> events;
+        List<String> participants;
+    }
+
+    @Data
+    @Builder
+    public static class PrEventDTO {
+        String ctx;
+        String author;
+        String cred;
+        Long time;
+    }
+
+    @GetMapping("/details/{owner}/{repo}/{displayId}")
+    @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
+    public Result<PrDetailDTO> findByIds(@PathVariable("owner") String owner,
+                                         @PathVariable("repo") String repoName,
+                                         @PathVariable("displayId") Integer displayId) {
+        var repo = repoMapper.findByOwnerAndName(owner, repoName);
+        var pr = prMapper.findByRepoIdAndDisplayedId(repo.getId(), displayId);
+        var events = prCommentMapper.findByRepoAndPrDisp(repo.getId(), displayId);
+        List<PrEventDTO> eventDTOs = events.stream()
+            .map(event -> {
+                    var author = userMapper.findById(event.getAuthor());
+                    var isOwner = owner.equals(author.getLogin());
+                    var isColab = false;
+                    var isContributor = false;
+                    if (!isOwner) {
+                        List<User> collaborators = repoMapper.listCollaborators(repo.getId());
+                        isColab = collaborators.stream()
+                            .anyMatch(user -> user.getId().equals(author.getId()));
+                    }
+                    if (!isOwner && !isColab) {
+                        List<String> conts = repoMapper.listContributors(repo.getId());
+                        isContributor = conts.stream().anyMatch(user -> user.equals(author.getLogin()));
+                    }
+                    return PrEventDTO.builder()
+                        .author(author.getLogin())
+                        .ctx(event.getComment())
+                        .cred(isOwner ? "Owner" :
+                            isColab ? "Collaborator" : isContributor ? "Contributor" : "")
+                        .time(Long.parseLong(event.getCreatedAt()))
+                        .build();
+                }
+            )
+            .toList();
+        List<String> parts = events.stream()
+            .map(PRComment::getAuthor)
+            .distinct()
+            .map(id -> userMapper.findById(id).getLogin())
+            .toList();
+        PrDetailDTO dto = PrDetailDTO.builder()
+            .title(pr.getTitle())
+            .isOpening(!pr.getClosed())
+            .openBy(userMapper.findById(pr.getOpener()).getLogin())
+            .openAt(pr.getCreatedAt())
+            .isMerged(eventDTOs.stream().anyMatch(e -> "[[[merge]]]".equals(e.getCtx())))
+            .events(eventDTOs)
+            .participants(parts)
+            .build();
+        return Result.success(dto);
+    }
+
+
     @GetMapping("/list/{owner}/{repo}")
     public Result listPr(@PathVariable("owner") String owner,
-                                          @PathVariable("repo") String repo) {
+                         @PathVariable("repo") String repo) {
         Repo repoE = repoMapper.findByOwnerAndName(owner, repo);
         if (Objects.isNull(repoE)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
@@ -106,7 +179,6 @@ public class PRController {
             .toList();
         return Result.success(Map.of("opens", opens, "closes", closes));
     }
-
 
 
     @GetMapping("/get")
@@ -144,17 +216,19 @@ public class PRController {
         return Result.success(prs);
     }
 
-    @GetMapping("/setClosed")
+    @GetMapping("/setClosed/{owner}/{repo}/{displayId}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<Boolean> setClosed(@RequestHeader("Authorization") String token,
-                                     @RequestParam("pr_id") Integer prId,
-                                     @RequestParam("closed") Boolean closed) {
+                                     @PathVariable("owner") String owner,
+                                     @PathVariable("repo") String repoName,
+                                     @PathVariable("displayId") Integer displayId,
+                                     @RequestParam("close") Boolean closed) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
-        PR pr = prMapper.findById(prId);
-        Repo repo = repoMapper.findById(pr.getRepo());
+        Repo repo = repoMapper.findByOwnerAndName(owner, repoName);
+        PR pr = prMapper.findByRepoIdAndDisplayedId(repo.getId(), displayId);
         if (Objects.isNull(pr)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
@@ -162,36 +236,57 @@ public class PRController {
             !Objects.requireNonNull(repo).getOwner().equals(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
-        prMapper.setClosed(prId, closed);
-        prMapper.setClosedAt(prId, System.currentTimeMillis());
+        prMapper.setClosed(pr.getId(), closed);
+        prCommentMapper.createPRComment(
+            repo.getId(), pr.getDisplayId(), userId,
+            closed ? "[[[close]]]" : "[[[reopen]]]",
+            System.currentTimeMillis()
+        );
         return Result.success(true);
     }
 
-    @GetMapping("/get_comment")
-    @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<List<PRComment>> getPRComment(@RequestParam("pr_id") Integer prId) {
-        PR pr = prMapper.findById(prId);
-        if (Objects.isNull(pr)) {
-            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
-        }
-        List<PRComment> prComments = prCommentMapper.findByPRId(prId);
-        return Result.success(prComments);
+    @Data
+    public static class AddCmtDTO {
+        String ctx;
     }
 
-    @GetMapping("/new_comment")
+    @PostMapping("/new_comment/{owner}/{repo}/{displayId}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<Boolean> newPRComment(@RequestHeader("Authorization") String token,
-                                        @RequestParam("repo_id") Integer repoId,
-                                        @RequestParam("pr_id") Integer prId,
-                                        @RequestParam("content") String content) {
+                                        @PathVariable("owner") String owner,
+                                        @PathVariable("repo") String repoName,
+                                        @PathVariable("displayId") Integer displayId,
+                                        @RequestBody AddCmtDTO dto) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
-        PR pr = prMapper.findById(prId);
-        prCommentMapper.createPRComment(repoId, prId, userId, content, System.currentTimeMillis());
+        var repo = repoMapper.findByOwnerAndName(owner, repoName);
+        PR pr = prMapper.findByRepoIdAndDisplayedId(repo.getId(), displayId);
+        prCommentMapper.createPRComment(repo.getId(), pr.getDisplayId(), userId, dto.getCtx(), System.currentTimeMillis());
         return Result.success(true);
     }
 
 
+    @GetMapping("/get_comment/{owner}/{repo}/{displayId}")
+    @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
+    public Result merge(@PathVariable("owner") String owner,
+                        @PathVariable("repo") String repoName,
+                        @PathVariable("displayId") Integer displayId,
+                        @RequestHeader("Authorization") String token) {
+        Integer userId = jwtService.getUserId(token);
+        var repo = repoMapper.findByOwnerAndName(owner, repoName);
+        PR pr = prMapper.findByRepoIdAndDisplayedId(repo.getId(), displayId);
+
+
+        // TODO: call git api to merge this pr, can get more detailed info by `PR` object
+
+        prMapper.setClosed(pr.getId(), true);
+        prCommentMapper.createPRComment(
+            repo.getId(), pr.getDisplayId(), userId,
+            "[[[merge]]]",
+            System.currentTimeMillis()
+        );
+        return Result.success();
+    }
 }
