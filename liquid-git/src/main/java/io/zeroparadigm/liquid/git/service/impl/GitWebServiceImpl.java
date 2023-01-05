@@ -452,9 +452,8 @@ public class GitWebServiceImpl implements GitWebService {
     )
         throws IOException, GitAPIException {
         File repoRoot = selectCache(owner, repo);
-
-        List<String> commits = new ArrayList<>();
         try (Git git = Git.open(repoRoot)) {
+            List<String> commits = new ArrayList<>();
             Iterable<RevCommit> logs = git.log()
                 .not(git.getRepository().resolve("master"))
                 // Is revstr right
@@ -463,11 +462,44 @@ public class GitWebServiceImpl implements GitWebService {
             for (RevCommit rev : logs) {
                 commits.add(rev.toString());
             }
+            return commits;
         } catch (RefNotFoundException e) {
             log.error("branch not found", e);
             return List.of();
         }
-        return commits;
+    }
+
+    public List<BriefCommitDTO> listPRCommit(String headOwner,
+                                             String headRepo,
+                                             String baseOwner,
+                                             String baseRepo)
+        throws IOException, GitAPIException {
+        File repoRoot = selectCache(headOwner, headRepo);
+
+        try (Git git = Git.open(repoRoot)) {
+            git.fetch()
+                .setRemote("origin")
+                .call();
+            List<BriefCommitDTO> commits = new ArrayList<>();
+            git.log()
+                .addRange(git.getRepository().resolve("origin/master"),
+                    git.getRepository().resolve("HEAD"))
+                .call()
+                .forEach(commit -> {
+                    var brief = BriefCommitDTO.builder()
+                        .id(commit.getId().getName())
+                        .user(commit.getAuthorIdent().getName())
+                        .ts(commit.getCommitTime())
+                        .label(commit.getShortMessage())
+                        .build();
+                    commits.add(brief);
+                });
+            ;
+            return commits;
+        } catch (RefNotFoundException e) {
+            log.error("branch not found", e);
+            return List.of();
+        }
     }
 
     public List<String> listFilesChangesOfRepo(String headOwner,
@@ -478,10 +510,14 @@ public class GitWebServiceImpl implements GitWebService {
         File headRepoRoot = selectCache(headOwner, headRepo);
         File baseRepoRoot = selectCache(baseOwner, baseRepo);
         try (Git headGit = Git.open(headRepoRoot); Git baseGit = Git.open(baseRepoRoot)) {
-            RevCommit oldCommit = baseGit.log().add(baseGit.getRepository().resolve("HEAD")).setMaxCount(1).call().iterator().next();
+            RevCommit oldCommit =
+                baseGit.log().add(baseGit.getRepository().resolve("HEAD")).setMaxCount(1).call()
+                    .iterator().next();
             RevTree oldTree = oldCommit.getTree();
 
-            RevCommit newCommit = headGit.log().add(headGit.getRepository().resolve("HEAD")).setMaxCount(1).call().iterator().next();
+            RevCommit newCommit =
+                headGit.log().add(headGit.getRepository().resolve("HEAD")).setMaxCount(1).call()
+                    .iterator().next();
             RevTree newTree = newCommit.getTree();
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -628,7 +664,9 @@ public class GitWebServiceImpl implements GitWebService {
 
         try (Git git = Git.open(tmpRepo)) {
             git.checkout().setName(branch).call();
-            RevCommit commit = git.log().add(git.getRepository().resolve(toSha)).setMaxCount(1).call().iterator().next();
+            RevCommit commit =
+                git.log().add(git.getRepository().resolve(toSha)).setMaxCount(1).call().iterator()
+                    .next();
             git.checkout().addPath(".").setStartPoint(commit).call();
             git.add().addFilepattern(".").call();
             git.commit()

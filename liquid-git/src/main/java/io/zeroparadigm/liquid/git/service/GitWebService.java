@@ -70,6 +70,12 @@ public interface GitWebService {
                                         String baseRepo)
         throws IOException, GitAPIException;
 
+    List<BriefCommitDTO> listPRCommit(String headOwner,
+                                      String headRepo,
+                                      String baseOwner,
+                                      String baseRepo)
+        throws IOException, GitAPIException;
+
     String getFile(String owner, String repo, String branchOrCommit,
                    @Nullable String filePath) throws IOException, GitAPIException;
 
