@@ -47,6 +47,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.tika.Tika;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.RevertCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
@@ -870,10 +871,14 @@ public class GitWebServiceImpl implements GitWebService {
 
         try (Git baseGit = Git.open(tmpRepo); Git headGit = Git.open(headRoot)) {
             baseGit.checkout().setName(baseBranch).call();
-            baseGit.remoteAdd().setName("head").setUri(new URIish(headRoot.toURI().toString()));
-            baseGit.pull().setRemote("head").setRemoteBranchName(headBranch).call();
+            headGit.checkout().setName(headBranch).call();
+            baseGit.remoteAdd().setName("head").setUri(new URIish(headGit.getRepository().getDirectory().toURI().toURL())).call();
+            baseGit.pull().setRemote("head").call();
+            MergeResult mergeResult = baseGit.merge().include(headGit.getRepository().resolve(headBranch)).call();
+            if (!mergeResult.getMergeStatus().isSuccessful()){
+                throw new IOException();
+            }
             baseGit.commit().setMessage(PRTitle).call();
-            baseGit.remoteRemove().setRemoteName("head").call();
 
             String refSpec = baseGit.getRepository().getBranch() + ":" + baseBranch;
             log.info("pushing to remote, spec={}", refSpec);
