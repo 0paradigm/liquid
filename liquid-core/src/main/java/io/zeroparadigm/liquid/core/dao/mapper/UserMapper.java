@@ -58,6 +58,8 @@ public interface UserMapper extends BaseMapper<User> {
                     @Nullable @Param("company") String company, @Nullable @Param("location") String location,
                     @Param("password") String password, @Nullable @Param("phone") String phone);
 
+    List<Repo> listWatchingRepos(@Param("uid") Integer userId);
+
     /**
      * update user
      * @param phone

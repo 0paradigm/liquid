@@ -59,7 +59,7 @@ public class IssueLabelController {
 
     @GetMapping("/new")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> newIssueLabel(@RequestHeader("Authorization") String token, @RequestParam("repoId") Integer repoId,
+    public Result<Boolean> newIssueLabel(@RequestHeader(value = "Authorization", required = false) String token, @RequestParam("repoId") Integer repoId,
                                             @RequestParam("name") String labelName,
                                             @RequestParam("color") String labelColor,
                                          @RequestParam("description") String labelDescription) {
@@ -90,7 +90,7 @@ public class IssueLabelController {
     // FIXME: authorization?
     @GetMapping("/delete")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> deleteIssueLabelById(@RequestHeader("Authorization") String token, @RequestParam("id") Integer id) {
+    public Result<Boolean> deleteIssueLabelById(@RequestHeader(value = "Authorization", required = false) String token, @RequestParam("id") Integer id) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
@@ -122,7 +122,7 @@ public class IssueLabelController {
     // FIXME: authorization?
     @GetMapping("/delete_repo_name")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> deleteIssueLabelByRepoAndName(@RequestHeader("Authorization") String token, @RequestParam("repoId") Integer repoId,
+    public Result<Boolean> deleteIssueLabelByRepoAndName(@RequestHeader(value = "Authorization", required = false) String token, @RequestParam("repoId") Integer repoId,
                                                          @RequestParam("name") String name) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);

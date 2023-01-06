@@ -33,6 +33,9 @@ import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
 import io.zeroparadigm.liquid.core.dto.RepoDto;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Map;
+import java.util.stream.Stream;
+import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -104,14 +107,15 @@ public class UserController {
 
     @PostMapping("/update")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
-    public Result<Boolean> updateUser(@RequestHeader("Authorization") String token,
-                                      @Nullable @RequestParam("twitter_username")
-                                      String twitter_username,
-                                      @Nullable @RequestParam("name") String name,
-                                      @Nullable @RequestParam("bio") String bio,
-                                      @Nullable @RequestParam("company") String company,
-                                      @Nullable @RequestParam("location") String location,
-                                      @Nullable @RequestParam("phone") String phone) {
+    public Result<Boolean> updateUser(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @Nullable @RequestParam("twitter_username")
+        String twitter_username,
+        @Nullable @RequestParam("name") String name,
+        @Nullable @RequestParam("bio") String bio,
+        @Nullable @RequestParam("company") String company,
+        @Nullable @RequestParam("location") String location,
+        @Nullable @RequestParam("phone") String phone) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.selectById(userId);
         if (Objects.isNull(user)) {
@@ -124,7 +128,8 @@ public class UserController {
 
     @GetMapping("/info")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
-    public Result<User> getUserInfo(@RequestHeader("Authorization") String token) {
+    public Result<User> getUserInfo(
+        @RequestHeader(value = "Authorization", required = false) String token) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.selectById(userId);
         if (Objects.isNull(user)) {
@@ -198,8 +203,9 @@ public class UserController {
 
     @GetMapping("/star")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> star(@RequestHeader("Authorization") String token,
-                                @RequestParam("id") Integer id) {
+    public Result<Boolean> star(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @RequestParam("id") Integer id) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -211,8 +217,9 @@ public class UserController {
 
     @GetMapping("/unstar")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> unstar(@RequestHeader("Authorization") String token,
-                                  @RequestParam("id") Integer id) {
+    public Result<Boolean> unstar(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @RequestParam("id") Integer id) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -224,14 +231,15 @@ public class UserController {
 
     @GetMapping("/watch")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> watch(@RequestHeader("Authorization") String token,
-                                 @RequestParam("id") Integer id,
-                                 @RequestParam("particip") Boolean participation,
-                                 @RequestParam("issue") Boolean issue,
-                                 @RequestParam("pull") Boolean pull,
-                                 @RequestParam("release") Boolean release,
-                                 @RequestParam("discuss") Boolean discussion,
-                                 @RequestParam("alerts") Boolean security_alerts
+    public Result<Boolean> watch(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @RequestParam("id") Integer id,
+        @RequestParam("particip") Boolean participation,
+        @RequestParam("issue") Boolean issue,
+        @RequestParam("pull") Boolean pull,
+        @RequestParam("release") Boolean release,
+        @RequestParam("discuss") Boolean discussion,
+        @RequestParam("alerts") Boolean security_alerts
     ) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
@@ -245,8 +253,9 @@ public class UserController {
 
     @GetMapping("/unwatch")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> unwatch(@RequestHeader("Authorization") String token,
-                                   @RequestParam("id") Integer id) {
+    public Result<Boolean> unwatch(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @RequestParam("id") Integer id) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -256,15 +265,39 @@ public class UserController {
         return Result.success();
     }
 
+    @Data
+    @Builder
+    public static class ListAllSiteRepoDTO {
+        String userName;
+        String repoName;
+    }
+
+    @GetMapping("/allsiterepo")
+    public Result<List<ListAllSiteRepoDTO>> listAllRepos(
+        @RequestHeader(value = "Authorization", required = false)
+        String token) {
+        var res = userMapper.listAll().stream()
+            .flatMap(usr -> {
+                try {
+                    var dto = getRepo(usr.getLogin(), token).getData();
+                    return dto.stream()
+                        .map(repo -> ListAllSiteRepoDTO.builder()
+                            .userName(usr.getLogin())
+                            .repoName(repo.getName())
+                            .build());
+                } catch (Exception e) {
+                    return Stream.of();
+                }
+            }).toList();
+        return Result.success(res);
+    }
+
     // forked from
     @GetMapping("/repo/{user}")
-    @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<List<RepoDto>> getRepo(@PathVariable("user") String login,
-                                         @RequestHeader("Authorization") String token) {
+                                         @RequestHeader(value = "Authorization", required = false)
+                                         String token) {
         Integer userId = jwtService.getUserId(token);
-        if (Objects.isNull(userId)) {
-            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
-        }
 
         List<Repo> repos = userMapper.listUserRepos(login);
         List<RepoDto> repoDtos = new ArrayList<>();
@@ -304,15 +337,33 @@ public class UserController {
         return Result.success(repoDtos);
     }
 
+    @GetMapping("/myfork/{upowner}/{uprepo}")
+    public Result<List<String>> getMyFork(@PathVariable("upowner") String upowner,
+                                          @PathVariable("uprepo") String uprepo,
+                                          @RequestHeader(value = "Authorization", required = false)
+                                          String token) {
+        Integer userId = jwtService.getUserId(token);
+        if (Objects.isNull(userId)) {
+            return Result.success(List.of());
+        }
+        User usr = userMapper.findById(userId);
+        Repo upstream = repoMapper.findByOwnerAndName(upowner, uprepo);
+        List<Repo> repos = userMapper.listUserRepos(usr.getLogin());
+        var res = repos.stream()
+            .filter(repo -> repo.getForkedFrom() != null)
+            .filter(repo -> repo.getForkedFrom().equals(upstream.getId()))
+            .map(repo -> repo.getName())
+            .toList();
+        return Result.success(res);
+    }
+
     // forked from
     @GetMapping("/stars/{user}")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<List<RepoDto>> getStars(@PathVariable("user") String login,
-                                          @RequestHeader("Authorization") String token) {
+                                          @RequestHeader(value = "Authorization", required = false)
+                                          String token) {
         Integer userId = jwtService.getUserId(token);
-        if (Objects.isNull(userId)) {
-            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
-        }
 
         List<Repo> repos = userMapper.listStarredRepos(userMapper.findByNameOrMail(login).getId());
         List<RepoDto> repoDtos = new ArrayList<>();
@@ -343,7 +394,8 @@ public class UserController {
             Integer star = repoMapper.countStarers(repos.get(i).getId());
             Integer fork = repoMapper.countForks(repos.get(i).getId());
             Integer watch = repoMapper.countWatchers(repos.get(i).getId());
-            repoDtos.add(new RepoDto(repos.get(i).getId(), userMapper.findById(repos.get(i).getOwner()).getLogin(), repos.get(i).getName(),
+            repoDtos.add(new RepoDto(repos.get(i).getId(),
+                userMapper.findById(repos.get(i).getOwner()).getLogin(), repos.get(i).getName(),
                 repos.get(i).getDescription(), repos.get(i).getLanguage(), forkedFrom,
                 repos.get(i).getPrivated(),
                 star, fork, watch));

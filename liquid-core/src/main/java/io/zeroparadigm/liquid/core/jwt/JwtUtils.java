@@ -104,7 +104,7 @@ public class JwtUtils {
         try {
             DecodedJWT jwt = JWT.decode(token);
             return jwt.getClaim(CommonConsts.JWT_USER_ID).asInt();
-        } catch (JWTDecodeException e) {
+        } catch (Exception e) {
             return null;
         }
     }

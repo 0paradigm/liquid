@@ -13,6 +13,8 @@ import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
 import io.zeroparadigm.liquid.core.dao.UserDao;
 import io.zeroparadigm.liquid.core.dao.entity.*;
 import io.zeroparadigm.liquid.core.dao.mapper.*;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -80,10 +82,11 @@ public class IssueController {
 
     @PostMapping("/new/{owner}/{repo}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> newIssue(@RequestHeader("Authorization") String token,
-                                    @PathVariable("owner") String owner,
-                                    @PathVariable("repo") String repoName,
-                                    @RequestBody NewIssueDTO dto) {
+    public Result<Boolean> newIssue(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @PathVariable("owner") String owner,
+        @PathVariable("repo") String repoName,
+        @RequestBody NewIssueDTO dto) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -109,11 +112,12 @@ public class IssueController {
 
     @PostMapping("/comment/{owner}/{repo}/{issueId}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> commentIssue(@RequestHeader("Authorization") String token,
-                                        @PathVariable("owner") String owner,
-                                        @PathVariable("repo") String repoName,
-                                        @PathVariable("issueId") Integer issueId,
-                                        @RequestBody AddCmtDTO dto) {
+    public Result<Boolean> commentIssue(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @PathVariable("owner") String owner,
+        @PathVariable("repo") String repoName,
+        @PathVariable("issueId") Integer issueId,
+        @RequestBody AddCmtDTO dto) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -137,8 +141,9 @@ public class IssueController {
 
     @GetMapping("/delete_comment")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> deleteIssueComment(@RequestHeader("Authorization") String token,
-                                              @RequestParam("comment_id") Integer commentId) {
+    public Result<Boolean> deleteIssueComment(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @RequestParam("comment_id") Integer commentId) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -167,7 +172,8 @@ public class IssueController {
 
     @GetMapping("/user_list")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<List<Issue>> listIssueByOnwerId(@RequestHeader("Authorization") String token) {
+    public Result<List<Issue>> listIssueByOnwerId(
+        @RequestHeader(value = "Authorization", required = false) String token) {
         Integer userId = jwtService.getUserId(token);
         List<Issue> issues = issueMapper.findByOwnerId(userId);
         if (Objects.isNull(issues)) {
@@ -213,7 +219,8 @@ public class IssueController {
                     var isContributor = false;
                     if (!isOwner) {
                         List<User> collaborators = repoMapper.listCollaborators(repo.getId());
-                        isColab = collaborators.stream().anyMatch(user -> user.getId().equals(author.getId()));
+                        isColab = collaborators.stream()
+                            .anyMatch(user -> user.getId().equals(author.getId()));
                     }
                     if (!isOwner && !isColab) {
                         List<String> conts = repoMapper.listContributors(repo.getId());
@@ -222,7 +229,8 @@ public class IssueController {
                     return IssueEventDTO.builder()
                         .author(author.getLogin())
                         .ctx(event.getComment())
-                        .cred(isOwner ? "Owner" : isColab ? "Collaborator" : isContributor ? "Contributor" : "")
+                        .cred(isOwner ? "Owner" :
+                            isColab ? "Collaborator" : isContributor ? "Contributor" : "")
                         .time(Long.parseLong(event.getCreatedAt()))
                         .build();
                 }
@@ -262,9 +270,74 @@ public class IssueController {
         String color;
     }
 
+    @Data
+    @Builder
+    public static class WatchIssueDTO {
+        String userName;
+        String repoOwnerName;
+        String repoName;
+        Long time;
+        Integer issueId;
+        Boolean issueIsClose;
+        List<IssueTagDTO> issueTags;
+        String issueTitle;
+        Integer issueCmtCnt;
+    }
+
+    @GetMapping("/watchingrepos")
+    public Result<List<WatchIssueDTO>> watchingIssues(
+        @RequestHeader(value = "Authorization", required = false) String token) {
+        Integer userId = jwtService.getUserId(token);
+        if (Objects.isNull(userId)) {
+            return Result.success(List.of());
+        }
+        List<Repo> repos = userMapper.listWatchingRepos(userId);
+        var res = repos.stream()
+            .map(repo -> {
+                var ownerName = userMapper.findById(repo.getOwner()).getLogin();
+                var dto = listIssueByRepoId(ownerName, repo.getName());
+                List<IssueListDTO> opens = dto.getData().get("opens");
+                List<WatchIssueDTO> openDtos = opens.stream()
+                    .map(raw -> WatchIssueDTO.builder()
+                        .userName(raw.openBy)
+                        .repoOwnerName(ownerName)
+                        .repoName(repo.getName())
+                        .time(raw.openAt)
+                        .issueId(raw.id)
+                        .issueIsClose(false)
+                        .issueTags(raw.tags)
+                        .issueTitle(raw.title)
+                        .issueCmtCnt(raw.cmtCnt)
+                        .build()
+                    ).toList();
+                List<IssueListDTO> closes = dto.getData().get("closes");
+                List<WatchIssueDTO> closeDtos = closes.stream()
+                    .map(raw -> WatchIssueDTO.builder()
+                        .userName(raw.openBy)
+                        .repoOwnerName(ownerName)
+                        .repoName(repo.getName())
+                        .time(raw.openAt)
+                        .issueId(raw.id)
+                        .issueIsClose(true)
+                        .issueTags(raw.tags)
+                        .issueTitle(raw.title)
+                        .issueCmtCnt(raw.cmtCnt)
+                        .build()
+                    ).toList();
+                var ret = new ArrayList<>(openDtos);
+                ret.addAll(closeDtos);
+                return ret;
+            })
+            .flatMap(List::stream)
+            .sorted(Comparator.comparing(WatchIssueDTO::getTime))
+            .toList();
+        return Result.success(res);
+    }
+
+
     @GetMapping("/issuelist/{owner}/{repo}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result listIssueByRepoId(@PathVariable String owner,
+    public Result<Map<String, List<IssueListDTO>>> listIssueByRepoId(@PathVariable String owner,
                                     @PathVariable String repo) {
         var id = repoMapper.findByOwnerAndName(owner, repo).getId();
         List<Issue> issues = issueMapper.findByRepoId(id);
@@ -323,7 +396,8 @@ public class IssueController {
     @GetMapping("/user_close_list")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<List<Issue>> listIssueByUserIdAndClose(
-        @RequestHeader("Authorization") String token, @RequestParam("closed") Boolean closed) {
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @RequestParam("closed") Boolean closed) {
         Integer userId = jwtService.getUserId(token);
         List<Issue> issues = issueMapper.findByUserIdandClosed(userId, closed);
         if (Objects.isNull(issues)) {
@@ -345,9 +419,10 @@ public class IssueController {
     // FIXME: authorization?
     @GetMapping("/assign")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> assignIssue(@RequestHeader("Authorization") String token,
-                                       @RequestParam("issueId") Integer issueId,
-                                       @RequestParam("assigneeId") Integer assigneeId) {
+    public Result<Boolean> assignIssue(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @RequestParam("issueId") Integer issueId,
+        @RequestParam("assigneeId") Integer assigneeId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
@@ -372,9 +447,10 @@ public class IssueController {
 
     @GetMapping("/unassign")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> unassignIssue(@RequestHeader("Authorization") String token,
-                                         @RequestParam("issueId") Integer issueId,
-                                         @RequestParam("assigneeId") Integer assigneeId) {
+    public Result<Boolean> unassignIssue(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @RequestParam("issueId") Integer issueId,
+        @RequestParam("assigneeId") Integer assigneeId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
@@ -407,9 +483,10 @@ public class IssueController {
 
     @GetMapping("/assign_label")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> assignLabel(@RequestHeader("Authorization") String token,
-                                       @RequestParam("issueId") Integer issueId,
-                                       @RequestParam("labelId") Integer labelId) {
+    public Result<Boolean> assignLabel(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @RequestParam("issueId") Integer issueId,
+        @RequestParam("labelId") Integer labelId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
@@ -430,9 +507,10 @@ public class IssueController {
 
     @GetMapping("/unassign_label")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> unassignLabel(@RequestHeader("Authorization") String token,
-                                         @RequestParam("issueId") Integer issueId,
-                                         @RequestParam("labelId") Integer labelId) {
+    public Result<Boolean> unassignLabel(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @RequestParam("issueId") Integer issueId,
+        @RequestParam("labelId") Integer labelId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
@@ -453,9 +531,10 @@ public class IssueController {
 
     @GetMapping("/assign_milestone")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> assignMilestone(@RequestHeader("Authorization") String token,
-                                           @RequestParam("issueId") Integer issueId,
-                                           @RequestParam("milestoneId") Integer milestoneId) {
+    public Result<Boolean> assignMilestone(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @RequestParam("issueId") Integer issueId,
+        @RequestParam("milestoneId") Integer milestoneId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
@@ -476,9 +555,10 @@ public class IssueController {
 
     @GetMapping("/unassign_milestone")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> unassignMilestone(@RequestHeader("Authorization") String token,
-                                             @RequestParam("issueId") Integer issueId,
-                                             @RequestParam("milestoneId") Integer milestoneId) {
+    public Result<Boolean> unassignMilestone(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @RequestParam("issueId") Integer issueId,
+        @RequestParam("milestoneId") Integer milestoneId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
@@ -499,11 +579,12 @@ public class IssueController {
 
     @GetMapping("/setclose/{owner}/{repo}/{issue}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> closeIssue(@RequestHeader("Authorization") String token,
-                                      @PathVariable("owner") String owner,
-                                      @PathVariable("repo") String repoName,
-                                      @PathVariable("issue") Integer issueDisplayId,
-                                      @RequestParam("close") Boolean close) {
+    public Result<Boolean> closeIssue(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @PathVariable("owner") String owner,
+        @PathVariable("repo") String repoName,
+        @PathVariable("issue") Integer issueDisplayId,
+        @RequestParam("close") Boolean close) {
         Integer userId = jwtService.getUserId(token);
         var repo = repoMapper.findByOwnerAndName(owner, repoName);
         Issue issue = issueMapper.findByDisplayedIdandRepoId(issueDisplayId, repo.getId());
