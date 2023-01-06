@@ -291,6 +291,8 @@ public class IssueController {
         if (Objects.isNull(userId)) {
             return Result.success(List.of());
         }
+        final String userName = userMapper.findById(userId).getLogin();
+
         List<Repo> repos = userMapper.listWatchingRepos(userId);
         var res = repos.stream()
             .map(repo -> {
@@ -309,7 +311,9 @@ public class IssueController {
                         .issueTitle(raw.title)
                         .issueCmtCnt(raw.cmtCnt)
                         .build()
-                    ).toList();
+                    )
+                    .filter(dto1 -> !dto1.getUserName().equals(userName))
+                    .toList();
                 List<IssueListDTO> closes = dto.getData().get("closes");
                 List<WatchIssueDTO> closeDtos = closes.stream()
                     .map(raw -> WatchIssueDTO.builder()
@@ -323,7 +327,9 @@ public class IssueController {
                         .issueTitle(raw.title)
                         .issueCmtCnt(raw.cmtCnt)
                         .build()
-                    ).toList();
+                    )
+                    .filter(dto1 -> !dto1.getUserName().equals(userName))
+                    .toList();
                 var ret = new ArrayList<>(openDtos);
                 ret.addAll(closeDtos);
                 return ret;

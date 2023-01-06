@@ -181,6 +181,8 @@ public class PRController {
         if (Objects.isNull(userId)) {
             return Result.success(List.of());
         }
+        final String userName = userMapper.findById(userId).getLogin();
+
         List<Repo> repos = userMapper.listWatchingRepos(userId);
         var res = repos.stream()
             .map(repo -> {
@@ -199,7 +201,9 @@ public class PRController {
                         .prTitle(raw.title)
                         .prCmtCnt(raw.cmtCnt)
                         .build()
-                    ).toList();
+                    )
+                    .filter(dto1 -> !dto1.getUserName().equals(userName))
+                    .toList();
                 List<WatchPrDTO> closeDtos = closes.stream()
                     .map(raw -> WatchPrDTO.builder()
                         .userName(raw.openBy)
@@ -211,7 +215,9 @@ public class PRController {
                         .prTitle(raw.title)
                         .prCmtCnt(raw.cmtCnt)
                         .build()
-                    ).toList();
+                    )
+                    .filter(dto1 -> !dto1.getUserName().equals(userName))
+                    .toList();
                 var ret = new ArrayList<>(openDtos);
                 ret.addAll(closeDtos);
                 return ret;
