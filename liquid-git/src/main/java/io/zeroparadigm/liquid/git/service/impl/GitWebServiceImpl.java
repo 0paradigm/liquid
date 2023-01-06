@@ -453,11 +453,13 @@ public class GitWebServiceImpl implements GitWebService {
                 try {
                     oldContent =
                         new String(objectReader.open(entry.getOldId().toObjectId()).getBytes());
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
                 try {
                     newContent =
                         new String(objectReader.open(entry.getNewId().toObjectId()).getBytes());
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
                 tmp.put("file", entry.getNewPath());
                 tmp.put("old", oldContent);
                 tmp.put("new", newContent);
@@ -578,18 +580,21 @@ public class GitWebServiceImpl implements GitWebService {
 
     public List<BriefCommitDTO> listPRCommit(String headOwner,
                                              String headRepo,
+                                             String headBranch,
                                              String baseOwner,
-                                             String baseRepo)
+                                             String baseRepo,
+                                             String baseBranch)
         throws IOException, GitAPIException {
         File headRepoRoot = selectCache(headOwner, headRepo);
         File baseRepoRoot = selectCache(baseOwner, baseRepo);
-
         try (Git headGit = Git.open(headRepoRoot); Git baseGit = Git.open(baseRepoRoot)) {
+            headGit.checkout().setName(headBranch).call();
+            baseGit.checkout().setName(baseBranch).call();
             ObjectReader baseReader = baseGit.getRepository().newObjectReader();
             Iterable<RevCommit> headCommits = headGit.log().call();
             List<BriefCommitDTO> commits = new ArrayList<>();
-            for (RevCommit commit: headCommits){
-                if (!baseReader.has(commit)){
+            for (RevCommit commit : headCommits) {
+                if (!baseReader.has(commit)) {
                     var brief = BriefCommitDTO.builder()
                         .id(commit.getId().getName())
                         .user(commit.getAuthorIdent().getName())
@@ -609,20 +614,24 @@ public class GitWebServiceImpl implements GitWebService {
     /*
         Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
      */
-    public List<Map<String, Object>> diffOfRepo(String headOwner,
-                                                String headRepo,
-                                                String baseOwner,
-                                                String baseRepo)
+    public List<Map<String, Object>> diffPR(String headOwner,
+                                            String headRepo,
+                                            String headBranch,
+                                            String baseOwner,
+                                            String baseRepo,
+                                            String baseBranch)
         throws IOException, GitAPIException {
         File headRepoRoot = selectCache(headOwner, headRepo);
         File baseRepoRoot = selectCache(baseOwner, baseRepo);
         try (Git headGit = Git.open(headRepoRoot); Git baseGit = Git.open(baseRepoRoot)) {
+            headGit.checkout().setName(headBranch).call();
+            baseGit.checkout().setName(baseBranch).call();
             ObjectReader baseReader = baseGit.getRepository().newObjectReader();
             Iterable<RevCommit> headCommits = headGit.log().call();
             RevCommit latestCommit = headCommits.iterator().next();
             RevCommit baseCommit = latestCommit;
-            for (RevCommit commit: headCommits){
-                if (baseReader.has(commit)){
+            for (RevCommit commit : headCommits) {
+                if (baseReader.has(commit)) {
                     baseCommit = commit;
                     break;
                 }

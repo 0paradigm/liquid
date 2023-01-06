@@ -352,11 +352,14 @@ public class GitWebController {
     public Result<List<GitWebService.BriefCommitDTO>> getPRCommit(
         @RequestParam("head_owner") String headOwner,
         @RequestParam("head_repo") String headRepo,
+        @RequestParam("head_branch") String headBranch,
         @RequestParam("base_owner") String baseOwner,
-        @RequestParam("base_repo") String baseRepo) {
+        @RequestParam("base_repo") String baseRepo,
+        @RequestParam("base_branch") String baseBranch) {
         try {
             List<GitWebService.BriefCommitDTO> list =
-                gitWebService.listPRCommit(headOwner, headRepo, baseOwner, baseRepo);
+                gitWebService.listPRCommit(headOwner, headRepo, headBranch, baseOwner, baseRepo,
+                    baseBranch);
             return Result.success(list);
         } catch (Exception e) {
             log.error("List commits error", e);
@@ -368,11 +371,16 @@ public class GitWebController {
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<List<Map<String, Object>>> getPRDiff(@RequestParam("head_owner") String headOwner,
                                                        @RequestParam("head_repo") String headRepo,
+                                                       @RequestParam("head_branch")
+                                                       String headBranch,
                                                        @RequestParam("base_owner") String baseOwner,
-                                                       @RequestParam("base_repo") String baseRepo) {
+                                                       @RequestParam("base_repo") String baseRepo,
+                                                       @RequestParam("base_branch")
+                                                       String baseBranch) {
         try {
             List<Map<String, Object>> list =
-                gitWebService.diffOfRepo(headOwner, headRepo, baseOwner, baseRepo);
+                gitWebService.diffPR(headOwner, headRepo, headBranch, baseOwner, baseRepo,
+                    baseBranch);
             return Result.success(list);
         } catch (Exception e) {
             log.error("List commits error", e);

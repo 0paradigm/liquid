@@ -69,16 +69,20 @@ public interface GitWebService {
     List<String> findBranchCommit(String owner, String repo, String branchOrCommit
     ) throws IOException, GitAPIException;
 
-    List<Map<String, Object>> diffOfRepo(String headOwner,
-                                         String headRepo,
-                                         String baseOwner,
-                                         String baseRepo)
+    List<Map<String, Object>> diffPR(String headOwner,
+                                     String headRepo,
+                                     String headBranch,
+                                     String baseOwner,
+                                     String baseRepo,
+                                     String baseBranch)
         throws IOException, GitAPIException;
 
     List<BriefCommitDTO> listPRCommit(String headOwner,
                                       String headRepo,
+                                      String headBranch,
                                       String baseOwner,
-                                      String baseRepo)
+                                      String baseRepo,
+                                      String baseBranch)
         throws IOException, GitAPIException;
 
     String getFile(String owner, String repo, String branchOrCommit,
@@ -102,7 +106,7 @@ public interface GitWebService {
     List<BriefCommitDTO> listCommits(String owner, String repo, String branchOrCommit);
 
     void mergePR(String baseOwner, String baseRepo, String headOwner, String headRepo,
-                   String PRTitle);
+                 String PRTitle);
 
     Result webDelete(String owner, String repo, String initBranch, String deleteFile,
                      UserBO committer, String message);
