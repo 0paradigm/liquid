@@ -617,25 +617,22 @@ public class GitWebServiceImpl implements GitWebService {
         File headRepoRoot = selectCache(headOwner, headRepo);
         File baseRepoRoot = selectCache(baseOwner, baseRepo);
         try (Git headGit = Git.open(headRepoRoot); Git baseGit = Git.open(baseRepoRoot)) {
-            RevCommit oldCommit =
-                baseGit.log().add(baseGit.getRepository().resolve("HEAD")).setMaxCount(1).call()
-                    .iterator().next();
-            RevTree oldTree = oldCommit.getTree();
-
-
-            RevCommit newCommit =
-                headGit.log().add(headGit.getRepository().resolve("HEAD")).setMaxCount(1).call()
-                    .iterator().next();
-            RevTree newTree = newCommit.getTree();
-
-            DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
-            df.setRepository(baseGit.getRepository());
-            df.setDiffComparator(RawTextComparator.DEFAULT);
-            df.setDetectRenames(true);
-            List<DiffEntry> diffs = df.scan(oldTree, newTree);
+            ObjectReader baseReader = baseGit.getRepository().newObjectReader();
+            Iterable<RevCommit> headCommits = headGit.log().call();
+            RevCommit latestCommit = headCommits.iterator().next();
+            RevCommit baseCommit = latestCommit;
+            for (RevCommit commit: headCommits){
+                if (baseReader.has(commit)){
+                    baseCommit = commit;
+                    break;
+                }
+            }
+            DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
+            diffFormatter.setRepository(headGit.getRepository());
+            List<DiffEntry> diffEntries = diffFormatter.scan(baseCommit, latestCommit);
             ObjectReader objectReader = headGit.getRepository().newObjectReader();
             List<Map<String, String>> cache = new ArrayList<>();
-            for (DiffEntry diff : diffs) {
+            for (DiffEntry diff : diffEntries) {
                 Map<String, String> tmp = new HashMap<>();
                 String oldContent = "";
                 String newContent = "";

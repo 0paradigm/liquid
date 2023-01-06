@@ -173,7 +173,8 @@ public class GitWebController {
                                @PathVariable String repo,
                                @PathVariable String branch,
                                @RequestBody WebCommitDTO args,
-                               @RequestHeader(value = "Authorization", required = false) String auth) {
+                               @RequestHeader(value = "Authorization", required = false)
+                               String auth) {
         Integer userId = jwtService.getUserId(auth);
         UserBO userBO = userAuthService.findById(userId);
         log.info("commit with user {}", userBO);
@@ -237,7 +238,8 @@ public class GitWebController {
                              @PathVariable String repo,
                              @PathVariable String branch,
                              @RequestBody WebDeleteFileDTO args,
-                             @RequestHeader(value = "Authorization", required = false) String auth) {
+                             @RequestHeader(value = "Authorization", required = false)
+                             String auth) {
         Integer userId = jwtService.getUserId(auth);
         UserBO userBO = userAuthService.findById(userId);
         log.info("delete file with user {}", userBO);
@@ -264,7 +266,8 @@ public class GitWebController {
     @WrapsException(wrapped = ServiceStatus.NOT_FOUND, status = HttpStatus.NOT_FOUND)
     public Result<List<String>> listBranches(@PathVariable String owner,
                                              @PathVariable String repo,
-                                             @RequestHeader(value = "Authorization", required = false) String auth) {
+                                             @RequestHeader(value = "Authorization", required = false)
+                                             String auth) {
 
         Integer userId = jwtService.getUserId(auth);
         log.info("list branches with user {}", userId);
@@ -303,13 +306,13 @@ public class GitWebController {
     @GetMapping("/diff/{owner}/{repo}")
     @ApiOperation(value = "diff", notes = "Return is JSON String")
     public Result<List<Map<String, Object>>> diff(@PathVariable String owner,
-                               @PathVariable String repo,
-                               @RequestParam String branch,
-                               @RequestParam String sha){
-        try{
+                                                  @PathVariable String repo,
+                                                  @RequestParam String branch,
+                                                  @RequestParam String sha) {
+        try {
             List<Map<String, Object>> res = gitWebService.changesOfCommit(owner, repo, branch, sha);
             return Result.success(res);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("Diff error", e);
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
@@ -318,13 +321,14 @@ public class GitWebController {
     @GetMapping("/diffV2/{owner}/{repo}")
     @ApiOperation(value = "diff2", notes = "Return is JSON String")
     public Result<List<Map<String, String>>> diffV2(@PathVariable String owner,
-                                                  @PathVariable String repo,
-                                                  @RequestParam String branch,
-                                                  @RequestParam String sha){
-        try{
-            List<Map<String, String>> res = gitWebService.changesOfCommitV2(owner, repo, branch, sha);
+                                                    @PathVariable String repo,
+                                                    @RequestParam String branch,
+                                                    @RequestParam String sha) {
+        try {
+            List<Map<String, String>> res =
+                gitWebService.changesOfCommitV2(owner, repo, branch, sha);
             return Result.success(res);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("Diff error", e);
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
         }
@@ -345,14 +349,16 @@ public class GitWebController {
 
     @GetMapping("/getPRCommit")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<List<GitWebService.BriefCommitDTO>> getPRCommit(@RequestParam("head_owner") String headOwner,
-                                                                  @RequestParam("head_repo") String headRepo,
-                                                                  @RequestParam("base_owner") String baseOwner,
-                                                                  @RequestParam("base_repo") String baseRepo){
-        try{
-            List<GitWebService.BriefCommitDTO> list = gitWebService.listPRCommit(headOwner, headRepo, baseOwner, baseRepo);
+    public Result<List<GitWebService.BriefCommitDTO>> getPRCommit(
+        @RequestParam("head_owner") String headOwner,
+        @RequestParam("head_repo") String headRepo,
+        @RequestParam("base_owner") String baseOwner,
+        @RequestParam("base_repo") String baseRepo) {
+        try {
+            List<GitWebService.BriefCommitDTO> list =
+                gitWebService.listPRCommit(headOwner, headRepo, baseOwner, baseRepo);
             return Result.success(list);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("List commits error", e);
             return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
         }
@@ -361,16 +367,32 @@ public class GitWebController {
     @GetMapping("/getPRDiff")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<List<Map<String, Object>>> getPRDiff(@RequestParam("head_owner") String headOwner,
-                                                                  @RequestParam("head_repo") String headRepo,
-                                                                  @RequestParam("base_owner") String baseOwner,
-                                                                  @RequestParam("base_repo") String baseRepo){
-        try{
-            List<Map<String, Object>> list = gitWebService.diffOfRepo(headOwner, headRepo, baseOwner, baseRepo);
+                                                       @RequestParam("head_repo") String headRepo,
+                                                       @RequestParam("base_owner") String baseOwner,
+                                                       @RequestParam("base_repo") String baseRepo) {
+        try {
+            List<Map<String, Object>> list =
+                gitWebService.diffOfRepo(headOwner, headRepo, baseOwner, baseRepo);
             return Result.success(list);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("List commits error", e);
             return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
         }
     }
 
+    @GetMapping("/mergePR")
+    @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
+    public Result mergePR(@RequestParam("head_owner") String headOwner,
+                          @RequestParam("head_repo") String headRepo,
+                          @RequestParam("base_owner") String baseOwner,
+                          @RequestParam("base_repo") String baseRepo,
+                          @RequestParam("pr_title") String prTitle) {
+        try {
+            gitWebService.mergePR(baseOwner, baseRepo, headOwner, headRepo, prTitle);
+            return Result.success();
+        } catch (Exception e) {
+            log.error("List commits error", e);
+            return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);
+        }
+    }
 }
