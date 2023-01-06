@@ -173,7 +173,7 @@ public class GitWebController {
                                @PathVariable String repo,
                                @PathVariable String branch,
                                @RequestBody WebCommitDTO args,
-                               @RequestHeader("Authorization") String auth) {
+                               @RequestHeader(value = "Authorization", required = false) String auth) {
         Integer userId = jwtService.getUserId(auth);
         UserBO userBO = userAuthService.findById(userId);
         log.info("commit with user {}", userBO);
@@ -237,7 +237,7 @@ public class GitWebController {
                              @PathVariable String repo,
                              @PathVariable String branch,
                              @RequestBody WebDeleteFileDTO args,
-                             @RequestHeader("Authorization") String auth) {
+                             @RequestHeader(value = "Authorization", required = false) String auth) {
         Integer userId = jwtService.getUserId(auth);
         UserBO userBO = userAuthService.findById(userId);
         log.info("delete file with user {}", userBO);
@@ -264,7 +264,7 @@ public class GitWebController {
     @WrapsException(wrapped = ServiceStatus.NOT_FOUND, status = HttpStatus.NOT_FOUND)
     public Result<List<String>> listBranches(@PathVariable String owner,
                                              @PathVariable String repo,
-                                             @RequestHeader("Authorization") String auth) {
+                                             @RequestHeader(value = "Authorization", required = false) String auth) {
 
         Integer userId = jwtService.getUserId(auth);
         log.info("list branches with user {}", userId);
@@ -293,7 +293,7 @@ public class GitWebController {
                          @PathVariable String repo,
                          @RequestParam String branch,
                          @RequestParam String sha,
-                         @RequestHeader("Authorization") String auth) {
+                         @RequestHeader(value = "Authorization", required = false) String auth) {
         Integer userId = jwtService.getUserId(auth);
         UserBO userBO = userAuthService.findById(userId);
         gitWebService.webRevert(owner, repo, branch, sha, userBO);

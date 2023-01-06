@@ -14,6 +14,8 @@ import io.zeroparadigm.liquid.core.dao.entity.Repo;
 import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.dao.mapper.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
@@ -61,12 +63,13 @@ public class PRController {
 
     @GetMapping("/new")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> newPR(@RequestHeader("Authorization") String token,
-                                 @RequestParam("display_id") Integer displayId,
-                                 @RequestParam("repo_id") Integer repoId,
-                                 @RequestParam("title") String title,
-                                 @RequestParam("head") Integer head,
-                                 @RequestParam("base") Integer base) {
+    public Result<Boolean> newPR(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @RequestParam("display_id") Integer displayId,
+        @RequestParam("repo_id") Integer repoId,
+        @RequestParam("title") String title,
+        @RequestParam("head") Integer head,
+        @RequestParam("base") Integer base) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -158,10 +161,70 @@ public class PRController {
         return Result.success(dto);
     }
 
+    @Data
+    @Builder
+    public static class WatchPrDTO {
+        String userName;
+        String repoOwnerName;
+        String repoName;
+        Long time;
+        Integer prId;
+        Boolean prIsClose;
+        String prTitle;
+        Integer prCmtCnt;
+    }
+
+    @GetMapping("/listwatching")
+    public Result<List<WatchPrDTO>> listWatching(
+        @RequestHeader(value = "Authorization", required = false) String token) {
+        Integer userId = jwtService.getUserId(token);
+        if (Objects.isNull(userId)) {
+            return Result.success(List.of());
+        }
+        List<Repo> repos = userMapper.listWatchingRepos(userId);
+        var res = repos.stream()
+            .map(repo -> {
+                var ownerName = userMapper.findById(repo.getOwner()).getLogin();
+                var dto = listPr(ownerName, repo.getName());
+                List<PrListDTO> opens = dto.getData().get("opens");
+                List<PrListDTO> closes = dto.getData().get("closes");
+                List<WatchPrDTO> openDtos = opens.stream()
+                    .map(raw -> WatchPrDTO.builder()
+                        .userName(raw.openBy)
+                        .repoOwnerName(ownerName)
+                        .repoName(repo.getName())
+                        .time(raw.openAt)
+                        .prId(raw.id)
+                        .prIsClose(false)
+                        .prTitle(raw.title)
+                        .prCmtCnt(raw.cmtCnt)
+                        .build()
+                    ).toList();
+                List<WatchPrDTO> closeDtos = closes.stream()
+                    .map(raw -> WatchPrDTO.builder()
+                        .userName(raw.openBy)
+                        .repoOwnerName(ownerName)
+                        .repoName(repo.getName())
+                        .time(raw.openAt)
+                        .prId(raw.id)
+                        .prIsClose(true)
+                        .prTitle(raw.title)
+                        .prCmtCnt(raw.cmtCnt)
+                        .build()
+                    ).toList();
+                var ret = new ArrayList<>(openDtos);
+                ret.addAll(closeDtos);
+                return ret;
+            })
+            .flatMap(List::stream)
+            .sorted(Comparator.comparing(WatchPrDTO::getTime))
+            .toList();
+        return Result.success(res);
+    }
 
     @GetMapping("/list/{owner}/{repo}")
-    public Result listPr(@PathVariable("owner") String owner,
-                         @PathVariable("repo") String repo) {
+    public Result<Map<String, List<PrListDTO>>> listPr(@PathVariable("owner") String owner,
+                                                       @PathVariable("repo") String repo) {
         Repo repoE = repoMapper.findByOwnerAndName(owner, repo);
         if (Objects.isNull(repoE)) {
             return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
@@ -201,7 +264,8 @@ public class PRController {
 
     @GetMapping("/get_by_user")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<List<PR>> getPRByUser(@RequestHeader("Authorization") String token) {
+    public Result<List<PR>> getPRByUser(
+        @RequestHeader(value = "Authorization", required = false) String token) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -224,11 +288,12 @@ public class PRController {
 
     @GetMapping("/setClosed/{owner}/{repo}/{displayId}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> setClosed(@RequestHeader("Authorization") String token,
-                                     @PathVariable("owner") String owner,
-                                     @PathVariable("repo") String repoName,
-                                     @PathVariable("displayId") Integer displayId,
-                                     @RequestParam("close") Boolean closed) {
+    public Result<Boolean> setClosed(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @PathVariable("owner") String owner,
+        @PathVariable("repo") String repoName,
+        @PathVariable("displayId") Integer displayId,
+        @RequestParam("close") Boolean closed) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -258,18 +323,20 @@ public class PRController {
 
     @PostMapping("/new_comment/{owner}/{repo}/{displayId}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> newPRComment(@RequestHeader("Authorization") String token,
-                                        @PathVariable("owner") String owner,
-                                        @PathVariable("repo") String repoName,
-                                        @PathVariable("displayId") Integer displayId,
-                                        @RequestBody AddCmtDTO dto) {
+    public Result<Boolean> newPRComment(
+        @RequestHeader(value = "Authorization", required = false) String token,
+        @PathVariable("owner") String owner,
+        @PathVariable("repo") String repoName,
+        @PathVariable("displayId") Integer displayId,
+        @RequestBody AddCmtDTO dto) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
         var repo = repoMapper.findByOwnerAndName(owner, repoName);
         PR pr = prMapper.findByRepoIdAndDisplayedId(repo.getId(), displayId);
-        prCommentMapper.createPRComment(repo.getId(), pr.getDisplayId(), userId, dto.getCtx(), System.currentTimeMillis());
+        prCommentMapper.createPRComment(repo.getId(), pr.getDisplayId(), userId, dto.getCtx(),
+            System.currentTimeMillis());
         return Result.success(true);
     }
 
@@ -279,15 +346,16 @@ public class PRController {
     public Result merge(@PathVariable("owner") String owner,
                         @PathVariable("repo") String repoName,
                         @PathVariable("displayId") Integer displayId,
-                        @RequestHeader("Authorization") String token) {
+                        @RequestHeader(value = "Authorization", required = false) String token) {
         Integer userId = jwtService.getUserId(token);
         var baseRepo = repoMapper.findByOwnerAndName(owner, repoName);
         PR pr = prMapper.findByRepoIdAndDisplayedId(baseRepo.getId(), displayId);
         var headRepo = repoMapper.findById(pr.getHead());
         var user = userMapper.findById(headRepo.getOwner());
 
-        try{
-            gitBasicService.mergePR(owner, repoName, user.getName(), headRepo.getName(), pr.getTitle());
+        try {
+            gitBasicService.mergePR(owner, repoName, user.getName(), headRepo.getName(),
+                pr.getTitle());
         } catch (Exception e) {
             prMapper.setClosed(pr.getId(), true);
             return Result.error(ServiceStatus.GIT_REPO_NOT_FOUND);

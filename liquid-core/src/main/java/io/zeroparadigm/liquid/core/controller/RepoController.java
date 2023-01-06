@@ -95,7 +95,7 @@ public class RepoController {
     @Deprecated
     @GetMapping("/auth")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> auth(@RequestHeader("Authorization") String token,
+    public Result<Boolean> auth(@RequestHeader(value = "Authorization", required = false) String token,
                                 @RequestParam("repoId") Integer repoId,
                                 @RequestParam("read") Boolean read,
                                 @RequestParam("manage") Boolean manage,
@@ -123,7 +123,7 @@ public class RepoController {
 
     @GetMapping("/create")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> create(@RequestHeader("Authorization") String token,
+    public Result<Boolean> create(@RequestHeader(value = "Authorization", required = false) String token,
                                   @RequestParam("name") String name,
                                   @RequestParam(value = "forkedId", required = false)
                                   String forkedStr,
@@ -254,7 +254,7 @@ public class RepoController {
 
     @GetMapping("/find")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Repo> findRepoByOwnerIdAndName(@RequestHeader("Authorization") String token,
+    public Result<Repo> findRepoByOwnerIdAndName(@RequestHeader(value = "Authorization", required = false) String token,
                                                  @RequestParam("name") String name) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
@@ -357,7 +357,7 @@ public class RepoController {
     }
 
     @GetMapping("/toggle_watch/{owner}/{repo}")
-    public Result toggleWatch(@RequestHeader("Authorization") String token,
+    public Result toggleWatch(@RequestHeader(value = "Authorization", required = false) String token,
                               @PathVariable("owner") String owner,
                               @PathVariable("repo") String repoName) {
         Integer userId = jwtService.getUserId(token);
@@ -380,7 +380,7 @@ public class RepoController {
     }
 
     @GetMapping("/toggle_star/{owner}/{repo}")
-    public Result toggleStar(@RequestHeader("Authorization") String token,
+    public Result toggleStar(@RequestHeader(value = "Authorization", required = false) String token,
                              @PathVariable("owner") String owner,
                              @PathVariable("repo") String repoName) {
         Integer userId = jwtService.getUserId(token);
@@ -425,7 +425,7 @@ public class RepoController {
 
     @GetMapping("/delete")
     @WrapsException(ServiceStatus.METHOD_NOT_ALLOWED)
-    public Result<Boolean> deleteRepo(@RequestHeader("Authorization") String token,
+    public Result<Boolean> deleteRepo(@RequestHeader(value = "Authorization", required = false) String token,
                                       @RequestParam("repoId") Integer repoId) {
         Integer userId = jwtService.getUserId(token);
         User usr = userMapper.findById(userId);

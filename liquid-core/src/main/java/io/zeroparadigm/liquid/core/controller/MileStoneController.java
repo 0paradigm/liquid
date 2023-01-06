@@ -56,7 +56,7 @@ public class MileStoneController {
 
     @GetMapping("/new")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> newMileStone(@RequestHeader("Authorization") String token,
+    public Result<Boolean> newMileStone(@RequestHeader(value = "Authorization", required = false) String token,
                                         @RequestParam("repoId") Integer repoId,
                                         @RequestParam("name") String name,
                                         @RequestParam("description") String description,
@@ -101,7 +101,7 @@ public class MileStoneController {
     // FIXME: authorization?
     @GetMapping("/update_due")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> updateMileStoneDue(@RequestHeader("Authorization") String token, @RequestParam("milestoneId") Integer milestoneId,
+    public Result<Boolean> updateMileStoneDue(@RequestHeader(value = "Authorization", required = false) String token, @RequestParam("milestoneId") Integer milestoneId,
                                      @RequestParam("due") Long due) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
@@ -123,7 +123,7 @@ public class MileStoneController {
 
     @GetMapping("/delete")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> deleteMileStone(@RequestHeader("Authorization") String token, @RequestParam("milestoneId") Integer milestoneId) {
+    public Result<Boolean> deleteMileStone(@RequestHeader(value = "Authorization", required = false) String token, @RequestParam("milestoneId") Integer milestoneId) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {

@@ -118,4 +118,12 @@
                        WHERE `user` = #{user});
     </select>
 
+    <select id="listWatchingRepos" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
+        SELECT *
+        FROM `t_ds_repo`
+        WHERE `id` IN (SELECT `repo`
+                       FROM `t_rel_user_watch`
+                       WHERE `user` = #{uid});
+    </select>
+
 </mapper>
