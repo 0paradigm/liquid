@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.zeroparadigm.liquid.common.api.auth.JWTService;
 import io.zeroparadigm.liquid.common.api.core.UserAuthService;
+import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
@@ -30,7 +31,9 @@ import io.zeroparadigm.liquid.core.dao.UserDao;
 import io.zeroparadigm.liquid.core.dao.entity.User;
 import io.zeroparadigm.liquid.core.dao.mapper.RepoMapper;
 import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
+import io.zeroparadigm.liquid.core.dto.LoginCredentials;
 import io.zeroparadigm.liquid.core.dto.RepoDto;
+import io.zeroparadigm.liquid.core.jwt.JwtUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Map;
@@ -40,6 +43,10 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.ibatis.annotations.Param;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.IncorrectCredentialsException;
+import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
@@ -65,8 +72,11 @@ public class UserController {
     @Autowired
     UserDao userDao;
 
-    @DubboReference(parameters = {"unicast", "false"})
+    @Autowired
     JWTService jwtService;
+
+    @Autowired
+    JwtUtils jwtUtils;
 
     @Autowired
     UserMapper userMapper;
@@ -291,6 +301,26 @@ public class UserController {
             }).toList();
         return Result.success(res);
     }
+
+    @PostMapping("/login")
+    public Result<Map<String, String>> login(@RequestBody LoginCredentials credentials) {
+        Result<Map<String, String>> errResult;
+        var user = userMapper.findByNameOrMail(credentials.getLogin());
+        if (Objects.isNull(user)) {
+            return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
+        } else if (!user.getPassword().equals(credentials.getPassword())) {
+            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
+        } else {
+            return Result.success(
+                Map.of(
+                    "token",
+                    jwtUtils.createTokenFor(
+                        user.getId(),
+                        credentials.getRemember())));
+        }
+    }
+
+
 
     // forked from
     @GetMapping("/repo/{user}")
