@@ -19,6 +19,8 @@ import java.util.Comparator;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Delegate;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -81,7 +83,8 @@ public class PRController {
         var head = repoMapper.findByOwnerAndName(headOwner, headRepo);
         var prs = prMapper.findByRepoId(repo.getId());
         var displayId = prs.size() + 1;
-        prMapper.createPr(displayId, repo.getId(), userId, title, head.getId(), repo.getId(), headBranch,
+        prMapper.createPr(displayId, repo.getId(), userId, title, head.getId(), repo.getId(),
+            headBranch,
             baseBranch, System.currentTimeMillis());
         if (Objects.nonNull(cmt) && !cmt.isEmpty()) {
             prCommentMapper.createPRComment(
@@ -366,7 +369,8 @@ public class PRController {
     }
 
 
-    @GetMapping("/get_comment/{owner}/{repo}/{displayId}")
+    @SneakyThrows
+    @GetMapping("/merge/{owner}/{repo}/{displayId}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result merge(@PathVariable("owner") String owner,
                         @PathVariable("repo") String repoName,
@@ -378,14 +382,9 @@ public class PRController {
         var headRepo = repoMapper.findById(pr.getHead());
         var user = userMapper.findById(headRepo.getOwner());
 
-        try {
-            gitBasicService.mergePR(owner, repoName, "master", user.getName(), headRepo.getName(),
-                "master",
-                pr.getTitle());
-        } catch (Exception e) {
-            prMapper.setClosed(pr.getId(), true);
-            return Result.error(ServiceStatus.GIT_REPO_NOT_FOUND);
-        }
+        gitBasicService.mergePR(owner, repoName, pr.getBaseBranch(),
+            user.getLogin(), headRepo.getName(),
+            pr.getHeadBranch(), pr.getTitle());
 
         prMapper.setClosed(pr.getId(), true);
         prCommentMapper.createPRComment(
