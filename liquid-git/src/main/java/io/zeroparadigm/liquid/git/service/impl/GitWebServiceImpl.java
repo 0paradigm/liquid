@@ -447,20 +447,20 @@ public class GitWebServiceImpl implements GitWebService {
             List<Map<String, String>> cache = new ArrayList<>();
             for (DiffEntry entry : diffEntries) {
                 Map<String, String> tmp = new HashMap<>();
-                try{
-                    byte[] oldContent = objectReader.open(entry.getOldId().toObjectId()).getBytes();
-                    byte[] newContent = objectReader.open(entry.getNewId().toObjectId()).getBytes();
-                    tmp.put("file", entry.getNewPath());
-                    tmp.put("old", new String(oldContent));
-                    tmp.put("new", new String(newContent));
-                    cache.add(tmp);
-                }catch (Exception e){
-                    byte[] newContent = objectReader.open(entry.getNewId().toObjectId()).getBytes();
-                    tmp.put("file", entry.getNewPath());
-                    tmp.put("old", "");
-                    tmp.put("new", new String(newContent));
-                    cache.add(tmp);
-                }
+                String oldContent = "";
+                String newContent = "";
+                try {
+                    oldContent =
+                        new String(objectReader.open(entry.getOldId().toObjectId()).getBytes());
+                } catch (Exception ignored) {}
+                try {
+                    newContent =
+                        new String(objectReader.open(entry.getNewId().toObjectId()).getBytes());
+                } catch (Exception ignored) {}
+                tmp.put("file", entry.getNewPath());
+                tmp.put("old", oldContent);
+                tmp.put("new", newContent);
+                cache.add(tmp);
             }
             return handleDiff(cache);
         } catch (Exception e) {
@@ -469,8 +469,9 @@ public class GitWebServiceImpl implements GitWebService {
         }
     }
 
-    public List<Map<String, String>> changesOfCommitV2(String owner, String repo, String branch, String sha1
-    ) throws IOException, GitAPIException{
+    public List<Map<String, String>> changesOfCommitV2(String owner, String repo, String branch,
+                                                       String sha1
+    ) throws IOException, GitAPIException {
         File repoRoot = selectCache(owner, repo);
         try (Git git = Git.open(repoRoot)) {
             git.checkout().setName(branch).call();
@@ -485,20 +486,23 @@ public class GitWebServiceImpl implements GitWebService {
             List<Map<String, String>> changes = new ArrayList<>();
             for (DiffEntry entry : diffEntries) {
                 Map<String, String> tmp = new HashMap<>();
+                String oldContent = "";
+                String newContent = "";
                 try {
-                    byte[] oldContent = objectReader.open(entry.getOldId().toObjectId()).getBytes();
-                    byte[] newContent = objectReader.open(entry.getNewId().toObjectId()).getBytes();
-                    tmp.put("file", entry.getNewPath());
-                    tmp.put("old", new String(oldContent));
-                    tmp.put("new", new String(newContent));
-                    changes.add(tmp);
-                }catch (Exception e){
-                    byte[] newContent = objectReader.open(entry.getNewId().toObjectId()).getBytes();
-                    tmp.put("file", entry.getNewPath());
-                    tmp.put("old", "");
-                    tmp.put("new", new String(newContent));
-                    changes.add(tmp);
+                    oldContent =
+                        new String(objectReader.open(entry.getOldId().toObjectId()).getBytes());
+                } catch (Exception ignored) {
                 }
+                try {
+                    newContent =
+                        new String(objectReader.open(entry.getNewId().toObjectId()).getBytes());
+                } catch (Exception ignored) {
+                }
+                tmp.put("file", entry.getNewPath());
+                tmp.put("old", oldContent);
+                tmp.put("new", newContent);
+                changes.add(tmp);
+
             }
             return changes;
         } catch (Exception e) {
@@ -514,16 +518,16 @@ public class GitWebServiceImpl implements GitWebService {
             String key = "";
             List<Map<String, Object>> root = list;
             for (int i = 0; i < path.length - 1; i++) {
-                if(i==0){
+                if (i == 0) {
                     key = path[0];
-                }else{
+                } else {
                     key = key + "/" + path[i];
                 }
                 root = searchPath(root, key, path[i]);
             }
             Map<String, Object> file = new HashMap<>();
-            file.put("title", path[path.length-1]);
-            file.put("key", key + "/" + path[path.length-1]);
+            file.put("title", path[path.length - 1]);
+            file.put("key", key + "/" + path[path.length - 1]);
             file.put("old", map.get("old"));
             file.put("new", map.get("new"));
             root.add(file);
@@ -531,9 +535,10 @@ public class GitWebServiceImpl implements GitWebService {
         return list;
     }
 
-    private List<Map<String, Object>> searchPath(List<Map<String, Object>> root, String key, String path){
-        for (Map<String, Object> map: root){
-            if (map.get("title").equals(path)){
+    private List<Map<String, Object>> searchPath(List<Map<String, Object>> root, String key,
+                                                 String path) {
+        for (Map<String, Object> map : root) {
+            if (map.get("title").equals(path)) {
                 return (List<Map<String, Object>>) map.get("children");
             }
         }
@@ -607,9 +612,9 @@ public class GitWebServiceImpl implements GitWebService {
         Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
      */
     public List<Map<String, Object>> diffOfRepo(String headOwner,
-                                         String headRepo,
-                                         String baseOwner,
-                                         String baseRepo)
+                                                String headRepo,
+                                                String baseOwner,
+                                                String baseRepo)
         throws IOException, GitAPIException {
         File headRepoRoot = selectCache(headOwner, headRepo);
         File baseRepoRoot = selectCache(baseOwner, baseRepo);
@@ -633,20 +638,22 @@ public class GitWebServiceImpl implements GitWebService {
             List<Map<String, String>> cache = new ArrayList<>();
             for (DiffEntry diff : diffs) {
                 Map<String, String> tmp = new HashMap<>();
-                try{
-                    byte[] oldContent = objectReader.open(diff.getOldId().toObjectId()).getBytes();
-                    byte[] newContent = objectReader.open(diff.getNewId().toObjectId()).getBytes();
-                    tmp.put("file", diff.getNewPath());
-                    tmp.put("old", new String(oldContent));
-                    tmp.put("new", new String(newContent));
-                    cache.add(tmp);
-                }catch (Exception e){
-                    byte[] newContent = objectReader.open(diff.getNewId().toObjectId()).getBytes();
-                    tmp.put("file", diff.getNewPath());
-                    tmp.put("old", "");
-                    tmp.put("new", new String(newContent));
-                    cache.add(tmp);
+                String oldContent = "";
+                String newContent = "";
+                try {
+                    oldContent =
+                        new String(objectReader.open(diff.getOldId().toObjectId()).getBytes());
+                } catch (Exception ignored) {
                 }
+                try {
+                    newContent =
+                        new String(objectReader.open(diff.getNewId().toObjectId()).getBytes());
+                } catch (Exception ignored) {
+                }
+                tmp.put("file", diff.getNewPath());
+                tmp.put("old", oldContent);
+                tmp.put("new", newContent);
+                cache.add(tmp);
             }
             return handleDiff(cache);
         } catch (RefNotFoundException e) {
@@ -823,15 +830,17 @@ public class GitWebServiceImpl implements GitWebService {
 
     @Override
     @SneakyThrows
-    public void mergePR(String baseOwner, String baseRepo, String headOwner, String headRepo, String PRTitle){
+    public void mergePR(String baseOwner, String baseRepo, String headOwner, String headRepo,
+                        String PRTitle) {
         File headRepoRoot = selectCache(headOwner, headRepo);
         File baseRepoRoot = selectCache(baseOwner, baseRepo);
-        try (Git headGit = Git.open(headRepoRoot); Git baseGit = Git.open(baseRepoRoot)){
-            baseGit.remoteAdd().setName("head").setUri(new URIish(headRepoRoot.toURI().toString())).call();
+        try (Git headGit = Git.open(headRepoRoot); Git baseGit = Git.open(baseRepoRoot)) {
+            baseGit.remoteAdd().setName("head").setUri(new URIish(headRepoRoot.toURI().toString()))
+                .call();
             baseGit.pull().setRemote("head").setRemoteBranchName("master").call();
             baseGit.commit().setMessage(PRTitle).call();
             updateCaches(baseOwner, baseRepo);
-        }catch (GitAPIException e){
+        } catch (GitAPIException e) {
             log.error("error deleting branch", e);
             throw e;
         }
