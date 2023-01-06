@@ -873,13 +873,13 @@ public class GitWebServiceImpl implements GitWebService {
             baseGit.checkout().setName(baseBranch).call();
             headGit.checkout().setName(headBranch).call();
             baseGit.remoteAdd().setName("head").setUri(new URIish(headGit.getRepository().getDirectory().toURI().toURL())).call();
-            baseGit.pull().setRemote("head").call();
+            baseGit.fetch().setRemote("head").call();
             MergeResult mergeResult = baseGit.merge().include(headGit.getRepository().resolve(headBranch)).call();
             if (!mergeResult.getMergeStatus().isSuccessful()){
                 throw new IOException();
             }
-            baseGit.commit().setMessage(PRTitle).call();
-
+            //baseGit.commit().setMessage(PRTitle).call();
+            baseGit.remoteRemove().setRemoteName("head").call();
             String refSpec = baseGit.getRepository().getBranch() + ":" + baseBranch;
             log.info("pushing to remote, spec={}", refSpec);
             baseGit.push()
