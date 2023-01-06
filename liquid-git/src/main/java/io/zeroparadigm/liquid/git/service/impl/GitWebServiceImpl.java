@@ -581,18 +581,15 @@ public class GitWebServiceImpl implements GitWebService {
                                              String baseOwner,
                                              String baseRepo)
         throws IOException, GitAPIException {
-        File repoRoot = selectCache(headOwner, headRepo);
+        File headRepoRoot = selectCache(headOwner, headRepo);
+        File baseRepoRoot = selectCache(baseOwner, baseRepo);
 
-        try (Git git = Git.open(repoRoot)) {
-            git.fetch()
-                .setRemote("origin")
-                .call();
+        try (Git headGit = Git.open(headRepoRoot); Git baseGit = Git.open(baseRepoRoot)) {
+            ObjectReader baseReader = baseGit.getRepository().newObjectReader();
+            Iterable<RevCommit> headCommits = headGit.log().call();
             List<BriefCommitDTO> commits = new ArrayList<>();
-            git.log()
-                .addRange(git.getRepository().resolve("origin/master"),
-                    git.getRepository().resolve("HEAD"))
-                .call()
-                .forEach(commit -> {
+            for (RevCommit commit: headCommits){
+                if (!baseReader.has(commit)){
                     var brief = BriefCommitDTO.builder()
                         .id(commit.getId().getName())
                         .user(commit.getAuthorIdent().getName())
@@ -600,8 +597,8 @@ public class GitWebServiceImpl implements GitWebService {
                         .label(commit.getShortMessage())
                         .build();
                     commits.add(brief);
-                });
-            ;
+                }
+            }
             return commits;
         } catch (RefNotFoundException e) {
             log.error("branch not found", e);
@@ -624,6 +621,7 @@ public class GitWebServiceImpl implements GitWebService {
                 baseGit.log().add(baseGit.getRepository().resolve("HEAD")).setMaxCount(1).call()
                     .iterator().next();
             RevTree oldTree = oldCommit.getTree();
+
 
             RevCommit newCommit =
                 headGit.log().add(headGit.getRepository().resolve("HEAD")).setMaxCount(1).call()
