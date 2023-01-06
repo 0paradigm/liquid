@@ -70,12 +70,12 @@ public interface GitWebService {
     ) throws IOException, GitAPIException;
 
     Object diffPR(String headOwner,
-                         String headRepo,
-                         String headBranch,
-                         String baseOwner,
-                         String baseRepo,
-                         String baseBranch,
-                         Boolean requireRecur)
+                  String headRepo,
+                  String headBranch,
+                  String baseOwner,
+                  String baseRepo,
+                  String baseBranch,
+                  Boolean requireRecur)
         throws IOException, GitAPIException;
 
     List<BriefCommitDTO> listPRCommit(String headOwner,
@@ -106,8 +106,9 @@ public interface GitWebService {
 
     List<BriefCommitDTO> listCommits(String owner, String repo, String branchOrCommit);
 
-    void mergePR(String baseOwner, String baseRepo, String headOwner, String headRepo,
-                 String PRTitle);
+    void mergePR(String baseOwner, String baseRepo, String baseBranch, String headOwner,
+                 String headRepo, String headBranch,
+                 String PRTitle) throws IOException, GitAPIException;
 
     Result webDelete(String owner, String repo, String initBranch, String deleteFile,
                      UserBO committer, String message);

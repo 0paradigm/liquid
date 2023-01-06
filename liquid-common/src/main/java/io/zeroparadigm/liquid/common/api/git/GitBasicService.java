@@ -60,7 +60,8 @@ public interface GitBasicService {
 
     void renameRepo(String owner, String repo, String newRepoName);
 
-    void mergePR(String baseOwner, String baseRepo, String headOwner, String headRepo, String PRTitle
-    )throws IOException, GitAPIException;
+    void mergePR(String baseOwner, String baseRepo, String baseBranch, String headOwner,
+                 String headRepo, String headBranch,
+                 String PRTitle)throws IOException, GitAPIException;
 
 }

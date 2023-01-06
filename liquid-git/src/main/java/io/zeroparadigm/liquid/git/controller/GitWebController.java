@@ -393,11 +393,14 @@ public class GitWebController {
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result mergePR(@RequestParam("head_owner") String headOwner,
                           @RequestParam("head_repo") String headRepo,
+                          @RequestParam("head_branch") String headBranch,
                           @RequestParam("base_owner") String baseOwner,
                           @RequestParam("base_repo") String baseRepo,
+                          @RequestParam("base_branch") String baseBranch,
                           @RequestParam("pr_title") String prTitle) {
         try {
-            gitWebService.mergePR(baseOwner, baseRepo, headOwner, headRepo, prTitle);
+            gitWebService.mergePR(baseOwner, baseRepo, baseBranch, headOwner, headRepo, headBranch,
+                prTitle);
             return Result.success();
         } catch (Exception e) {
             log.error("List commits error", e);

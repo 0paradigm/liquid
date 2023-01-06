@@ -379,7 +379,8 @@ public class PRController {
         var user = userMapper.findById(headRepo.getOwner());
 
         try {
-            gitBasicService.mergePR(owner, repoName, user.getName(), headRepo.getName(),
+            gitBasicService.mergePR(owner, repoName, "master", user.getName(), headRepo.getName(),
+                "master",
                 pr.getTitle());
         } catch (Exception e) {
             prMapper.setClosed(pr.getId(), true);

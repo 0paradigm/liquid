@@ -830,18 +830,61 @@ public class GitWebServiceImpl implements GitWebService {
 
     @Override
     @SneakyThrows
-    public void mergePR(String baseOwner, String baseRepo, String headOwner, String headRepo,
-                        String PRTitle) {
-        File headRepoRoot = selectCache(headOwner, headRepo);
-        File baseRepoRoot = selectCache(baseOwner, baseRepo);
-        try (Git headGit = Git.open(headRepoRoot); Git baseGit = Git.open(baseRepoRoot)) {
-            baseGit.remoteAdd().setName("head").setUri(new URIish(headRepoRoot.toURI().toString()))
-                .call();
-            baseGit.pull().setRemote("head").setRemoteBranchName("master").call();
+    public void mergePR(String baseOwner, String baseRepo, String baseBranch, String headOwner,
+                        String headRepo, String headBranch,
+                        String PRTitle) throws IOException, GitAPIException {
+        String taskId = String.valueOf(System.currentTimeMillis());
+        File tmpRepo =
+            Path.of(gitTmpStorage, baseOwner, String.format(TMPDIR_PATTERN, baseRepo, taskId))
+                .toFile();
+        if (Files.notExists(tmpRepo.toPath())) {
+            File originalRepo = Path.of(gitStorage, baseOwner, baseRepo).toFile();
+
+            boolean originAlreadyInit;
+            try (Git origin = Git.open(originalRepo)) {
+                originAlreadyInit = !origin.branchList().call().isEmpty();
+
+            } catch (Exception e) {
+                log.error("error fetching branch list of remote {}/{}", baseOwner, baseRepo, e);
+                originAlreadyInit = false;
+            }
+
+            if (originAlreadyInit) {
+                Git.cloneRepository()
+                    .setURI(originalRepo.toURI().toString())
+                    .setDirectory(tmpRepo)
+                    .setBranchesToClone(Collections.singleton("refs/heads/" + baseBranch))
+                    .setBranch(baseBranch)
+                    .call()
+                    .close();
+            } else {
+                Git.cloneRepository()
+                    .setURI(originalRepo.toURI().toString())
+                    .setDirectory(tmpRepo)
+                    .setBranch(baseBranch)
+                    .call()
+                    .close();
+            }
+        }
+        File headRoot = selectCache(headOwner, headRepo);
+
+        try (Git baseGit = Git.open(tmpRepo); Git headGit = Git.open(headRoot)) {
+            baseGit.checkout().setName(baseBranch).call();
+            baseGit.remoteAdd().setName("head").setUri(new URIish(headRoot.toURI().toString()));
+            baseGit.pull().setRemote("head").setRemoteBranchName(headBranch).call();
             baseGit.commit().setMessage(PRTitle).call();
+            baseGit.remoteRemove().setRemoteName("head").call();
+
+            String refSpec = baseGit.getRepository().getBranch() + ":" + baseBranch;
+            log.info("pushing to remote, spec={}", refSpec);
+            baseGit.push()
+                .setRemote("origin")
+                .setRefSpecs(new RefSpec(refSpec))
+                .call();
+
             updateCaches(baseOwner, baseRepo);
         } catch (GitAPIException e) {
-            log.error("error deleting branch", e);
+            log.debug(e.toString());
             throw e;
         }
     }

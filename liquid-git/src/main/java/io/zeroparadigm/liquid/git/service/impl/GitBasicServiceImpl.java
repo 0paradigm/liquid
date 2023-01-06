@@ -463,8 +463,11 @@ public class GitBasicServiceImpl implements GitBasicService {
 
     @Override
     @SneakyThrows
-    public void mergePR(String baseOwner, String baseRepo, String headOwner, String headRepo, String PRTitle)throws IOException, GitAPIException{
-        gitWebService.mergePR(baseOwner, baseRepo, headOwner, headRepo, PRTitle);
+    public void mergePR(String baseOwner, String baseRepo, String baseBranch, String headOwner,
+                        String headRepo, String headBranch,
+                        String PRTitle) throws IOException, GitAPIException {
+        gitWebService.mergePR(baseOwner, baseRepo, baseBranch, headOwner, headRepo, headBranch,
+            PRTitle);
     }
 
     public static MultipartFile createMfileByPath(String path, String ctx) {
