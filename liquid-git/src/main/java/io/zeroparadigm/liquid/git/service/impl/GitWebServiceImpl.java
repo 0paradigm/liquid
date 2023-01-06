@@ -47,6 +47,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.tika.Tika;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.RevertCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
@@ -750,48 +751,42 @@ public class GitWebServiceImpl implements GitWebService {
         String taskId = String.valueOf(System.currentTimeMillis());
         File tmpRepo =
             Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
-//        if (Files.notExists(tmpRepo.toPath())) {
-//            File originalRepo = Path.of(gitStorage, owner, repo).toFile();
-//
-//            boolean originAlreadyInit;
-//            try (Git origin = Git.open(originalRepo)) {
-//                originAlreadyInit = !origin.branchList().call().isEmpty();
-//
-//            } catch (Exception e) {
-//                log.error("error fetching branch list of remote {}/{}", owner, repo, e);
-//                originAlreadyInit = false;
-//            }
-//
-//            if (originAlreadyInit) {
-//                Git.cloneRepository()
-//                    .setURI(originalRepo.toURI().toString())
-//                    .setDirectory(tmpRepo)
-//                    .setBranchesToClone(Collections.singleton("refs/heads/" + branch))
-//                    .setBranch(branch)
-//                    .call()
-//                    .close();
-//            } else {
-//                Git.cloneRepository()
-//                    .setURI(originalRepo.toURI().toString())
-//                    .setDirectory(tmpRepo)
-//                    .setBranch(branch)
-//                    .call()
-//                    .close();
-//            }
-//        }
+        if (Files.notExists(tmpRepo.toPath())) {
+            File originalRepo = Path.of(gitStorage, owner, repo).toFile();
+
+            boolean originAlreadyInit;
+            try (Git origin = Git.open(originalRepo)) {
+                originAlreadyInit = !origin.branchList().call().isEmpty();
+
+            } catch (Exception e) {
+                log.error("error fetching branch list of remote {}/{}", owner, repo, e);
+                originAlreadyInit = false;
+            }
+
+            if (originAlreadyInit) {
+                Git.cloneRepository()
+                    .setURI(originalRepo.toURI().toString())
+                    .setDirectory(tmpRepo)
+                    .setBranchesToClone(Collections.singleton("refs/heads/" + branch))
+                    .setBranch(branch)
+                    .call()
+                    .close();
+            } else {
+                Git.cloneRepository()
+                    .setURI(originalRepo.toURI().toString())
+                    .setDirectory(tmpRepo)
+                    .setBranch(branch)
+                    .call()
+                    .close();
+            }
+        }
 
         try (Git git = Git.open(tmpRepo)) {
             git.checkout().setName(branch).call();
             ObjectId commitId = ObjectId.fromString(toSha);
             RevWalk revWalk = new RevWalk(git.getRepository());
             RevCommit commit = revWalk.parseCommit(commitId);
-            git.checkout().addPath(".").setStartPoint(commit).call();
-            git.add().addFilepattern(".").call();
-            git.commit()
-                .setAllowEmpty(false)
-                .setMessage("Rollback to " + toSha)
-                .setCommitter(committerName, committerEmail)
-                .call();
+            git.revert().include(commit).call();
             gitMetaService.recordContributor(owner, repo, committerName);
 
             String refSpec = git.getRepository().getBranch() + ":" + branch;
