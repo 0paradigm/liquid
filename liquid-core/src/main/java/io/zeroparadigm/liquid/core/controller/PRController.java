@@ -61,21 +61,35 @@ public class PRController {
     PRCommentMapper prCommentMapper;
 
 
-    @GetMapping("/new")
+    @GetMapping("/new/{owner}/{repo}")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<Boolean> newPR(
+    public Result<Integer> newPR(
         @RequestHeader(value = "Authorization", required = false) String token,
-        @RequestParam("display_id") Integer displayId,
-        @RequestParam("repo_id") Integer repoId,
+        @PathVariable("owner") String owner,
+        @PathVariable("repo") String repoName,
         @RequestParam("title") String title,
-        @RequestParam("head") Integer head,
-        @RequestParam("base") Integer base) {
+        @RequestParam("head_owner") String headOwner,
+        @RequestParam("head_repo") String headRepo,
+        @RequestParam("head_branch") String headBranch,
+        @RequestParam("base_branch") String baseBranch,
+        @RequestParam("cmt") String cmt) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
-        prMapper.createPr(displayId, repoId, userId, title, head, base, System.currentTimeMillis());
-        return Result.success(true);
+        var repo = repoMapper.findByOwnerAndName(owner, repoName);
+        var head = repoMapper.findByOwnerAndName(headOwner, headRepo);
+        var prs = prMapper.findByRepoId(repo.getId());
+        var displayId = prs.size() + 1;
+        prMapper.createPr(displayId, repo.getId(), userId, title, head.getId(), repo.getId(), headBranch,
+            baseBranch, System.currentTimeMillis());
+        if (Objects.nonNull(cmt) && !cmt.isEmpty()) {
+            prCommentMapper.createPRComment(
+                repo.getId(), displayId, userId,
+                cmt, System.currentTimeMillis()
+            );
+        }
+        return Result.success(displayId);
     }
 
     @Data
@@ -100,6 +114,12 @@ public class PRController {
         Long openAt;
         List<PrEventDTO> events;
         List<String> participants;
+
+        String fromRepoBranch;
+        String toRepoBranch;
+        String chooseBranch;
+        String chooseCmpRep;
+        String chooseCmpBranch;
     }
 
     @Data
@@ -149,6 +169,7 @@ public class PRController {
             .distinct()
             .map(id -> userMapper.findById(id).getLogin())
             .toList();
+        var headRepo = repoMapper.findById(pr.getHead());
         PrDetailDTO dto = PrDetailDTO.builder()
             .title(pr.getTitle())
             .isOpening(!pr.getClosed())
@@ -157,6 +178,11 @@ public class PRController {
             .isMerged(eventDTOs.stream().anyMatch(e -> "[[[merge]]]".equals(e.getCtx())))
             .events(eventDTOs)
             .participants(parts)
+            .fromRepoBranch(headRepo.getName() + ":" + pr.getHeadBranch())
+            .toRepoBranch(repoName + ":" + pr.getBaseBranch())
+            .chooseBranch(pr.getBaseBranch())
+            .chooseCmpRep(headRepo.getName())
+            .chooseCmpBranch(pr.getHeadBranch())
             .build();
         return Result.success(dto);
     }
@@ -306,13 +332,6 @@ public class PRController {
         }
         Repo repo = repoMapper.findByOwnerAndName(owner, repoName);
         PR pr = prMapper.findByRepoIdAndDisplayedId(repo.getId(), displayId);
-        if (Objects.isNull(pr)) {
-            return Result.error(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR);
-        }
-        if (!pr.getOpener().equals(userId) ||
-            !Objects.requireNonNull(repo).getOwner().equals(userId)) {
-            return Result.error(ServiceStatus.NOT_AUTHENTICATED);
-        }
         prMapper.setClosed(pr.getId(), closed);
         prCommentMapper.createPRComment(
             repo.getId(), pr.getDisplayId(), userId,

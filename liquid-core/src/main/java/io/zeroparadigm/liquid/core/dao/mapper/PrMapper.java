@@ -11,10 +11,15 @@ public interface PrMapper extends BaseMapper<PR> {
     /**
      * Create new pr.
      */
-    void createPr(@Param("display_id") Integer displayId, @Param("repo_id") Integer repoId,
+    void createPr(@Param("display_id") Integer displayId,
+                  @Param("repo_id") Integer repoId,
                   @Param("opener_id") Integer openerId,
-                  @Param("title") String title, @Param("head") Integer head,
-                  @Param("base") Integer base, @Param("created_at") Long createdAt);
+                  @Param("title") String title,
+                  @Param("head") Integer head,
+                  @Param("base") Integer base,
+                  @Param("head_branch") String headBranch,
+                  @Param("base_branch") String baseBranch,
+                  @Param("created_at") Long createdAt);
 
     /**
      * Gets pr by repo id.
@@ -34,12 +39,14 @@ public interface PrMapper extends BaseMapper<PR> {
     /**
      * Gets pr by displayed id.
      */
-    PR findByRepoIdAndDisplayedId(@Param("repo_id") Integer repoId, @Param("display_id") Integer displayId);
+    PR findByRepoIdAndDisplayedId(@Param("repo_id") Integer repoId,
+                                  @Param("display_id") Integer displayId);
 
     /**
      * Gets pr by repo id and state.
      */
-    List<PR> findByRepoIdAndClosed(@Param("repo_id") Integer repoId, @Param("closed") Boolean closed);
+    List<PR> findByRepoIdAndClosed(@Param("repo_id") Integer repoId,
+                                   @Param("closed") Boolean closed);
 
     /**
      * Set pr state.

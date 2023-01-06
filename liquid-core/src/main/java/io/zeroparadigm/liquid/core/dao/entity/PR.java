@@ -69,6 +69,17 @@ public class PR {
     @NonNull
     private Integer base;
 
+    @TableField("head_branch")
+    @NonNull
+    private String headBranch;
+
+    /**
+     * pr base repo.
+     */
+    @TableField("base_branch")
+    @NonNull
+    private String baseBranch;
+
     /**
      * pr created time.
      */

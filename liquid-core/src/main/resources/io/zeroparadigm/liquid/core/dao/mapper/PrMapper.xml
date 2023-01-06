@@ -5,9 +5,9 @@
 
     <insert id="createPr">
         INSERT INTO `t_ds_pr`
-        (`display_id`, `repo`, `opener`, `title`, `head`, `base`, `created_at`)
+        (`display_id`, `repo`, `opener`, `title`, `head`, `base`, `created_at`, `head_branch`, `base_branch`)
         VALUES
-        (#{display_id}, #{repo_id}, #{opener_id}, #{title}, #{head}, #{base}, #{created_at});
+        (#{display_id}, #{repo_id}, #{opener_id}, #{title}, #{head}, #{base}, #{created_at}, #{head_branch}, #{base_branch});
     </insert>
 
     <update id="setClosed">

@@ -369,18 +369,19 @@ public class GitWebController {
 
     @GetMapping("/getPRDiff")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
-    public Result<List<Map<String, Object>>> getPRDiff(@RequestParam("head_owner") String headOwner,
-                                                       @RequestParam("head_repo") String headRepo,
-                                                       @RequestParam("head_branch")
-                                                       String headBranch,
-                                                       @RequestParam("base_owner") String baseOwner,
-                                                       @RequestParam("base_repo") String baseRepo,
-                                                       @RequestParam("base_branch")
-                                                       String baseBranch) {
+    public Result getPRDiff(@RequestParam("head_owner") String headOwner,
+                            @RequestParam("head_repo") String headRepo,
+                            @RequestParam("head_branch")
+                            String headBranch,
+                            @RequestParam("base_owner") String baseOwner,
+                            @RequestParam("base_repo") String baseRepo,
+                            @RequestParam("base_branch")
+                            String baseBranch,
+                            @RequestParam(value = "recursive") Boolean recursive) {
         try {
-            List<Map<String, Object>> list =
+            var list =
                 gitWebService.diffPR(headOwner, headRepo, headBranch, baseOwner, baseRepo,
-                    baseBranch);
+                    baseBranch, recursive);
             return Result.success(list);
         } catch (Exception e) {
             log.error("List commits error", e);

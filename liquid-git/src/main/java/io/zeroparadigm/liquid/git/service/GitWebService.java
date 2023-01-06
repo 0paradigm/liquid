@@ -69,12 +69,13 @@ public interface GitWebService {
     List<String> findBranchCommit(String owner, String repo, String branchOrCommit
     ) throws IOException, GitAPIException;
 
-    List<Map<String, Object>> diffPR(String headOwner,
-                                     String headRepo,
-                                     String headBranch,
-                                     String baseOwner,
-                                     String baseRepo,
-                                     String baseBranch)
+    Object diffPR(String headOwner,
+                         String headRepo,
+                         String headBranch,
+                         String baseOwner,
+                         String baseRepo,
+                         String baseBranch,
+                         Boolean requireRecur)
         throws IOException, GitAPIException;
 
     List<BriefCommitDTO> listPRCommit(String headOwner,

@@ -614,12 +614,13 @@ public class GitWebServiceImpl implements GitWebService {
     /*
         Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
      */
-    public List<Map<String, Object>> diffPR(String headOwner,
-                                            String headRepo,
-                                            String headBranch,
-                                            String baseOwner,
-                                            String baseRepo,
-                                            String baseBranch)
+    public Object diffPR(String headOwner,
+                         String headRepo,
+                         String headBranch,
+                         String baseOwner,
+                         String baseRepo,
+                         String baseBranch,
+                         Boolean requireRecur)
         throws IOException, GitAPIException {
         File headRepoRoot = selectCache(headOwner, headRepo);
         File baseRepoRoot = selectCache(baseOwner, baseRepo);
@@ -660,7 +661,7 @@ public class GitWebServiceImpl implements GitWebService {
                 tmp.put("new", newContent);
                 cache.add(tmp);
             }
-            return handleDiff(cache);
+            return requireRecur ? handleDiff(cache) : cache;
         } catch (RefNotFoundException e) {
             log.error("branch not found", e);
             return List.of();
