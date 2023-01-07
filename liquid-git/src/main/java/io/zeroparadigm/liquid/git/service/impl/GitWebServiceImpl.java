@@ -23,10 +23,8 @@ import com.alibaba.fastjson.JSON;
 import io.zeroparadigm.liquid.common.api.core.GitMetaService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.common.dto.Result;
-import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import io.zeroparadigm.liquid.git.service.GitWebService;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -48,23 +46,19 @@ import org.apache.tika.Tika;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeResult;
-import org.eclipse.jgit.api.RevertCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.URIish;
-import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
@@ -81,7 +75,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 
 @Slf4j
 @Service
@@ -128,7 +121,7 @@ public class GitWebServiceImpl implements GitWebService {
         }
 
         File tmpRepo =
-            Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
+                Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
         if (Files.notExists(tmpRepo.toPath())) {
             File originalRepo = Path.of(gitStorage, owner, repo).toFile();
 
@@ -142,19 +135,19 @@ public class GitWebServiceImpl implements GitWebService {
 
             if (originAlreadyInit) {
                 Git.cloneRepository()
-                    .setURI(originalRepo.toURI().toString())
-                    .setDirectory(tmpRepo)
-                    .setBranchesToClone(Collections.singleton("refs/heads/" + fromBranch))
-                    .setBranch(fromBranch)
-                    .call()
-                    .close();
+                        .setURI(originalRepo.toURI().toString())
+                        .setDirectory(tmpRepo)
+                        .setBranchesToClone(Collections.singleton("refs/heads/" + fromBranch))
+                        .setBranch(fromBranch)
+                        .call()
+                        .close();
             } else {
                 Git.cloneRepository()
-                    .setURI(originalRepo.toURI().toString())
-                    .setDirectory(tmpRepo)
-                    .setBranch(fromBranch)
-                    .call()
-                    .close();
+                        .setURI(originalRepo.toURI().toString())
+                        .setDirectory(tmpRepo)
+                        .setBranch(fromBranch)
+                        .call()
+                        .close();
             }
         }
 
@@ -169,8 +162,8 @@ public class GitWebServiceImpl implements GitWebService {
 
     @Override
     public void commit(String owner, String repo, @Nullable String toBranch, String taskId,
-                       @Nullable List<String> addFiles, String message, @Nullable UserBO committer)
-        throws IOException, GitAPIException {
+                       @Nullable List<String> addFiles, String message,
+                       @Nullable UserBO committer) throws IOException, GitAPIException {
 
         String committerName;
         String committerEmail;
@@ -183,21 +176,21 @@ public class GitWebServiceImpl implements GitWebService {
         }
 
         File tmpRepo =
-            Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
+                Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
 
         try (Git git = Git.open(tmpRepo)) {
             if (StringUtils.hasText(toBranch)) {
                 try {
                     log.info("checking out branch {}", toBranch);
                     git.checkout()
-                        .setName(toBranch)
-                        .call();
+                            .setName(toBranch)
+                            .call();
                 } catch (RefNotFoundException e) {
                     try {
                         git.checkout()
-                            .setCreateBranch(true)
-                            .setName(toBranch)
-                            .call();
+                                .setCreateBranch(true)
+                                .setName(toBranch)
+                                .call();
                         log.info("new branch '{}' created", toBranch);
                     } catch (RefNotFoundException e1) {
                         log.warn("committing to new repo, init branch may be dropped");
@@ -207,27 +200,27 @@ public class GitWebServiceImpl implements GitWebService {
 
             if (Objects.isNull(addFiles) || addFiles.isEmpty()) {
                 git.add()
-                    .addFilepattern(".")
-                    .call();
+                        .addFilepattern(".")
+                        .call();
             } else {
                 for (String file : addFiles) {
                     git.add()
-                        .addFilepattern(file)
-                        .call();
+                            .addFilepattern(file)
+                            .call();
                 }
             }
             git.commit()
-                .setAllowEmpty(false)
-                .setMessage(message)
-                .setCommitter(committerName, committerEmail)
-                .call();
+                    .setAllowEmpty(false)
+                    .setMessage(message)
+                    .setCommitter(committerName, committerEmail)
+                    .call();
             gitMetaService.recordContributor(owner, repo, committerName);
             String refSpec = git.getRepository().getBranch() + ":" + toBranch;
             log.info("pushing to remote, spec={}", refSpec);
             git.push()
-                .setRemote("origin")
-                .setRefSpecs(new RefSpec(refSpec))
-                .call();
+                    .setRemote("origin")
+                    .setRefSpecs(new RefSpec(refSpec))
+                    .call();
 
             updateCaches(owner, repo);
         }
@@ -235,8 +228,7 @@ public class GitWebServiceImpl implements GitWebService {
 
     public void rmCommit(String owner, String repo, @Nullable String toBranch, String taskId,
                          String rm, String message,
-                         @Nullable UserBO committer)
-        throws IOException, GitAPIException {
+                         @Nullable UserBO committer) throws IOException, GitAPIException {
 
         String committerName;
         String committerEmail;
@@ -249,21 +241,21 @@ public class GitWebServiceImpl implements GitWebService {
         }
 
         File tmpRepo =
-            Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
+                Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
 
         try (Git git = Git.open(tmpRepo)) {
             if (StringUtils.hasText(toBranch)) {
 
                 try {
                     git.checkout()
-                        .setName(toBranch)
-                        .call();
+                            .setName(toBranch)
+                            .call();
                 } catch (RefNotFoundException e) {
                     try {
                         git.checkout()
-                            .setCreateBranch(true)
-                            .setName(toBranch)
-                            .call();
+                                .setCreateBranch(true)
+                                .setName(toBranch)
+                                .call();
                         log.info("new branch '{}' created", toBranch);
                     } catch (RefNotFoundException e1) {
                         log.warn("committing to new repo, init branch may be dropped");
@@ -274,21 +266,21 @@ public class GitWebServiceImpl implements GitWebService {
             rm = rm.strip().replaceAll(" ", "\\ ");
             log.info("rm file {}", rm);
             git.rm()
-                .addFilepattern(rm)
-                .call();
+                    .addFilepattern(rm)
+                    .call();
             git.commit()
-                .setAllowEmpty(false)
-                .setMessage(message)
-                .setCommitter(committerName, committerEmail)
-                .call();
+                    .setAllowEmpty(false)
+                    .setMessage(message)
+                    .setCommitter(committerName, committerEmail)
+                    .call();
             gitMetaService.recordContributor(owner, repo, committerName);
 
             String refSpec = git.getRepository().getBranch() + ":" + toBranch;
             log.info("pushing to remote, spec={}", refSpec);
             git.push()
-                .setRemote("origin")
-                .setRefSpecs(new RefSpec(refSpec))
-                .call();
+                    .setRemote("origin")
+                    .setRefSpecs(new RefSpec(refSpec))
+                    .call();
 
             updateCaches(owner, repo);
             deleteDirAsync(tmpRepo);
@@ -298,9 +290,9 @@ public class GitWebServiceImpl implements GitWebService {
     int i = 0;
 
     private synchronized File selectCache(String owner, String repo) {
-        for (; ; i++, i %= cacheObjNum) {
+        for (;; i++, i %= cacheObjNum) {
             File cacheRepo =
-                Path.of(gitCacheStorage, owner, String.format("%s-%d", repo, i)).toFile();
+                    Path.of(gitCacheStorage, owner, String.format("%s-%d", repo, i)).toFile();
             if (!Files.exists(cacheRepo.toPath())) {
                 createCache(owner, repo);
                 continue;
@@ -323,34 +315,34 @@ public class GitWebServiceImpl implements GitWebService {
         FileUtils.deleteQuietly(dest0);
         try {
             Git.cloneRepository()
-                .setURI(Path.of(gitStorage, owner, repo).toUri().toString())
-                .setDirectory(dest0)
-                .call()
-                .close();
+                    .setURI(Path.of(gitStorage, owner, repo).toUri().toString())
+                    .setDirectory(dest0)
+                    .call()
+                    .close();
         } catch (TransportException e) {
             Optional<String> branch = Git.lsRemoteRepository()
-                .setRemote(Path.of(gitStorage, owner, repo).toUri().toString())
-                .call()
-                .stream()
-                .map(Ref::getName)
-                .findFirst();
+                    .setRemote(Path.of(gitStorage, owner, repo).toUri().toString())
+                    .call()
+                    .stream()
+                    .map(Ref::getName)
+                    .findFirst();
 
             if (branch.isEmpty()) {
                 log.error("no branch to clone");
                 return;
             }
             Git.cloneRepository()
-                .setURI(Path.of(gitStorage, owner, repo).toUri().toString())
-                .setDirectory(dest0)
-                .setCloneAllBranches(true)
-                .setBranch(branch.get())
-                .call()
-                .close();
+                    .setURI(Path.of(gitStorage, owner, repo).toUri().toString())
+                    .setDirectory(dest0)
+                    .setCloneAllBranches(true)
+                    .setBranch(branch.get())
+                    .call()
+                    .close();
         }
 
         for (int i = 1; i < cacheObjNum; i++) {
             File cacheRepo =
-                Path.of(gitCacheStorage, owner, String.format("%s-%d", repo, i)).toFile();
+                    Path.of(gitCacheStorage, owner, String.format("%s-%d", repo, i)).toFile();
             FileUtils.deleteQuietly(cacheRepo);
             FileUtils.copyDirectory(dest0, cacheRepo);
         }
@@ -359,15 +351,15 @@ public class GitWebServiceImpl implements GitWebService {
     public void updateCaches(String owner, String repo) {
         for (int i = 0; i < cacheObjNum; i++) {
             File cacheRepo =
-                Path.of(gitCacheStorage, owner, String.format("%s-%d", repo, i)).toFile();
+                    Path.of(gitCacheStorage, owner, String.format("%s-%d", repo, i)).toFile();
             try (Git git = Git.open(cacheRepo)) {
                 git.fetch()
-                    .setRemoveDeletedRefs(true)
-                    .setForceUpdate(true)
-                    .call();
+                        .setRemoveDeletedRefs(true)
+                        .setForceUpdate(true)
+                        .call();
                 git.pull()
-                    .setRebase(BranchConfig.BranchRebaseMode.REBASE)
-                    .call();
+                        .setRebase(BranchConfig.BranchRebaseMode.REBASE)
+                        .call();
             } catch (IOException e) {
                 createCache(owner, repo);
             } catch (GitAPIException e) {
@@ -381,16 +373,16 @@ public class GitWebServiceImpl implements GitWebService {
     private void cacheCheckout(Git git, String branch) throws GitAPIException {
         try {
             git.checkout()
-                .setName(branch)
-                .call();
+                    .setName(branch)
+                    .call();
         } catch (RefNotFoundException e) {
             git.checkout()
-                .setForced(true)
-                .setCreateBranch(true)
-                .setName(branch)
-                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                .setStartPoint("origin/" + branch)
-                .call();
+                    .setForced(true)
+                    .setCreateBranch(true)
+                    .setName(branch)
+                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                    .setStartPoint("origin/" + branch)
+                    .call();
         }
     }
 
@@ -398,10 +390,9 @@ public class GitWebServiceImpl implements GitWebService {
     public List<LatestCommitInfo> listFiles(String owner,
                                             String repo,
                                             String branchOrCommit,
-                                            @Nullable String relPath)
-        throws IOException, GitAPIException {
+                                            @Nullable String relPath) throws IOException, GitAPIException {
         relPath =
-            URLDecoder.decode(Objects.requireNonNullElse(relPath, ""), StandardCharsets.UTF_8);
+                URLDecoder.decode(Objects.requireNonNullElse(relPath, ""), StandardCharsets.UTF_8);
         File repoRoot = selectCache(owner, repo);
         File repoFs = Path.of(repoRoot.getPath(), relPath).toFile();
 
@@ -412,13 +403,13 @@ public class GitWebServiceImpl implements GitWebService {
             cacheCheckout(git, branchOrCommit);
 
             return Arrays.stream(Objects.requireNonNullElse(repoFs.listFiles(), new File[0]))
-                .parallel()
-                .map(f -> repoRoot.toPath().relativize(f.toPath()))
-                .map(Path::toFile)
-                .filter(f -> !".git".equals(f.getName()))
-                .map(f -> new LatestCommitInfo(git, f))
-                .sorted(Comparator.comparing(LatestCommitInfo::getName))
-                .toList();
+                    .parallel()
+                    .map(f -> repoRoot.toPath().relativize(f.toPath()))
+                    .map(Path::toFile)
+                    .filter(f -> !".git".equals(f.getName()))
+                    .map(f -> new LatestCommitInfo(git, f))
+                    .sorted(Comparator.comparing(LatestCommitInfo::getName))
+                    .toList();
         } catch (RefNotFoundException e) {
             log.error("branch not found", e);
             return List.of();
@@ -426,15 +417,13 @@ public class GitWebServiceImpl implements GitWebService {
     }
 
     /*
-        Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
+     * Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
      */
     @Override
     public List<Map<String, Object>> changesOfCommit(String owner,
                                                      String repo,
                                                      String branch,
-                                                     String sha1
-    )
-        throws IOException, GitAPIException {
+                                                     String sha1) throws IOException, GitAPIException {
         File repoRoot = selectCache(owner, repo);
         try (Git git = Git.open(repoRoot)) {
             git.checkout().setName(branch).call();
@@ -453,12 +442,12 @@ public class GitWebServiceImpl implements GitWebService {
                 String newContent = "";
                 try {
                     oldContent =
-                        new String(objectReader.open(entry.getOldId().toObjectId()).getBytes());
+                            new String(objectReader.open(entry.getOldId().toObjectId()).getBytes());
                 } catch (Exception ignored) {
                 }
                 try {
                     newContent =
-                        new String(objectReader.open(entry.getNewId().toObjectId()).getBytes());
+                            new String(objectReader.open(entry.getNewId().toObjectId()).getBytes());
                 } catch (Exception ignored) {
                 }
                 tmp.put("file", entry.getNewPath());
@@ -474,8 +463,7 @@ public class GitWebServiceImpl implements GitWebService {
     }
 
     public List<Map<String, String>> changesOfCommitV2(String owner, String repo, String branch,
-                                                       String sha1
-    ) throws IOException, GitAPIException {
+                                                       String sha1) throws IOException, GitAPIException {
         File repoRoot = selectCache(owner, repo);
         try (Git git = Git.open(repoRoot)) {
             git.checkout().setName(branch).call();
@@ -494,12 +482,12 @@ public class GitWebServiceImpl implements GitWebService {
                 String newContent = "";
                 try {
                     oldContent =
-                        new String(objectReader.open(entry.getOldId().toObjectId()).getBytes());
+                            new String(objectReader.open(entry.getOldId().toObjectId()).getBytes());
                 } catch (Exception ignored) {
                 }
                 try {
                     newContent =
-                        new String(objectReader.open(entry.getNewId().toObjectId()).getBytes());
+                            new String(objectReader.open(entry.getNewId().toObjectId()).getBytes());
                 } catch (Exception ignored) {
                 }
                 tmp.put("file", entry.getNewPath());
@@ -555,21 +543,18 @@ public class GitWebServiceImpl implements GitWebService {
         return (List<Map<String, Object>>) map.get("children");
     }
 
-
     @Override
     public List<String> findBranchCommit(String owner,
                                          String repo,
-                                         String branchOrCommit
-    )
-        throws IOException, GitAPIException {
+                                         String branchOrCommit) throws IOException, GitAPIException {
         File repoRoot = selectCache(owner, repo);
         try (Git git = Git.open(repoRoot)) {
             List<String> commits = new ArrayList<>();
             Iterable<RevCommit> logs = git.log()
-                .not(git.getRepository().resolve("master"))
-                // Is revstr right
-                .add(git.getRepository().resolve("origin/" + branchOrCommit))
-                .call();
+                    .not(git.getRepository().resolve("master"))
+                    // Is revstr right
+                    .add(git.getRepository().resolve("origin/" + branchOrCommit))
+                    .call();
             for (RevCommit rev : logs) {
                 commits.add(rev.toString());
             }
@@ -585,8 +570,7 @@ public class GitWebServiceImpl implements GitWebService {
                                              String headBranch,
                                              String baseOwner,
                                              String baseRepo,
-                                             String baseBranch)
-        throws IOException, GitAPIException {
+                                             String baseBranch) throws IOException, GitAPIException {
         File headRepoRoot = selectCache(headOwner, headRepo);
         File baseRepoRoot = selectCache(baseOwner, baseRepo);
         try (Git headGit = Git.open(headRepoRoot); Git baseGit = Git.open(baseRepoRoot)) {
@@ -598,11 +582,11 @@ public class GitWebServiceImpl implements GitWebService {
             for (RevCommit commit : headCommits) {
                 if (!baseReader.has(commit)) {
                     var brief = BriefCommitDTO.builder()
-                        .id(commit.getId().getName())
-                        .user(commit.getAuthorIdent().getName())
-                        .ts(commit.getCommitTime())
-                        .label(commit.getShortMessage())
-                        .build();
+                            .id(commit.getId().getName())
+                            .user(commit.getAuthorIdent().getName())
+                            .ts(commit.getCommitTime())
+                            .label(commit.getShortMessage())
+                            .build();
                     commits.add(brief);
                 }
             }
@@ -614,7 +598,7 @@ public class GitWebServiceImpl implements GitWebService {
     }
 
     /*
-        Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
+     * Return JSON String, format of { fileName: {"oldValue": "", "newValue": "123"} }
      */
     public Object diffPR(String headOwner,
                          String headRepo,
@@ -622,8 +606,7 @@ public class GitWebServiceImpl implements GitWebService {
                          String baseOwner,
                          String baseRepo,
                          String baseBranch,
-                         Boolean requireRecur)
-        throws IOException, GitAPIException {
+                         Boolean requireRecur) throws IOException, GitAPIException {
         File headRepoRoot = selectCache(headOwner, headRepo);
         File baseRepoRoot = selectCache(baseOwner, baseRepo);
         try (Git headGit = Git.open(headRepoRoot); Git baseGit = Git.open(baseRepoRoot)) {
@@ -650,12 +633,12 @@ public class GitWebServiceImpl implements GitWebService {
                 String newContent = "";
                 try {
                     oldContent =
-                        new String(objectReader.open(diff.getOldId().toObjectId()).getBytes());
+                            new String(objectReader.open(diff.getOldId().toObjectId()).getBytes());
                 } catch (Exception ignored) {
                 }
                 try {
                     newContent =
-                        new String(objectReader.open(diff.getNewId().toObjectId()).getBytes());
+                            new String(objectReader.open(diff.getNewId().toObjectId()).getBytes());
                 } catch (Exception ignored) {
                 }
                 tmp.put("file", diff.getNewPath());
@@ -670,7 +653,6 @@ public class GitWebServiceImpl implements GitWebService {
         }
     }
 
-
     Tika tika = new Tika();
 
     @Override
@@ -678,7 +660,6 @@ public class GitWebServiceImpl implements GitWebService {
                           String filePath) throws IOException {
         File repoRoot = selectCache(owner, repo);
         filePath = URLDecoder.decode(filePath, StandardCharsets.UTF_8);
-
 
         try (Git git = Git.open(repoRoot)) {
             cacheCheckout(git, branchOrCommit);
@@ -707,7 +688,7 @@ public class GitWebServiceImpl implements GitWebService {
                             UserBO committer, String message) {
         String taskId = String.valueOf(System.currentTimeMillis());
         File tmpRepo =
-            Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
+                Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
         if (Files.notExists(tmpRepo.toPath())) {
             File originalRepo = Path.of(gitStorage, owner, repo).toFile();
 
@@ -721,19 +702,19 @@ public class GitWebServiceImpl implements GitWebService {
 
             if (originAlreadyInit) {
                 Git.cloneRepository()
-                    .setURI(originalRepo.toURI().toString())
-                    .setDirectory(tmpRepo)
-                    .setBranchesToClone(Collections.singleton("refs/heads/" + initBranch))
-                    .setBranch(initBranch)
-                    .call()
-                    .close();
+                        .setURI(originalRepo.toURI().toString())
+                        .setDirectory(tmpRepo)
+                        .setBranchesToClone(Collections.singleton("refs/heads/" + initBranch))
+                        .setBranch(initBranch)
+                        .call()
+                        .close();
             } else {
                 Git.cloneRepository()
-                    .setURI(originalRepo.toURI().toString())
-                    .setDirectory(tmpRepo)
-                    .setBranch(initBranch)
-                    .call()
-                    .close();
+                        .setURI(originalRepo.toURI().toString())
+                        .setDirectory(tmpRepo)
+                        .setBranch(initBranch)
+                        .call()
+                        .close();
             }
         }
 
@@ -757,7 +738,7 @@ public class GitWebServiceImpl implements GitWebService {
 
         String taskId = String.valueOf(System.currentTimeMillis());
         File tmpRepo =
-            Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
+                Path.of(gitTmpStorage, owner, String.format(TMPDIR_PATTERN, repo, taskId)).toFile();
         if (Files.notExists(tmpRepo.toPath())) {
             File originalRepo = Path.of(gitStorage, owner, repo).toFile();
 
@@ -772,19 +753,19 @@ public class GitWebServiceImpl implements GitWebService {
 
             if (originAlreadyInit) {
                 Git.cloneRepository()
-                    .setURI(originalRepo.toURI().toString())
-                    .setDirectory(tmpRepo)
-                    .setBranchesToClone(Collections.singleton("refs/heads/" + branch))
-                    .setBranch(branch)
-                    .call()
-                    .close();
+                        .setURI(originalRepo.toURI().toString())
+                        .setDirectory(tmpRepo)
+                        .setBranchesToClone(Collections.singleton("refs/heads/" + branch))
+                        .setBranch(branch)
+                        .call()
+                        .close();
             } else {
                 Git.cloneRepository()
-                    .setURI(originalRepo.toURI().toString())
-                    .setDirectory(tmpRepo)
-                    .setBranch(branch)
-                    .call()
-                    .close();
+                        .setURI(originalRepo.toURI().toString())
+                        .setDirectory(tmpRepo)
+                        .setBranch(branch)
+                        .call()
+                        .close();
             }
         }
 
@@ -799,9 +780,9 @@ public class GitWebServiceImpl implements GitWebService {
             String refSpec = git.getRepository().getBranch() + ":" + branch;
             log.info("pushing to remote, spec={}", refSpec);
             git.push()
-                .setRemote("origin")
-                .setRefSpecs(new RefSpec(refSpec))
-                .call();
+                    .setRemote("origin")
+                    .setRefSpecs(new RefSpec(refSpec))
+                    .call();
 
             updateCaches(owner, repo);
         }
@@ -816,16 +797,16 @@ public class GitWebServiceImpl implements GitWebService {
 
             List<BriefCommitDTO> res = new ArrayList<>();
             git.log()
-                .call()
-                .forEach(commit -> {
-                    var brief = BriefCommitDTO.builder()
-                        .id(commit.getId().getName())
-                        .user(commit.getAuthorIdent().getName())
-                        .ts(commit.getCommitTime())
-                        .label(commit.getShortMessage())
-                        .build();
-                    res.add(brief);
-                });
+                    .call()
+                    .forEach(commit -> {
+                        var brief = BriefCommitDTO.builder()
+                                .id(commit.getId().getName())
+                                .user(commit.getAuthorIdent().getName())
+                                .ts(commit.getCommitTime())
+                                .label(commit.getShortMessage())
+                                .build();
+                        res.add(brief);
+                    });
             return res;
         }
     }
@@ -837,8 +818,8 @@ public class GitWebServiceImpl implements GitWebService {
                         String PRTitle) throws IOException, GitAPIException {
         String taskId = String.valueOf(System.currentTimeMillis());
         File tmpRepo =
-            Path.of(gitTmpStorage, baseOwner, String.format(TMPDIR_PATTERN, baseRepo, taskId))
-                .toFile();
+                Path.of(gitTmpStorage, baseOwner, String.format(TMPDIR_PATTERN, baseRepo, taskId))
+                        .toFile();
         if (Files.notExists(tmpRepo.toPath())) {
             File originalRepo = Path.of(gitStorage, baseOwner, baseRepo).toFile();
 
@@ -853,19 +834,19 @@ public class GitWebServiceImpl implements GitWebService {
 
             if (originAlreadyInit) {
                 Git.cloneRepository()
-                    .setURI(originalRepo.toURI().toString())
-                    .setDirectory(tmpRepo)
-                    .setBranchesToClone(Collections.singleton("refs/heads/" + baseBranch))
-                    .setBranch(baseBranch)
-                    .call()
-                    .close();
+                        .setURI(originalRepo.toURI().toString())
+                        .setDirectory(tmpRepo)
+                        .setBranchesToClone(Collections.singleton("refs/heads/" + baseBranch))
+                        .setBranch(baseBranch)
+                        .call()
+                        .close();
             } else {
                 Git.cloneRepository()
-                    .setURI(originalRepo.toURI().toString())
-                    .setDirectory(tmpRepo)
-                    .setBranch(baseBranch)
-                    .call()
-                    .close();
+                        .setURI(originalRepo.toURI().toString())
+                        .setDirectory(tmpRepo)
+                        .setBranch(baseBranch)
+                        .call()
+                        .close();
             }
         }
         File headRoot = selectCache(headOwner, headRepo);
@@ -873,20 +854,21 @@ public class GitWebServiceImpl implements GitWebService {
         try (Git baseGit = Git.open(tmpRepo); Git headGit = Git.open(headRoot)) {
             baseGit.checkout().setName(baseBranch).call();
             headGit.checkout().setName(headBranch).call();
-            baseGit.remoteAdd().setName("head").setUri(new URIish(headGit.getRepository().getDirectory().toURI().toURL())).call();
+            baseGit.remoteAdd().setName("head")
+                    .setUri(new URIish(headGit.getRepository().getDirectory().toURI().toURL())).call();
             baseGit.fetch().setRemote("head").call();
             MergeResult mergeResult = baseGit.merge().include(headGit.getRepository().resolve(headBranch)).call();
-            if (!mergeResult.getMergeStatus().isSuccessful()){
+            if (!mergeResult.getMergeStatus().isSuccessful()) {
                 throw new IOException();
             }
-            //baseGit.commit().setMessage(PRTitle).call();
+            // baseGit.commit().setMessage(PRTitle).call();
             baseGit.remoteRemove().setRemoteName("head").call();
             String refSpec = baseGit.getRepository().getBranch() + ":" + baseBranch;
             log.info("pushing to remote, spec={}", refSpec);
             baseGit.push()
-                .setRemote("origin")
-                .setRefSpecs(new RefSpec(refSpec))
-                .call();
+                    .setRemote("origin")
+                    .setRefSpecs(new RefSpec(refSpec))
+                    .call();
 
             updateCaches(baseOwner, baseRepo);
         } catch (GitAPIException e) {
@@ -900,9 +882,9 @@ public class GitWebServiceImpl implements GitWebService {
     public Result branchDelete(String owner, String repo, String initBranch) {
         try (Git git = Git.open(Path.of(gitStorage, owner, repo).toFile())) {
             git.branchDelete()
-                .setBranchNames(initBranch)
-                .setForce(true)
-                .call();
+                    .setBranchNames(initBranch)
+                    .setForce(true)
+                    .call();
         } catch (GitAPIException e) {
             log.error("error deleting branch", e);
             throw e;
@@ -916,9 +898,9 @@ public class GitWebServiceImpl implements GitWebService {
     public Result branchCheckoutB(String owner, String repo, String fromBranch, String toBranch) {
         try (Git git = Git.open(Path.of(gitStorage, owner, repo).toFile())) {
             git.branchCreate()
-                .setName(toBranch)
-                .setStartPoint(fromBranch)
-                .call();
+                    .setName(toBranch)
+                    .setStartPoint(fromBranch)
+                    .call();
         } catch (GitAPIException e) {
             log.error("error deleting branch", e);
             throw e;
@@ -940,13 +922,13 @@ public class GitWebServiceImpl implements GitWebService {
             Iterator iter;
             if (relPath == null || relPath.strip().length() == 0) {
                 iter = git.log()
-                    .call()
-                    .iterator();
+                        .call()
+                        .iterator();
             } else {
                 iter = git.log()
-                    .addPath(relPath)
-                    .call()
-                    .iterator();
+                        .addPath(relPath)
+                        .call()
+                        .iterator();
             }
             int cnt = 0;
             while (iter.hasNext()) {
@@ -962,11 +944,10 @@ public class GitWebServiceImpl implements GitWebService {
             }
 
             return LatestCommitDTO.builder()
-                .latest(info)
-                .cnt(cnt)
-                .build();
+                    .latest(info)
+                    .cnt(cnt)
+                    .build();
         }
     }
-
 
 }

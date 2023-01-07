@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.util.List;
 
 import java.util.Map;
-import java.util.Objects;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -86,12 +85,12 @@ public class GitWebController {
     @PostMapping("/upload/{owner}/{repo}/{branch}")
     @ApiOperation(value = "upload", notes = "upload files to commit")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "owner", paramType = "path", value = "owner of repo", required = true, dataTypeClass = String.class, example = "apache"),
-        @ApiImplicitParam(name = "repo", paramType = "path", value = "repo name", required = true, dataTypeClass = String.class, example = "dubbo"),
-        @ApiImplicitParam(name = "branch", paramType = "path", value = "base branch ref", required = true, dataTypeClass = String.class, example = "dev-2.x"),
-        @ApiImplicitParam(name = "file", paramType = "form", value = "file", required = true, dataTypeClass = MultipartFile.class, example = "<binary>"),
-        @ApiImplicitParam(name = "path", paramType = "form", value = "relative path from repo root, without filename", required = true, dataTypeClass = String.class, example = "docs"),
-        @ApiImplicitParam(name = "taskId", paramType = "form", value = "task id", required = true, dataTypeClass = String.class, example = "17287390173"),
+            @ApiImplicitParam(name = "owner", paramType = "path", value = "owner of repo", required = true, dataTypeClass = String.class, example = "apache"),
+            @ApiImplicitParam(name = "repo", paramType = "path", value = "repo name", required = true, dataTypeClass = String.class, example = "dubbo"),
+            @ApiImplicitParam(name = "branch", paramType = "path", value = "base branch ref", required = true, dataTypeClass = String.class, example = "dev-2.x"),
+            @ApiImplicitParam(name = "file", paramType = "form", value = "file", required = true, dataTypeClass = MultipartFile.class, example = "<binary>"),
+            @ApiImplicitParam(name = "path", paramType = "form", value = "relative path from repo root, without filename", required = true, dataTypeClass = String.class, example = "docs"),
+            @ApiImplicitParam(name = "taskId", paramType = "form", value = "task id", required = true, dataTypeClass = String.class, example = "17287390173"),
     })
     @SneakyThrows
     @WrapsException(ServiceStatus.GIT_WEB_UPLOAD_FAIL)
@@ -113,6 +112,7 @@ public class GitWebController {
 
     @Data
     public static class WebNewDTO {
+
         String ctx;
         String fileName;
         String path;
@@ -122,12 +122,12 @@ public class GitWebController {
     @PostMapping("/upload2/{owner}/{repo}/{branch}")
     @ApiOperation(value = "upload", notes = "upload files to commit")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "owner", paramType = "path", value = "owner of repo", required = true, dataTypeClass = String.class, example = "apache"),
-        @ApiImplicitParam(name = "repo", paramType = "path", value = "repo name", required = true, dataTypeClass = String.class, example = "dubbo"),
-        @ApiImplicitParam(name = "branch", paramType = "path", value = "base branch ref", required = true, dataTypeClass = String.class, example = "dev-2.x"),
-        @ApiImplicitParam(name = "file", paramType = "form", value = "file", required = true, dataTypeClass = MultipartFile.class, example = "<binary>"),
-        @ApiImplicitParam(name = "path", paramType = "form", value = "relative path from repo root, without filename", required = true, dataTypeClass = String.class, example = "docs"),
-        @ApiImplicitParam(name = "taskId", paramType = "form", value = "task id", required = true, dataTypeClass = String.class, example = "17287390173"),
+            @ApiImplicitParam(name = "owner", paramType = "path", value = "owner of repo", required = true, dataTypeClass = String.class, example = "apache"),
+            @ApiImplicitParam(name = "repo", paramType = "path", value = "repo name", required = true, dataTypeClass = String.class, example = "dubbo"),
+            @ApiImplicitParam(name = "branch", paramType = "path", value = "base branch ref", required = true, dataTypeClass = String.class, example = "dev-2.x"),
+            @ApiImplicitParam(name = "file", paramType = "form", value = "file", required = true, dataTypeClass = MultipartFile.class, example = "<binary>"),
+            @ApiImplicitParam(name = "path", paramType = "form", value = "relative path from repo root, without filename", required = true, dataTypeClass = String.class, example = "docs"),
+            @ApiImplicitParam(name = "taskId", paramType = "form", value = "task id", required = true, dataTypeClass = String.class, example = "17287390173"),
     })
     @SneakyThrows
     @WrapsException(ServiceStatus.GIT_WEB_UPLOAD_FAIL)
@@ -159,12 +159,12 @@ public class GitWebController {
     @PostMapping("/upload/{owner}/{repo}/{branch}/commit")
     @ApiOperation(value = "commitUpload", notes = "commit changes just uploaded")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "owner", paramType = "path", value = "owner of repo", required = true, dataTypeClass = String.class, example = "apache"),
-        @ApiImplicitParam(name = "repo", paramType = "path", value = "repo name", required = true, dataTypeClass = String.class, example = "dubbo"),
-        @ApiImplicitParam(name = "branch", paramType = "path", value = "target branch, may be newly created", required = true, dataTypeClass = String.class, example = "dev-2.x"),
-        @ApiImplicitParam(name = "taskId", paramType = "form", value = "task id", required = true, dataTypeClass = String.class, example = "17287390173"),
-        @ApiImplicitParam(name = "message", paramType = "form", value = "commit message", required = true, dataTypeClass = String.class, example = "feat: add an import feature"),
-        @ApiImplicitParam(name = "addFiles", paramType = "form", value = "file list to 'git add', default '.'", required = false, dataTypeClass = List.class, example = "[\"README.md\", \"docs/intro.md\"]")
+            @ApiImplicitParam(name = "owner", paramType = "path", value = "owner of repo", required = true, dataTypeClass = String.class, example = "apache"),
+            @ApiImplicitParam(name = "repo", paramType = "path", value = "repo name", required = true, dataTypeClass = String.class, example = "dubbo"),
+            @ApiImplicitParam(name = "branch", paramType = "path", value = "target branch, may be newly created", required = true, dataTypeClass = String.class, example = "dev-2.x"),
+            @ApiImplicitParam(name = "taskId", paramType = "form", value = "task id", required = true, dataTypeClass = String.class, example = "17287390173"),
+            @ApiImplicitParam(name = "message", paramType = "form", value = "commit message", required = true, dataTypeClass = String.class, example = "feat: add an import feature"),
+            @ApiImplicitParam(name = "addFiles", paramType = "form", value = "file list to 'git add', default '.'", required = false, dataTypeClass = List.class, example = "[\"README.md\", \"docs/intro.md\"]")
     })
     @SneakyThrows
     @WrapsException(ServiceStatus.GIT_WEB_COMMIT_FAIL)
@@ -173,22 +173,21 @@ public class GitWebController {
                                @PathVariable String repo,
                                @PathVariable String branch,
                                @RequestBody WebCommitDTO args,
-                               @RequestHeader(value = "Authorization", required = false)
-                               String auth) {
+                               @RequestHeader(value = "Authorization", required = false) String auth) {
         Integer userId = jwtService.getUserId(auth);
         UserBO userBO = userAuthService.findById(userId);
         log.info("commit with user {}", userBO);
         gitWebService.commit(owner, repo, branch,
-            args.getTaskId(), args.getAddFiles(), args.getMessage(), userBO);
+                args.getTaskId(), args.getAddFiles(), args.getMessage(), userBO);
         return Result.success();
     }
 
     @PostMapping("/create/{owner}/{repo}")
     @ApiOperation(value = "create repo", notes = "create a bare repo")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "owner", paramType = "path", value = "owner of repo", required = true, dataTypeClass = String.class, example = "apache"),
-        @ApiImplicitParam(name = "repo", paramType = "path", value = "repo name", required = true, dataTypeClass = String.class, example = "dubbo"),
-        @ApiImplicitParam(name = "args", paramType = "body", value = "{initBranch}", required = true, dataTypeClass = WebCreateRepoDTO.class),
+            @ApiImplicitParam(name = "owner", paramType = "path", value = "owner of repo", required = true, dataTypeClass = String.class, example = "apache"),
+            @ApiImplicitParam(name = "repo", paramType = "path", value = "repo name", required = true, dataTypeClass = String.class, example = "dubbo"),
+            @ApiImplicitParam(name = "args", paramType = "body", value = "{initBranch}", required = true, dataTypeClass = WebCreateRepoDTO.class),
     })
     @ResponseStatus(HttpStatus.CREATED)
     @SneakyThrows
@@ -207,26 +206,23 @@ public class GitWebController {
     public Result<List<LatestCommitInfo>> listFiles(@PathVariable String owner,
                                                     @PathVariable String repo,
                                                     @PathVariable String branchOrCommit,
-                                                    @RequestParam(required = false)
-                                                    String relPath) {
+                                                    @RequestParam(required = false) String relPath) {
         return Result.success(gitWebService.listFiles(owner, repo, branchOrCommit, relPath));
     }
-
 
     @GetMapping("/latest/{owner}/{repo}/{branchOrCommit}")
     @SneakyThrows
     @WrapsException(wrapped = ServiceStatus.NOT_FOUND, status = HttpStatus.NOT_FOUND)
     public GitWebService.LatestCommitDTO latestCommitOfCurrentRepo(@PathVariable String owner,
                                                                    @PathVariable String repo,
-                                                                   @PathVariable
-                                                                   String branchOrCommit,
-                                                                   @RequestParam(required = false)
-                                                                   String relPath) {
+                                                                   @PathVariable String branchOrCommit,
+                                                                   @RequestParam(required = false) String relPath) {
         return gitWebService.latestCommitOfCurrentRepo(owner, repo, branchOrCommit, relPath);
     }
 
     @Data
     public static class WebDeleteFileDTO {
+
         String file;
         String msg;
     }
@@ -238,8 +234,7 @@ public class GitWebController {
                              @PathVariable String repo,
                              @PathVariable String branch,
                              @RequestBody WebDeleteFileDTO args,
-                             @RequestHeader(value = "Authorization", required = false)
-                             String auth) {
+                             @RequestHeader(value = "Authorization", required = false) String auth) {
         Integer userId = jwtService.getUserId(auth);
         UserBO userBO = userAuthService.findById(userId);
         log.info("delete file with user {}", userBO);
@@ -266,8 +261,7 @@ public class GitWebController {
     @WrapsException(wrapped = ServiceStatus.NOT_FOUND, status = HttpStatus.NOT_FOUND)
     public Result<List<String>> listBranches(@PathVariable String owner,
                                              @PathVariable String repo,
-                                             @RequestHeader(value = "Authorization", required = false)
-                                             String auth) {
+                                             @RequestHeader(value = "Authorization", required = false) String auth) {
 
         Integer userId = jwtService.getUserId(auth);
         log.info("list branches with user {}", userId);
@@ -277,12 +271,10 @@ public class GitWebController {
         return Result.success(gitBasicService.listBranches(owner, repo));
     }
 
-
     @GetMapping("/listcommits/{owner}/{repo}/{branchOrCommit}")
     public Result<List<GitWebService.BriefCommitDTO>> listCommits(@PathVariable String owner,
                                                                   @PathVariable String repo,
-                                                                  @PathVariable
-                                                                  String branchOrCommit) {
+                                                                  @PathVariable String branchOrCommit) {
         try {
             return Result.success(gitWebService.listCommits(owner, repo, branchOrCommit));
         } catch (Exception e) {
@@ -326,7 +318,7 @@ public class GitWebController {
                                                     @RequestParam String sha) {
         try {
             List<Map<String, String>> res =
-                gitWebService.changesOfCommitV2(owner, repo, branch, sha);
+                    gitWebService.changesOfCommitV2(owner, repo, branch, sha);
             return Result.success(res);
         } catch (Exception e) {
             log.error("Diff error", e);
@@ -340,26 +332,26 @@ public class GitWebController {
         gitWebService.updateCaches(owner, repo);
     }
 
-//    @GetMapping("/commitdiff/{owner}/{repo}/{sha}")
-//    public Result commitDiff(@PathVariable String owner,
-//                             @PathVariable String repo,
-//                             @PathVariable String sha) {
-//        return Result.success(gitWebService.listFilesChangesOfCommit(owner, repo, sha));
-//    }
+    // @GetMapping("/commitdiff/{owner}/{repo}/{sha}")
+    // public Result commitDiff(@PathVariable String owner,
+    // @PathVariable String repo,
+    // @PathVariable String sha) {
+    // return Result.success(gitWebService.listFilesChangesOfCommit(owner, repo, sha));
+    // }
 
     @GetMapping("/getPRCommit")
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<List<GitWebService.BriefCommitDTO>> getPRCommit(
-        @RequestParam("head_owner") String headOwner,
-        @RequestParam("head_repo") String headRepo,
-        @RequestParam("head_branch") String headBranch,
-        @RequestParam("base_owner") String baseOwner,
-        @RequestParam("base_repo") String baseRepo,
-        @RequestParam("base_branch") String baseBranch) {
+                                                                  @RequestParam("head_owner") String headOwner,
+                                                                  @RequestParam("head_repo") String headRepo,
+                                                                  @RequestParam("head_branch") String headBranch,
+                                                                  @RequestParam("base_owner") String baseOwner,
+                                                                  @RequestParam("base_repo") String baseRepo,
+                                                                  @RequestParam("base_branch") String baseBranch) {
         try {
             List<GitWebService.BriefCommitDTO> list =
-                gitWebService.listPRCommit(headOwner, headRepo, headBranch, baseOwner, baseRepo,
-                    baseBranch);
+                    gitWebService.listPRCommit(headOwner, headRepo, headBranch, baseOwner, baseRepo,
+                            baseBranch);
             return Result.success(list);
         } catch (Exception e) {
             log.error("List commits error", e);
@@ -371,17 +363,15 @@ public class GitWebController {
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result getPRDiff(@RequestParam("head_owner") String headOwner,
                             @RequestParam("head_repo") String headRepo,
-                            @RequestParam("head_branch")
-                            String headBranch,
+                            @RequestParam("head_branch") String headBranch,
                             @RequestParam("base_owner") String baseOwner,
                             @RequestParam("base_repo") String baseRepo,
-                            @RequestParam("base_branch")
-                            String baseBranch,
+                            @RequestParam("base_branch") String baseBranch,
                             @RequestParam(value = "recursive") Boolean recursive) {
         try {
             var noRecur =
-                gitWebService.diffPR(headOwner, headRepo, headBranch, baseOwner, baseRepo,
-                    baseBranch, false);
+                    gitWebService.diffPR(headOwner, headRepo, headBranch, baseOwner, baseRepo,
+                            baseBranch, false);
             var recur = gitWebService.handleDiff((List<Map<String, String>>) noRecur);
             return Result.success(Map.of("noRecur", noRecur, "recur", recur));
         } catch (Exception e) {
@@ -401,7 +391,7 @@ public class GitWebController {
                           @RequestParam("pr_title") String prTitle) {
         try {
             gitWebService.mergePR(baseOwner, baseRepo, baseBranch, headOwner, headRepo, headBranch,
-                prTitle);
+                    prTitle);
             return Result.success();
         } catch (Exception e) {
             log.error("List commits error", e);

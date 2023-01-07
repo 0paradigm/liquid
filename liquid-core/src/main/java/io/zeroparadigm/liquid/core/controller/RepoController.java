@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.zeroparadigm.liquid.core.controller;
 
 import io.swagger.annotations.Api;
@@ -25,7 +42,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.List;
 import java.util.Objects;
@@ -103,13 +119,13 @@ public class RepoController {
     @GetMapping("/auth")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Boolean> auth(
-        @RequestHeader(value = "Authorization", required = false) String token,
-        @RequestParam("repoId") Integer repoId,
-        @RequestParam("read") Boolean read,
-        @RequestParam("manage") Boolean manage,
-        @RequestParam("push") Boolean push,
-        @RequestParam("settings") Boolean settings,
-        @RequestParam("admin") Boolean admin) {
+                                @RequestHeader(value = "Authorization", required = false) String token,
+                                @RequestParam("repoId") Integer repoId,
+                                @RequestParam("read") Boolean read,
+                                @RequestParam("manage") Boolean manage,
+                                @RequestParam("push") Boolean push,
+                                @RequestParam("settings") Boolean settings,
+                                @RequestParam("admin") Boolean admin) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
@@ -132,14 +148,13 @@ public class RepoController {
     @GetMapping("/create")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Boolean> create(
-        @RequestHeader(value = "Authorization", required = false) String token,
-        @RequestParam("name") String name,
-        @RequestParam(value = "forkedId", required = false)
-        String forkedStr,
-        @RequestParam("description") String description,
-        @RequestParam("language") String language,
-        @RequestParam("private") Boolean privat,
-        @RequestParam("readme") Boolean readme) {
+                                  @RequestHeader(value = "Authorization", required = false) String token,
+                                  @RequestParam("name") String name,
+                                  @RequestParam(value = "forkedId", required = false) String forkedStr,
+                                  @RequestParam("description") String description,
+                                  @RequestParam("language") String language,
+                                  @RequestParam("private") Boolean privat,
+                                  @RequestParam("readme") Boolean readme) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         log.error("user " + user + " create " + name);
@@ -153,12 +168,12 @@ public class RepoController {
             } else {
                 var ownerAndName = forkedStr.split("/");
                 fromRepo = Objects.requireNonNull(
-                    repoMapper.findByOwnerAndName(ownerAndName[0], ownerAndName[1]));
+                        repoMapper.findByOwnerAndName(ownerAndName[0], ownerAndName[1]));
                 gitBasicService.forkRepo(
-                    Objects.requireNonNull(userMapper.findById(fromRepo.getOwner())).getLogin(),
-                    fromRepo.getName(),
-                    user.getLogin(),
-                    name);
+                        Objects.requireNonNull(userMapper.findById(fromRepo.getOwner())).getLogin(),
+                        fromRepo.getName(),
+                        user.getLogin(),
+                        name);
             }
             List<String> addFiles = new ArrayList<>(2);
             if (readme) {
@@ -186,8 +201,8 @@ public class RepoController {
             language = fromRepo == null ? "" : fromRepo.getLanguage();
         }
         repoMapper.createRepo(userId, name, fromRepo == null ? null : fromRepo.getId(), description,
-            language,
-            privat);
+                language,
+                privat);
         return Result.success(true);
     }
 
@@ -229,9 +244,9 @@ public class RepoController {
                                                        @PathVariable("repo") String repoName) {
         Repo repo = repoMapper.findByOwnerAndName(owner, repoName);
         List<String> collaborators = repoMapper.listCollaborators(repo.getId()).stream()
-            .map(User::getLogin).toList();
+                .map(User::getLogin).toList();
         List<String> allUsers = userMapper.listAll().stream()
-            .map(User::getLogin).toList();
+                .map(User::getLogin).toList();
         allUsers = new ArrayList<>(allUsers);
         allUsers.removeAll(collaborators);
         allUsers.remove(owner);
@@ -258,7 +273,7 @@ public class RepoController {
         var repo = repoMapper.findByOwnerAndName(owner, repoName);
         List<User> collaborators = repoMapper.listCollaborators(repo.getId());
         return Result.success(
-            collaborators.stream().anyMatch(user -> user.getLogin().equals(colab)));
+                collaborators.stream().anyMatch(user -> user.getLogin().equals(colab)));
     }
 
     @GetMapping("/verify_accessable/{owner}/{repo}")
@@ -293,8 +308,8 @@ public class RepoController {
     @GetMapping("/find")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Repo> findRepoByOwnerIdAndName(
-        @RequestHeader(value = "Authorization", required = false) String token,
-        @RequestParam("name") String name) {
+                                                 @RequestHeader(value = "Authorization", required = false) String token,
+                                                 @RequestParam("name") String name) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -317,7 +332,7 @@ public class RepoController {
         return Result.success(repo);
     }
 
-    // star, forked name, fork, watch      description language
+    // star, forked name, fork, watch description language
     @GetMapping("/meta/{owner}/{repo}")
     @WrapsException(ServiceStatus.INTERNAL_SERVER_ERROR_ARGS)
     public Result<RepoDto> findRepoByName(@PathVariable("owner") String owner,
@@ -335,8 +350,8 @@ public class RepoController {
         Integer fork = repoMapper.countForks(repo.getId());
         Integer watch = repoMapper.countWatchers(repo.getId());
         var dto = new RepoDto(repo.getId(), owner, repo.getName(),
-            repo.getDescription(), repo.getLanguage(), forkedFrom,
-            repo.getPrivated(), star, fork, watch);
+                repo.getDescription(), repo.getLanguage(), forkedFrom,
+                repo.getPrivated(), star, fork, watch);
         return Result.success(dto);
     }
 
@@ -397,25 +412,23 @@ public class RepoController {
 
     @GetMapping("/toggle_watch/{owner}/{repo}")
     public Result toggleWatch(
-        @RequestHeader(value = "Authorization", required = false) String token,
-        @PathVariable("owner") String owner,
-        @PathVariable("repo") String repoName) {
+                              @RequestHeader(value = "Authorization", required = false) String token,
+                              @PathVariable("owner") String owner,
+                              @PathVariable("repo") String repoName) {
         Integer userId = jwtService.getUserId(token);
         Repo repo = repoMapper.findByOwnerAndName(owner, repoName);
         var isWatching = repoMapper.listWatchers(repo.getId()).stream()
-            .anyMatch(user -> user.getId().equals(userId));
+                .anyMatch(user -> user.getId().equals(userId));
         if (isWatching) {
             repoMapper.removeWatcher(repo.getId(), userId);
             return Result.success(Map.of(
-                "msg", String.format("You unwatched %s/%s", owner, repoName),
-                "cnt", repoMapper.countWatchers(repo.getId())
-            ));
+                    "msg", String.format("You unwatched %s/%s", owner, repoName),
+                    "cnt", repoMapper.countWatchers(repo.getId())));
         } else {
             repoMapper.addWatcher(repo.getId(), userId);
             return Result.success(Map.of(
-                "msg", String.format("Start watching %s/%s", owner, repoName),
-                "cnt", repoMapper.countWatchers(repo.getId())
-            ));
+                    "msg", String.format("Start watching %s/%s", owner, repoName),
+                    "cnt", repoMapper.countWatchers(repo.getId())));
         }
     }
 
@@ -426,25 +439,24 @@ public class RepoController {
         Integer userId = jwtService.getUserId(token);
         Repo repo = repoMapper.findByOwnerAndName(owner, repoName);
         var isStarring = repoMapper.listStarers(repo.getId()).stream()
-            .anyMatch(user -> user.getId().equals(userId));
+                .anyMatch(user -> user.getId().equals(userId));
         if (isStarring) {
             repoMapper.deleteStarer(repo.getId(), userId);
             return Result.success(Map.of(
-                "msg", String.format("You unstarred %s/%s", owner, repoName),
-                "cnt", repoMapper.countStarers(repo.getId())
-            ));
+                    "msg", String.format("You unstarred %s/%s", owner, repoName),
+                    "cnt", repoMapper.countStarers(repo.getId())));
         } else {
             repoMapper.addStarer(repo.getId(), userId);
             return Result.success(Map.of(
-                "msg", String.format("You starred %s/%s", owner, repoName),
-                "cnt", repoMapper.countStarers(repo.getId())
-            ));
+                    "msg", String.format("You starred %s/%s", owner, repoName),
+                    "cnt", repoMapper.countStarers(repo.getId())));
         }
     }
 
     @Data
     @Builder
     public static class ListForkDTO {
+
         String owner;
         String name;
     }
@@ -454,20 +466,18 @@ public class RepoController {
                                                @PathVariable("repo") String repoName) {
         var repo = repoMapper.findByOwnerAndName(owner, repoName);
         List<Repo> repos = repoMapper.listForks(repo.getId());
-        var dtos = repos.stream().map(r ->
-            ListForkDTO.builder()
+        var dtos = repos.stream().map(r -> ListForkDTO.builder()
                 .owner(userMapper.findById(r.getOwner()).getLogin())
                 .name(r.getName())
-                .build()
-        ).toList();
+                .build()).toList();
         return Result.success(dtos);
     }
 
     @GetMapping("/delete")
     @WrapsException(ServiceStatus.METHOD_NOT_ALLOWED)
     public Result<Boolean> deleteRepo(
-        @RequestHeader(value = "Authorization", required = false) String token,
-        @RequestParam("repoId") Integer repoId) {
+                                      @RequestHeader(value = "Authorization", required = false) String token,
+                                      @RequestParam("repoId") Integer repoId) {
         Integer userId = jwtService.getUserId(token);
         User usr = userMapper.findById(userId);
         Repo repo = repoMapper.findById(repoId);

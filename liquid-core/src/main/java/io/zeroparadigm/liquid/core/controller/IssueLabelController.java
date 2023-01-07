@@ -1,17 +1,28 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.zeroparadigm.liquid.core.controller;
 
-import com.alibaba.nacos.shaded.org.checkerframework.checker.units.qual.A;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
 import io.zeroparadigm.liquid.common.api.auth.JWTService;
 import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
 import io.zeroparadigm.liquid.core.dao.UserDao;
-import io.zeroparadigm.liquid.core.dao.entity.Issue;
 import io.zeroparadigm.liquid.core.dao.entity.IssueLabel;
 import io.zeroparadigm.liquid.core.dao.entity.Repo;
 import io.zeroparadigm.liquid.core.dao.entity.User;
@@ -22,7 +33,6 @@ import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,9 +69,10 @@ public class IssueLabelController {
 
     @GetMapping("/new")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> newIssueLabel(@RequestHeader(value = "Authorization", required = false) String token, @RequestParam("repoId") Integer repoId,
-                                            @RequestParam("name") String labelName,
-                                            @RequestParam("color") String labelColor,
+    public Result<Boolean> newIssueLabel(@RequestHeader(value = "Authorization", required = false) String token,
+                                         @RequestParam("repoId") Integer repoId,
+                                         @RequestParam("name") String labelName,
+                                         @RequestParam("color") String labelColor,
                                          @RequestParam("description") String labelDescription) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
@@ -90,7 +101,8 @@ public class IssueLabelController {
     // FIXME: authorization?
     @GetMapping("/delete")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> deleteIssueLabelById(@RequestHeader(value = "Authorization", required = false) String token, @RequestParam("id") Integer id) {
+    public Result<Boolean> deleteIssueLabelById(@RequestHeader(value = "Authorization", required = false) String token,
+                                                @RequestParam("id") Integer id) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
         if (Objects.isNull(user)) {
@@ -122,7 +134,8 @@ public class IssueLabelController {
     // FIXME: authorization?
     @GetMapping("/delete_repo_name")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<Boolean> deleteIssueLabelByRepoAndName(@RequestHeader(value = "Authorization", required = false) String token, @RequestParam("repoId") Integer repoId,
+    public Result<Boolean> deleteIssueLabelByRepoAndName(@RequestHeader(value = "Authorization", required = false) String token,
+                                                         @RequestParam("repoId") Integer repoId,
                                                          @RequestParam("name") String name) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.findById(userId);
@@ -143,7 +156,8 @@ public class IssueLabelController {
 
     @GetMapping("/find_repo_name")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
-    public Result<IssueLabel> findIssueLabelByRepoAndName(@RequestParam("repoId") Integer repoId, @RequestParam("name") String name) {
+    public Result<IssueLabel> findIssueLabelByRepoAndName(@RequestParam("repoId") Integer repoId,
+                                                          @RequestParam("name") String name) {
         IssueLabel issueLabel = issueLabelMapper.findByRepoIdAndName(repoId, name);
         log.info("issueLabel: {}", issueLabel);
         if (Objects.isNull(issueLabel)) {

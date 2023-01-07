@@ -21,7 +21,6 @@ import io.zeroparadigm.liquid.auth.ShiroUserLoginToken;
 import io.zeroparadigm.liquid.auth.enums.LoginType;
 import io.zeroparadigm.liquid.common.api.core.UserAuthService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
-import java.util.Objects;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -29,7 +28,6 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Liquid account sign in. Username / Email Address + Password
@@ -37,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author hezean
  */
 public class UserPasswordRealm extends GenericAuthorizationRealm {
+
     @DubboReference(parameters = {"unicast", "false"})
     UserAuthService authService;
 

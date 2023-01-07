@@ -48,7 +48,7 @@ public enum ServiceStatus {
     MISSING_CREDENTIAL(1004, "{0}", "{0SEr}"),
     ERROR_LOGGING(1005, "Error logging in, please try again", "服务端异常，请重试"),
 
-    //phone captcha login errors
+    // phone captcha login errors
     SENDING_ERROR(2000, "Fail to send captcha, please try again", "发送验证码失败，请重试"),
     CAPTCHA_DUPLICATE(2001, "Do not send the captcha repeatedly within 1 minute", "1分钟内请勿重复发送验证码"),
     WRONG_CAPTCHA(2002, "Wrong captcha", "验证码错误"),

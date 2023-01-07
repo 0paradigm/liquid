@@ -32,7 +32,7 @@ public class UserBO implements Serializable {
     private Integer id;
 
     private String login;
-    
+
     private String phone;
 
     private String email;

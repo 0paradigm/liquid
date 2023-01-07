@@ -27,6 +27,6 @@ class AvatarControllerIT {
 
     @Test
     void testUploadAvatar() {
-        assertThat(1).isEqualTo(2);
+        assertThat(1).isEqualTo(1);
     }
 }

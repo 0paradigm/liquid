@@ -77,7 +77,8 @@ public interface RepoMapper extends BaseMapper<Repo> {
     @Nullable
     Repo findByOwnerAndName(@Param("owner") String owner, @Param("name") String name);
 
-    void updateNameFindByOwnerAndName(@Param("owner") String owner, @Param("name") String name, @Param("newName") String newName);
+    void updateNameFindByOwnerAndName(@Param("owner") String owner, @Param("name") String name,
+                                      @Param("newName") String newName);
 
     /**
      * Gets repo "owner/name".
@@ -187,7 +188,6 @@ public interface RepoMapper extends BaseMapper<Repo> {
      */
     void setPrivate(@Param("repoId") Integer repoId);
 
-
     /**
      * Verify user authorization
      * @param repoId repo id
@@ -195,17 +195,16 @@ public interface RepoMapper extends BaseMapper<Repo> {
      */
     Boolean verifyAuth(@Param("repoId") Integer repoId, @Param("userId") Integer userId);
 
-
     // Todo: Implement after Contributor implementation
-//    /**
-//     * Count contributors.
-//     */
-//    @Nullable
-//    Integer countContributors(@Param("id") Integer repoId);
-//
-//    /**
-//     * List contributors.
-//     */
-//    @Nullable
-//    List<User> listContributors(@Param("id") Integer repoId);
+    // /**
+    // * Count contributors.
+    // */
+    // @Nullable
+    // Integer countContributors(@Param("id") Integer repoId);
+    //
+    // /**
+    // * List contributors.
+    // */
+    // @Nullable
+    // List<User> listContributors(@Param("id") Integer repoId);
 }

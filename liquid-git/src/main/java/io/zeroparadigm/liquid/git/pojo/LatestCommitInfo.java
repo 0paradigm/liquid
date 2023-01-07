@@ -78,7 +78,7 @@ public class LatestCommitInfo {
             abs = new File(checkOuted.getRepository().getDirectory().getParent());
         } else {
             abs = new File(checkOuted.getRepository().getDirectory().getParent(),
-                String.valueOf(rel));
+                    String.valueOf(rel));
         }
         if (rel != null) {
             name = rel.getName();
@@ -89,15 +89,15 @@ public class LatestCommitInfo {
         try {
             if (rel == null) {
                 checkOuted.log()
-                    .setMaxCount(1)
-                    .call()
-                    .forEach(latestCommitAtom::set);
+                        .setMaxCount(1)
+                        .call()
+                        .forEach(latestCommitAtom::set);
             } else {
                 checkOuted.log()
-                    .addPath(rel.getPath())
-                    .setMaxCount(1)
-                    .call()
-                    .forEach(latestCommitAtom::set);
+                        .addPath(rel.getPath())
+                        .setMaxCount(1)
+                        .call()
+                        .forEach(latestCommitAtom::set);
             }
         } catch (GitAPIException e) {
             log.error("Cannot fetch commit info", e);

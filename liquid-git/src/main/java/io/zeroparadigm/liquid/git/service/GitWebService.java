@@ -24,7 +24,6 @@ import java.util.List;
 
 import io.zeroparadigm.liquid.git.pojo.LatestCommitInfo;
 import java.util.Map;
-import java.util.Objects;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,8 +41,8 @@ public interface GitWebService {
                       String taskId) throws IOException, GitAPIException;
 
     void commit(String owner, String repo, @Nullable String toBranch, String taskId,
-                @Nullable List<String> addFiles, String message, @Nullable UserBO committer)
-        throws IOException, GitAPIException;
+                @Nullable List<String> addFiles, String message,
+                @Nullable UserBO committer) throws IOException, GitAPIException;
 
     /**
      * Lists the file/dir names with git info.
@@ -59,15 +58,13 @@ public interface GitWebService {
     List<LatestCommitInfo> listFiles(String owner, String repo, String branchOrCommit,
                                      @Nullable String relPath) throws IOException, GitAPIException;
 
-    List<Map<String, Object>> changesOfCommit(String owner, String repo, String branch, String sha1
-    ) throws IOException, GitAPIException;
+    List<Map<String, Object>> changesOfCommit(String owner, String repo, String branch,
+                                              String sha1) throws IOException, GitAPIException;
 
     List<Map<String, String>> changesOfCommitV2(String owner, String repo, String branch,
-                                                String sha1
-    ) throws IOException, GitAPIException;
+                                                String sha1) throws IOException, GitAPIException;
 
-    List<String> findBranchCommit(String owner, String repo, String branchOrCommit
-    ) throws IOException, GitAPIException;
+    List<String> findBranchCommit(String owner, String repo, String branchOrCommit) throws IOException, GitAPIException;
 
     Object diffPR(String headOwner,
                   String headRepo,
@@ -75,8 +72,7 @@ public interface GitWebService {
                   String baseOwner,
                   String baseRepo,
                   String baseBranch,
-                  Boolean requireRecur)
-        throws IOException, GitAPIException;
+                  Boolean requireRecur) throws IOException, GitAPIException;
 
     List<Map<String, Object>> handleDiff(List<Map<String, String>> data);
 
@@ -85,21 +81,20 @@ public interface GitWebService {
                                       String headBranch,
                                       String baseOwner,
                                       String baseRepo,
-                                      String baseBranch)
-        throws IOException, GitAPIException;
+                                      String baseBranch) throws IOException, GitAPIException;
 
     String getFile(String owner, String repo, String branchOrCommit,
                    @Nullable String filePath) throws IOException, GitAPIException;
 
     LatestCommitDTO latestCommitOfCurrentRepo(String owner, String repo, String branchOrCommit,
-                                              @Nullable String relPath)
-        throws IOException, GitAPIException;
+                                              @Nullable String relPath) throws IOException, GitAPIException;
 
     void updateCaches(String owner, String repo);
 
     @Data
     @Builder
     class BriefCommitDTO {
+
         Integer ts;
         String id;
         String label;
@@ -125,6 +120,7 @@ public interface GitWebService {
     @SuperBuilder
     @NoArgsConstructor
     class LatestCommitDTO {
+
         LatestCommitInfo latest;
         Integer cnt;
     }

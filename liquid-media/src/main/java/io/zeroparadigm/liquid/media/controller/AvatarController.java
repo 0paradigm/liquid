@@ -19,20 +19,15 @@ package io.zeroparadigm.liquid.media.controller;
 
 import io.zeroparadigm.liquid.common.api.media.MinioService;
 import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
-import java.io.OutputStream;
 import java.util.Objects;
-import javassist.NotFoundException;
 import javax.annotation.PostConstruct;
 
 import io.zeroparadigm.liquid.common.constants.StorageConsts;
-import javax.servlet.http.HttpServletResponse;
-import lombok.Cleanup;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,19 +51,19 @@ public class AvatarController {
         if (minioService.download("default1", StorageConsts.MINIO_AVATAR_BUCKET) == null) {
             log.info("Uploading default avatar");
             minioService.upload(getClass().getClassLoader().getResourceAsStream("default1.png"),
-                "default1", StorageConsts.MINIO_AVATAR_BUCKET);
+                    "default1", StorageConsts.MINIO_AVATAR_BUCKET);
         }
         if (minioService.download("default2", StorageConsts.MINIO_AVATAR_BUCKET) == null) {
             log.info("Uploading default avatar");
             minioService.upload(getClass().getClassLoader().getResourceAsStream("default2.png"),
-                "default2", StorageConsts.MINIO_AVATAR_BUCKET);
+                    "default2", StorageConsts.MINIO_AVATAR_BUCKET);
         }
     }
 
     @PostMapping("/upload")
     public String upload(
-        @RequestParam String uid,
-        @RequestBody MultipartFile file) {
+                         @RequestParam String uid,
+                         @RequestBody MultipartFile file) {
         return minioService.upload(file, uid, StorageConsts.MINIO_AVATAR_BUCKET);
     }
 

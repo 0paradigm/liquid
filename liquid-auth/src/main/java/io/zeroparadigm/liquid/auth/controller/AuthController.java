@@ -18,7 +18,6 @@
 package io.zeroparadigm.liquid.auth.controller;
 
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
-import com.aliyun.tea.TeaException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -34,10 +33,7 @@ import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -45,7 +41,6 @@ import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -79,15 +74,15 @@ public class AuthController {
         try {
             Subject subject = authService.login(credentials);
             log.info(
-                "User '{}' logged in via '{}'",
-                credentials.getLogin(),
-                credentials.getType().getIdentifier());
+                    "User '{}' logged in via '{}'",
+                    credentials.getLogin(),
+                    credentials.getType().getIdentifier());
             return Result.success(
-                Map.of(
-                    "token",
-                    jwtUtils.createTokenFor(
-                        ((UserBO) subject.getPrincipal()).getId(),
-                        credentials.getRemember())));
+                    Map.of(
+                            "token",
+                            jwtUtils.createTokenFor(
+                                    ((UserBO) subject.getPrincipal()).getId(),
+                                    credentials.getRemember())));
         } catch (InvalidCredentialFieldException e) {
             errResult = Result.error(ServiceStatus.MISSING_CREDENTIAL, e.getMsg());
         } catch (UnknownAccountException e) {
@@ -99,7 +94,6 @@ public class AuthController {
         }
         return errResult;
     }
-
 
     @ApiOperation(value = "captchaLogin", notes = "Login via phone captcha")
     @ApiImplicitParam(name = "credentials", value = "login type and related credentials", paramType = "body", required = true, dataTypeClass = LoginCredentials.class)
@@ -116,11 +110,11 @@ public class AuthController {
             if (captcha.equals(redisCode) && user.getId() != null) {
                 captchas.remove(phone);
                 return Result.success(
-                    Map.of(
-                        "token",
-                        jwtUtils.createTokenFor(
-                            user.getId(),
-                            credentials.getRemember())));
+                        Map.of(
+                                "token",
+                                jwtUtils.createTokenFor(
+                                        user.getId(),
+                                        credentials.getRemember())));
 
             } else {
                 return Result.error(ServiceStatus.WRONG_CAPTCHA);
@@ -143,19 +137,19 @@ public class AuthController {
         }
         try {
             com.aliyun.teaopenapi.models.Config config = new com.aliyun.teaopenapi.models.Config()
-                .setAccessKeyId("LTAI5tDCCZgDT7ounNJN1exq")
-                .setAccessKeySecret("IBypcl8baB7201PI4V6zpK5wgRyeJz");
+                    .setAccessKeyId("LTAI5tDCCZgDT7ounNJN1exq")
+                    .setAccessKeySecret("IBypcl8baB7201PI4V6zpK5wgRyeJz");
             config.endpoint = "dysmsapi.aliyuncs.com";
             com.aliyun.dysmsapi20170525.Client client =
-                new com.aliyun.dysmsapi20170525.Client(config);
+                    new com.aliyun.dysmsapi20170525.Client(config);
             com.aliyun.dysmsapi20170525.models.SendSmsRequest sendSmsRequest =
-                new com.aliyun.dysmsapi20170525.models.SendSmsRequest()
-                    .setSignName("liquid")
-                    .setTemplateCode("SMS_264870471")
-                    .setPhoneNumbers(phone)
-                    .setTemplateParam(String.format("{\"code\":\"%s\"}", ss));
+                    new com.aliyun.dysmsapi20170525.models.SendSmsRequest()
+                            .setSignName("liquid")
+                            .setTemplateCode("SMS_264870471")
+                            .setPhoneNumbers(phone)
+                            .setTemplateParam(String.format("{\"code\":\"%s\"}", ss));
             com.aliyun.teautil.models.RuntimeOptions runtime =
-                new com.aliyun.teautil.models.RuntimeOptions();
+                    new com.aliyun.teautil.models.RuntimeOptions();
             SendSmsResponse sendSmsResponse = client.sendSmsWithOptions(sendSmsRequest, runtime);
             captchas.put(phone, ss.toString());
             log.info("sent {} to {}, resp {}", ss.toString(), phone, sendSmsResponse);
@@ -173,9 +167,9 @@ public class AuthController {
     public Result logout() {
         SecurityUtils.getSubject().logout();
         log.info(
-            "[ip: {}, session: {}] logged out",
-            SecurityUtils.getSubject().getSession().getHost(),
-            SecurityUtils.getSubject().getSession().getId());
+                "[ip: {}, session: {}] logged out",
+                SecurityUtils.getSubject().getSession().getHost(),
+                SecurityUtils.getSubject().getSession().getId());
         return Result.success();
     }
 }

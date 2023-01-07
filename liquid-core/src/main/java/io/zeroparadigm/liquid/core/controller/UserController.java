@@ -23,7 +23,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.zeroparadigm.liquid.common.api.auth.JWTService;
 import io.zeroparadigm.liquid.common.api.core.UserAuthService;
-import io.zeroparadigm.liquid.common.bo.UserBO;
 import io.zeroparadigm.liquid.common.dto.Result;
 import io.zeroparadigm.liquid.common.enums.ServiceStatus;
 import io.zeroparadigm.liquid.common.exceptions.annotations.WrapsException;
@@ -35,18 +34,11 @@ import io.zeroparadigm.liquid.core.dto.LoginCredentials;
 import io.zeroparadigm.liquid.core.dto.RepoDto;
 import io.zeroparadigm.liquid.core.jwt.JwtUtils;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.ibatis.annotations.Param;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.IncorrectCredentialsException;
-import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
@@ -92,8 +84,7 @@ public class UserController {
     public Result<Boolean> createUser(@RequestParam("login") String login,
                                       @RequestParam("name") String name,
                                       @RequestParam("email") String email,
-                                      @Nullable @RequestParam("twitter_username")
-                                      String twitter_username,
+                                      @Nullable @RequestParam("twitter_username") String twitter_username,
                                       @Nullable @RequestParam("bio") String bio,
                                       @Nullable @RequestParam("company") String company,
                                       @Nullable @RequestParam("location") String location,
@@ -118,28 +109,27 @@ public class UserController {
     @PostMapping("/update")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
     public Result<Boolean> updateUser(
-        @RequestHeader(value = "Authorization", required = false) String token,
-        @Nullable @RequestParam("twitter_username")
-        String twitter_username,
-        @Nullable @RequestParam("name") String name,
-        @Nullable @RequestParam("bio") String bio,
-        @Nullable @RequestParam("company") String company,
-        @Nullable @RequestParam("location") String location,
-        @Nullable @RequestParam("phone") String phone) {
+                                      @RequestHeader(value = "Authorization", required = false) String token,
+                                      @Nullable @RequestParam("twitter_username") String twitter_username,
+                                      @Nullable @RequestParam("name") String name,
+                                      @Nullable @RequestParam("bio") String bio,
+                                      @Nullable @RequestParam("company") String company,
+                                      @Nullable @RequestParam("location") String location,
+                                      @Nullable @RequestParam("phone") String phone) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.selectById(userId);
         if (Objects.isNull(user)) {
             return Result.error(ServiceStatus.ACCOUNT_NOT_FOUND);
         }
         userMapper.updateUserById(userId, twitter_username, bio, company, name, location, phone,
-            System.currentTimeMillis());
+                System.currentTimeMillis());
         return Result.success();
     }
 
     @GetMapping("/info")
     @WrapsException(ServiceStatus.ACCOUNT_NOT_FOUND)
     public Result<User> getUserInfo(
-        @RequestHeader(value = "Authorization", required = false) String token) {
+                                    @RequestHeader(value = "Authorization", required = false) String token) {
         Integer userId = jwtService.getUserId(token);
         User user = userMapper.selectById(userId);
         if (Objects.isNull(user)) {
@@ -160,6 +150,7 @@ public class UserController {
 
     @Data
     static class RegisterDTO {
+
         String mail;
         String login;
         String password;
@@ -214,8 +205,8 @@ public class UserController {
     @GetMapping("/star")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Boolean> star(
-        @RequestHeader(value = "Authorization", required = false) String token,
-        @RequestParam("id") Integer id) {
+                                @RequestHeader(value = "Authorization", required = false) String token,
+                                @RequestParam("id") Integer id) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -228,8 +219,8 @@ public class UserController {
     @GetMapping("/unstar")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Boolean> unstar(
-        @RequestHeader(value = "Authorization", required = false) String token,
-        @RequestParam("id") Integer id) {
+                                  @RequestHeader(value = "Authorization", required = false) String token,
+                                  @RequestParam("id") Integer id) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -242,30 +233,29 @@ public class UserController {
     @GetMapping("/watch")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Boolean> watch(
-        @RequestHeader(value = "Authorization", required = false) String token,
-        @RequestParam("id") Integer id,
-        @RequestParam("particip") Boolean participation,
-        @RequestParam("issue") Boolean issue,
-        @RequestParam("pull") Boolean pull,
-        @RequestParam("release") Boolean release,
-        @RequestParam("discuss") Boolean discussion,
-        @RequestParam("alerts") Boolean security_alerts
-    ) {
+                                 @RequestHeader(value = "Authorization", required = false) String token,
+                                 @RequestParam("id") Integer id,
+                                 @RequestParam("particip") Boolean participation,
+                                 @RequestParam("issue") Boolean issue,
+                                 @RequestParam("pull") Boolean pull,
+                                 @RequestParam("release") Boolean release,
+                                 @RequestParam("discuss") Boolean discussion,
+                                 @RequestParam("alerts") Boolean security_alerts) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         }
         User usr = userMapper.findById(userId);
         userMapper.watchRepo(usr.getLogin(), id, participation, issue, pull, release, discussion,
-            security_alerts);
+                security_alerts);
         return Result.success();
     }
 
     @GetMapping("/unwatch")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<Boolean> unwatch(
-        @RequestHeader(value = "Authorization", required = false) String token,
-        @RequestParam("id") Integer id) {
+                                   @RequestHeader(value = "Authorization", required = false) String token,
+                                   @RequestParam("id") Integer id) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
@@ -278,27 +268,27 @@ public class UserController {
     @Data
     @Builder
     public static class ListAllSiteRepoDTO {
+
         String userName;
         String repoName;
     }
 
     @GetMapping("/allsiterepo")
     public Result<List<ListAllSiteRepoDTO>> listAllRepos(
-        @RequestHeader(value = "Authorization", required = false)
-        String token) {
+                                                         @RequestHeader(value = "Authorization", required = false) String token) {
         var res = userMapper.listAll().stream()
-            .flatMap(usr -> {
-                try {
-                    var dto = getRepo(usr.getLogin(), token).getData();
-                    return dto.stream()
-                        .map(repo -> ListAllSiteRepoDTO.builder()
-                            .userName(usr.getLogin())
-                            .repoName(repo.getName())
-                            .build());
-                } catch (Exception e) {
-                    return Stream.of();
-                }
-            }).toList();
+                .flatMap(usr -> {
+                    try {
+                        var dto = getRepo(usr.getLogin(), token).getData();
+                        return dto.stream()
+                                .map(repo -> ListAllSiteRepoDTO.builder()
+                                        .userName(usr.getLogin())
+                                        .repoName(repo.getName())
+                                        .build());
+                    } catch (Exception e) {
+                        return Stream.of();
+                    }
+                }).toList();
         return Result.success(res);
     }
 
@@ -312,21 +302,18 @@ public class UserController {
             return Result.error(ServiceStatus.NOT_AUTHENTICATED);
         } else {
             return Result.success(
-                Map.of(
-                    "token",
-                    jwtUtils.createTokenFor(
-                        user.getId(),
-                        credentials.getRemember())));
+                    Map.of(
+                            "token",
+                            jwtUtils.createTokenFor(
+                                    user.getId(),
+                                    credentials.getRemember())));
         }
     }
-
-
 
     // forked from
     @GetMapping("/repo/{user}")
     public Result<List<RepoDto>> getRepo(@PathVariable("user") String login,
-                                         @RequestHeader(value = "Authorization", required = false)
-                                         String token) {
+                                         @RequestHeader(value = "Authorization", required = false) String token) {
         Integer userId = jwtService.getUserId(token);
 
         List<Repo> repos = userMapper.listUserRepos(login);
@@ -339,7 +326,7 @@ public class UserController {
                 if (!canAccess) {
                     List<User> collaborators = repoMapper.listCollaborators(repos.get(i).getId());
                     canAccess =
-                        collaborators.stream().anyMatch(user -> user.getId().equals(userId));
+                            collaborators.stream().anyMatch(user -> user.getId().equals(userId));
                 }
             }
             if (!canAccess) {
@@ -359,9 +346,9 @@ public class UserController {
             Integer fork = repoMapper.countForks(repos.get(i).getId());
             Integer watch = repoMapper.countWatchers(repos.get(i).getId());
             repoDtos.add(new RepoDto(repos.get(i).getId(), login, repos.get(i).getName(),
-                repos.get(i).getDescription(), repos.get(i).getLanguage(), forkedFrom,
-                repos.get(i).getPrivated(),
-                star, fork, watch));
+                    repos.get(i).getDescription(), repos.get(i).getLanguage(), forkedFrom,
+                    repos.get(i).getPrivated(),
+                    star, fork, watch));
         }
         repoDtos.sort((o1, o2) -> -o1.getId().compareTo(o2.getId()));
         return Result.success(repoDtos);
@@ -370,8 +357,7 @@ public class UserController {
     @GetMapping("/myfork/{upowner}/{uprepo}")
     public Result<List<String>> getMyFork(@PathVariable("upowner") String upowner,
                                           @PathVariable("uprepo") String uprepo,
-                                          @RequestHeader(value = "Authorization", required = false)
-                                          String token) {
+                                          @RequestHeader(value = "Authorization", required = false) String token) {
         Integer userId = jwtService.getUserId(token);
         if (Objects.isNull(userId)) {
             return Result.success(List.of());
@@ -380,10 +366,10 @@ public class UserController {
         Repo upstream = repoMapper.findByOwnerAndName(upowner, uprepo);
         List<Repo> repos = userMapper.listUserRepos(usr.getLogin());
         var res = repos.stream()
-            .filter(repo -> repo.getForkedFrom() != null)
-            .filter(repo -> repo.getForkedFrom().equals(upstream.getId()))
-            .map(repo -> repo.getName())
-            .toList();
+                .filter(repo -> repo.getForkedFrom() != null)
+                .filter(repo -> repo.getForkedFrom().equals(upstream.getId()))
+                .map(repo -> repo.getName())
+                .toList();
         return Result.success(res);
     }
 
@@ -391,8 +377,7 @@ public class UserController {
     @GetMapping("/stars/{user}")
     @WrapsException(ServiceStatus.NOT_AUTHENTICATED)
     public Result<List<RepoDto>> getStars(@PathVariable("user") String login,
-                                          @RequestHeader(value = "Authorization", required = false)
-                                          String token) {
+                                          @RequestHeader(value = "Authorization", required = false) String token) {
         Integer userId = jwtService.getUserId(token);
 
         List<Repo> repos = userMapper.listStarredRepos(userMapper.findByNameOrMail(login).getId());
@@ -405,7 +390,7 @@ public class UserController {
                 if (!canAccess) {
                     List<User> collaborators = repoMapper.listCollaborators(repos.get(i).getId());
                     canAccess =
-                        collaborators.stream().anyMatch(user -> user.getId().equals(userId));
+                            collaborators.stream().anyMatch(user -> user.getId().equals(userId));
                 }
             }
             if (!canAccess) {
@@ -425,10 +410,10 @@ public class UserController {
             Integer fork = repoMapper.countForks(repos.get(i).getId());
             Integer watch = repoMapper.countWatchers(repos.get(i).getId());
             repoDtos.add(new RepoDto(repos.get(i).getId(),
-                userMapper.findById(repos.get(i).getOwner()).getLogin(), repos.get(i).getName(),
-                repos.get(i).getDescription(), repos.get(i).getLanguage(), forkedFrom,
-                repos.get(i).getPrivated(),
-                star, fork, watch));
+                    userMapper.findById(repos.get(i).getOwner()).getLogin(), repos.get(i).getName(),
+                    repos.get(i).getDescription(), repos.get(i).getLanguage(), forkedFrom,
+                    repos.get(i).getPrivated(),
+                    star, fork, watch));
         }
         repoDtos.sort((o1, o2) -> -o1.getStarCount().compareTo(o2.getStarCount()));
         return Result.success(repoDtos);
@@ -456,10 +441,10 @@ public class UserController {
             Integer watch = repoMapper.countWatchers(repos.get(i).getId());
             if (repos.get(i).getPrivated() == false) {
                 repoDtos.add(
-                    new RepoDto(repos.get(i).getId(), usr.getLogin(), repos.get(i).getName(),
-                        repos.get(i).getDescription(), repos.get(i).getLanguage(), forkedFrom,
-                        repos.get(i).getPrivated(),
-                        star, fork, watch));
+                        new RepoDto(repos.get(i).getId(), usr.getLogin(), repos.get(i).getName(),
+                                repos.get(i).getDescription(), repos.get(i).getLanguage(), forkedFrom,
+                                repos.get(i).getPrivated(),
+                                star, fork, watch));
             }
         }
         log.info("user/user_repo: repoDtos is " + repoDtos);
@@ -474,14 +459,14 @@ public class UserController {
      */
     @ApiOperation(value = "hello", notes = "says hello to the person")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "name", value = "USER_NAME", required = true, dataTypeClass = String.class, example = "chris")
+            @ApiImplicitParam(name = "name", value = "USER_NAME", required = true, dataTypeClass = String.class, example = "chris")
     })
     @PostMapping(value = "/hello")
     @ResponseStatus(HttpStatus.CREATED)
     @WrapsException(ServiceStatus.REQUEST_PARAMS_NOT_VALID_ERROR)
     public Result<String> hello(
-        @RequestParam String name,
-        @RequestBody(required = false) String ts) {
+                                @RequestParam String name,
+                                @RequestBody(required = false) String ts) {
         log.debug("User {}", name);
         return Result.success("userService.greet(name)");
     }
@@ -494,7 +479,7 @@ public class UserController {
      */
     @ApiOperation(value = "getUserNamedAs", notes = "queries the first user with that name")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "name", value = "user's name", required = true, dataTypeClass = String.class, example = "foo")
+            @ApiImplicitParam(name = "name", value = "user's name", required = true, dataTypeClass = String.class, example = "foo")
     })
     @PostMapping(value = "/user")
     @ResponseStatus(HttpStatus.OK)
@@ -502,7 +487,6 @@ public class UserController {
     public Result<User> getUserNamedAs(@RequestParam(value = "name") String name) {
         throw new RuntimeException();
     }
-
 
     @PostMapping(value = "/userId")
     public Result<Integer> getUserIdViaJWT(@RequestHeader(value = "Token") String jwt) {

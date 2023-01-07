@@ -25,7 +25,6 @@ public interface UserAuthService {
 
     UserBO findByNameOrMail(String login);
 
-
     UserBO findById(Integer userId);
 
     boolean hasAccessTo(Integer uid, String owner, String repo);

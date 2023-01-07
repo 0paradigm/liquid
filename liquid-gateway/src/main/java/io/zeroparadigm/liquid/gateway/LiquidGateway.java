@@ -66,7 +66,7 @@ public class LiquidGateway {
     }
 
     @Bean
-    public GlobalFilter aesEncryptFilter(){
+    public GlobalFilter aesEncryptFilter() {
         return new AESEncryptFilter();
     }
 }

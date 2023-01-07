@@ -43,11 +43,11 @@ public class UserAuthServiceImpl implements UserAuthService {
             return UserBO.builder().build();
         }
         return UserBO.builder()
-            .id(userRec.getId())
-            .login(userRec.getLogin())
-            .email(userRec.getEmail())
-            .password(userRec.getPassword())
-            .build();
+                .id(userRec.getId())
+                .login(userRec.getLogin())
+                .email(userRec.getEmail())
+                .password(userRec.getPassword())
+                .build();
     }
 
     @GetMapping("/internal/user/list")
@@ -62,11 +62,11 @@ public class UserAuthServiceImpl implements UserAuthService {
             return UserBO.builder().build();
         }
         return UserBO.builder()
-            .id(userRec.getId())
-            .login(userRec.getLogin())
-            .email(userRec.getEmail())
-            .password(userRec.getPassword())
-            .build();
+                .id(userRec.getId())
+                .login(userRec.getLogin())
+                .email(userRec.getEmail())
+                .password(userRec.getPassword())
+                .build();
     }
 
     @Override
@@ -83,11 +83,11 @@ public class UserAuthServiceImpl implements UserAuthService {
             return UserBO.builder().build();
         }
         return UserBO.builder()
-            .id(userRec.getId())
-            .login(userRec.getLogin())
-            .email(userRec.getEmail())
-            .password(userRec.getPassword())
-            .build();
+                .id(userRec.getId())
+                .login(userRec.getLogin())
+                .email(userRec.getEmail())
+                .password(userRec.getPassword())
+                .build();
     }
 
     @Override
