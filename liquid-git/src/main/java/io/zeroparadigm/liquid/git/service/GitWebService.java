@@ -78,6 +78,8 @@ public interface GitWebService {
                   Boolean requireRecur)
         throws IOException, GitAPIException;
 
+    List<Map<String, Object>> handleDiff(List<Map<String, String>> data);
+
     List<BriefCommitDTO> listPRCommit(String headOwner,
                                       String headRepo,
                                       String headBranch,

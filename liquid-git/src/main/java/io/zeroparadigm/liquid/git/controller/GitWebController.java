@@ -379,10 +379,11 @@ public class GitWebController {
                             String baseBranch,
                             @RequestParam(value = "recursive") Boolean recursive) {
         try {
-            var list =
+            var noRecur =
                 gitWebService.diffPR(headOwner, headRepo, headBranch, baseOwner, baseRepo,
-                    baseBranch, recursive);
-            return Result.success(list);
+                    baseBranch, false);
+            var recur = gitWebService.handleDiff((List<Map<String, String>>) noRecur);
+            return Result.success(Map.of("noRecur", noRecur, "recur", recur));
         } catch (Exception e) {
             log.error("List commits error", e);
             return Result.error(ServiceStatus.METHOD_NOT_ALLOWED);

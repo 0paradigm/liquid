@@ -515,7 +515,8 @@ public class GitWebServiceImpl implements GitWebService {
         }
     }
 
-    private List<Map<String, Object>> handleDiff(List<Map<String, String>> data) {
+    @Override
+    public List<Map<String, Object>> handleDiff(List<Map<String, String>> data) {
         List<Map<String, Object>> list = new ArrayList<>();
         for (Map<String, String> map : data) {
             String[] path = map.get("file").split("/");

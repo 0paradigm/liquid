@@ -90,6 +90,12 @@ public class RepoController {
         Repo repoEntity = repoMapper.findByOwnerAndName(owner, repo);
         repoEntity.setPrivated(privated);
         repoMapper.updateById(repoEntity);
+        repoMapper.listWatchers(repoEntity.getId()).forEach(user -> {
+            if (user.getLogin().equals(owner)) {
+                return;
+            }
+            repoMapper.removeWatcher(repoEntity.getId(), user.getId());
+        });
         return Result.success();
     }
 
@@ -260,6 +266,9 @@ public class RepoController {
     public Result verify(@PathVariable("owner") String owner,
                          @PathVariable("repo") String repoName,
                          @RequestHeader(value = "Authorization", required = false) String token) {
+        if ("undefined".equals(owner) || "undefined".equals(repoName)) {
+            return Result.success();
+        }
         var repo = repoMapper.findByOwnerAndName(owner, repoName);
         if (!repo.getPrivated()) {
             return Result.success();
