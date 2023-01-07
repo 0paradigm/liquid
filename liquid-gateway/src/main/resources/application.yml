@@ -12,38 +12,36 @@ spring:
         enabled: true
 
       # TODO: use nacos dynamic configuration
-
       globalcors:
         corsConfigurations:
           '[/**]':
-#            allowedOrigins: "http://localhost:3000"
             allowedHeaders: "*"
-            allowedOrigins: "*"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
+            allowed-origin-patterns: "*"
+            allowedMethods: "*"
+            allow-credentials: true
+            exposedHeaders: "Content-Disposition,Content-Type,Cache-Control"
+            maxAge: 360000
 
 
-#      filter:
-#        remove-hop-by-hop:
-#          headers:
-#            - trailer
-#            - te
-#            - keep-alive
-#            - transfer-encoding
-#            - upgrade
-#            - proxy-authenticate
-#            - connection
-#            - proxy-authorization
-#            - x-application-context
-#            - access-control-allow-credentials
-#            - access-control-allow-headers
-#            - access-control-allow-methods
-#            - access-control-allow-origin
-#            - access-control-max-age
-#            - vary
+
+      #      filter:
+      #        remove-hop-by-hop:
+      #          headers:
+      #            - trailer
+      #            - te
+      #            - keep-alive
+      #            - transfer-encoding
+      #            - upgrade
+      #            - proxy-authenticate
+      #            - connection
+      #            - proxy-authorization
+      #            - x-application-context
+      #            - access-control-allow-credentials
+      #            - access-control-allow-headers
+      #            - access-control-allow-methods
+      #            - access-control-allow-origin
+      #            - access-control-max-age
+      #            - vary
 
       routes:
         - id: liquid-media
@@ -73,3 +71,6 @@ spring:
             - Path=/git/**
           filters:
             - StripPrefix=1
+
+      default-filters:
+        - DedupeResponseHeader=Vary Access-Control-Allow-Origin Access-Control-Allow-Headers Access-Control-Allow-Credentials,RETAIN_UNIQUE

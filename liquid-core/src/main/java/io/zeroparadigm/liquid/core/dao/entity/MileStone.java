@@ -59,7 +59,7 @@ public class MileStone {
      * milestone due date.
      */
     @TableField("due_at")
-    private Long dueDate;
+    private Long dueAt;
 
     /**
      * milestone state

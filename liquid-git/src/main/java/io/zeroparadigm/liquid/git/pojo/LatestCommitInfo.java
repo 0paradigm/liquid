@@ -27,6 +27,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import java.io.File;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import org.springframework.lang.Nullable;
 
 /**
  * Info of the latest commit on a file/directory.
@@ -63,26 +64,43 @@ public class LatestCommitInfo {
      */
     String message;
 
+    String user;
+
     /**
      * Fetches the latest commit on a file/dir.
      *
      * @param checkOuted the jGit object, should be correctly check-outed.
      * @param rel        relative path from repo root.
      */
-    public LatestCommitInfo(Git checkOuted, File rel) {
-        File abs = new File(checkOuted.getRepository().getDirectory().getParent(), String.valueOf(rel));
-        name = rel.getName();
+    public LatestCommitInfo(Git checkOuted, @Nullable File rel) {
+        File abs;
+        if (rel == null) {
+            abs = new File(checkOuted.getRepository().getDirectory().getParent());
+        } else {
+            abs = new File(checkOuted.getRepository().getDirectory().getParent(),
+                String.valueOf(rel));
+        }
+        if (rel != null) {
+            name = rel.getName();
+        }
         isDir = abs.isDirectory();
 
         AtomicReference<RevCommit> latestCommitAtom = new AtomicReference<>();
         try {
-            checkOuted.log()
+            if (rel == null) {
+                checkOuted.log()
+                    .setMaxCount(1)
+                    .call()
+                    .forEach(latestCommitAtom::set);
+            } else {
+                checkOuted.log()
                     .addPath(rel.getPath())
                     .setMaxCount(1)
                     .call()
                     .forEach(latestCommitAtom::set);
+            }
         } catch (GitAPIException e) {
-            log.error("Cannot fetch commit info for {}", rel.getAbsolutePath(), e);
+            log.error("Cannot fetch commit info", e);
             return;
         }
         RevCommit latestCommit = latestCommitAtom.get();
@@ -93,5 +111,6 @@ public class LatestCommitInfo {
         sha = latestCommit.getId().getName();
         timestamp = latestCommit.getCommitTime();
         message = latestCommit.getShortMessage();
+        user = latestCommit.getAuthorIdent().getName();
     }
 }

@@ -19,34 +19,104 @@ package io.zeroparadigm.liquid.core.service.impl;
 
 import io.zeroparadigm.liquid.common.api.core.UserAuthService;
 import io.zeroparadigm.liquid.common.bo.UserBO;
+import io.zeroparadigm.liquid.core.dao.entity.User;
+import io.zeroparadigm.liquid.core.dao.mapper.UserMapper;
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 
+@Slf4j
 @DubboService
 public class UserAuthServiceImpl implements UserAuthService {
-    // FIXME: Just for test!
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public UserBO findByNameOrMail(String login) {
-        UserBO userBO = new UserBO();
-        userBO.setLogin("liquid-official");
-        userBO.setId(1);
-        userBO.setPassword("liquid");
-        userBO.setEmail("admin@liquid.com");
-        return userBO;
+        var userRec = userMapper.findByNameOrMail(login);
+        if (Objects.isNull(userRec)) {
+            return UserBO.builder().build();
+        }
+        return UserBO.builder()
+            .id(userRec.getId())
+            .login(userRec.getLogin())
+            .email(userRec.getEmail())
+            .password(userRec.getPassword())
+            .build();
     }
 
-    @Override
-    public Object getPassword() {
-        return "liquid";
+    @GetMapping("/internal/user/list")
+    public List<User> listUsers() {
+        return userMapper.listAll();
     }
 
     @Override
     public UserBO findById(Integer userId) {
-        UserBO userBO = new UserBO();
-        userBO.setLogin("liquid-official");
-        userBO.setId(1);
-        userBO.setPassword("liquid");
-        userBO.setEmail("admin@liquid.com");
-        return userBO;
+        var userRec = userMapper.findById(userId);
+        if (Objects.isNull(userRec)) {
+            return UserBO.builder().build();
+        }
+        return UserBO.builder()
+            .id(userRec.getId())
+            .login(userRec.getLogin())
+            .email(userRec.getEmail())
+            .password(userRec.getPassword())
+            .build();
+    }
+
+    @Override
+    public boolean hasAccessTo(Integer uid, String owner, String repo) {
+        var res = userMapper.hasAccessTo(uid, owner, repo);
+        log.info("hasAccessTo: uid={}, owner={}, repo={}, res={}", uid, owner, repo, res);
+        return res;
+    }
+
+    @Override
+    public UserBO findByPhone(String phone) {
+        var userRec = userMapper.findByPhone(phone);
+        if (Objects.isNull(userRec)) {
+            return UserBO.builder().build();
+        }
+        return UserBO.builder()
+            .id(userRec.getId())
+            .login(userRec.getLogin())
+            .email(userRec.getEmail())
+            .password(userRec.getPassword())
+            .build();
+    }
+
+    @Override
+    public void register(String mail, String login, String password, String phone) {
+        User newUser = new User();
+        if (!Pattern.compile("^(.+)@(.+)\\.(.+)$").matcher(mail).matches()) {
+            throw new IllegalArgumentException("Invalid email address");
+        }
+        newUser.setEmail(mail);
+        newUser.setLogin(login);
+        if (userMapper.findByNameOrMail(login) != null) {
+            throw new IllegalArgumentException("Login already exists");
+        }
+        if (userMapper.findByNameOrMail(mail) != null) {
+            throw new IllegalArgumentException("Mail already exists");
+        }
+        if (userMapper.findByPhone(phone) != null) {
+            throw new IllegalArgumentException("Phone already exists");
+        }
+        newUser.setPassword(password);
+        if (phone != null && phone.strip().length() == 0) {
+            phone = null;
+        }
+        if (phone != null && !Pattern.compile("^\\d{11}$").matcher(phone).matches()) {
+            throw new IllegalArgumentException("Invalid phone number");
+        }
+        newUser.setPhone(phone);
+        newUser.setCreatedAt(System.currentTimeMillis());
+        newUser.setUpdatedAt(System.currentTimeMillis());
+        userMapper.insert(newUser);
     }
 }

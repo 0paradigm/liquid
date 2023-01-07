@@ -56,11 +56,18 @@ public class Issue implements Serializable {
     private Integer opener;
 
     /**
+     * issue title.
+     */
+    @TableField("title")
+    @NonNull
+    private String title;
+
+    /**
      * issue created time.
      */
     @TableField("created_at")
     @NonNull
-    private Long createdTime;
+    private Long createdAt;
 
     /**
      * issue closed

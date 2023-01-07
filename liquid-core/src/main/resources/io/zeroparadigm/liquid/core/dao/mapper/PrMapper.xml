@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.PrMapper">
+
+    <insert id="createPr">
+        INSERT INTO `t_ds_pr`
+        (`display_id`, `repo`, `opener`, `title`, `head`, `base`, `created_at`, `head_branch`, `base_branch`)
+        VALUES
+        (#{display_id}, #{repo_id}, #{opener_id}, #{title}, #{head}, #{base}, #{created_at}, #{head_branch}, #{base_branch});
+    </insert>
+
+    <update id="setClosed">
+        UPDATE `t_ds_pr`
+        SET `closed` = #{closed}
+        WHERE `id` = #{id};
+    </update>
+
+    <update id="setClosedAt">
+        UPDATE `t_ds_pr`
+        SET `closed_at` = #{closed_at}
+        WHERE `id` = #{id};
+    </update>
+
+    <select id="findByRepoId" resultType="io.zeroparadigm.liquid.core.dao.entity.PR">
+        SELECT *
+        FROM `t_ds_pr`
+        WHERE `repo` = #{repo_id};
+    </select>
+
+    <select id="findById" resultType="io.zeroparadigm.liquid.core.dao.entity.PR">
+        SELECT *
+        FROM `t_ds_pr`
+        WHERE `id` = #{id};
+    </select>
+
+    <select id="findByDisplayedId" resultType="io.zeroparadigm.liquid.core.dao.entity.PR">
+        SELECT *
+        FROM `t_ds_pr`
+        WHERE `display_id` = #{display_id};
+    </select>
+
+    <select id="findByRepoIdAndClosed" resultType="io.zeroparadigm.liquid.core.dao.entity.PR">
+        SELECT *
+        FROM `t_ds_pr`
+        WHERE `repo` = #{repo_id}
+          AND `closed` = #{closed};
+    </select>
+
+    <select id="findByUserId" resultType="io.zeroparadigm.liquid.core.dao.entity.PR">
+        SELECT *
+        FROM `t_ds_pr`
+        WHERE `opener` = #{user_id};
+    </select>
+
+    <select id="findByRepoIdAndDisplayedId" resultType="io.zeroparadigm.liquid.core.dao.entity.PR">
+        SELECT *
+        FROM `t_ds_pr`
+        WHERE `repo` = #{repo_id}
+          AND `display_id` = #{display_id};
+    </select>
+</mapper>

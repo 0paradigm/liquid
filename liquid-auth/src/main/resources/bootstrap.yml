@@ -29,9 +29,9 @@ dubbo:
   protocol:
     name: dubbo
     port: -1
+  provider:
+    timeout: 300000
   consumer:
     check: false
     retries: 3
-    timeout: 300000
-  provider:
     timeout: 300000

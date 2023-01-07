@@ -56,3 +56,6 @@ liquid-docker/logs/
 # dev git storage
 storage
 liquid-git/storage-sa/
+liquid-core/*.tmp
+
+__pycache__

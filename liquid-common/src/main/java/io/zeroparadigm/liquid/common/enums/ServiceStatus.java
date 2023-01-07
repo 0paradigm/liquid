@@ -48,14 +48,21 @@ public enum ServiceStatus {
     MISSING_CREDENTIAL(1004, "{0}", "{0SEr}"),
     ERROR_LOGGING(1005, "Error logging in, please try again", "服务端异常，请重试"),
 
+    //phone captcha login errors
+    SENDING_ERROR(2000, "Fail to send captcha, please try again", "发送验证码失败，请重试"),
+    CAPTCHA_DUPLICATE(2001, "Do not send the captcha repeatedly within 1 minute", "1分钟内请勿重复发送验证码"),
+    WRONG_CAPTCHA(2002, "Wrong captcha", "验证码错误"),
+    PHONE_NOT_REGISTERED(2003, "Phone is not registered", "该手机号未注册"),
+
     // general errors
-    INTERNAL_SERVER_ERROR_ARGS(10000, "Internal server error: {0}", "服务端异常: {0}"),
+    INTERNAL_SERVER_ERROR_ARGS(10000, "Internal server error", "服务端异常"),
     REQUEST_PARAMS_NOT_VALID_ERROR(10001, "Request parameter {0} is not valid", "请求参数[{0}]无效"),
 
     // git errors
     GIT_WEB_UPLOAD_FAIL(20000, "Upload failed, please retry or refresh the page", "文件上传失败，请重试或刷新页面"),
     GIT_WEB_COMMIT_FAIL(20001, "Failed to commit: {0}", "提交失败：{0}"),
     GIT_REPO_ALREADY_EXISTS(20002, "Repository already exists: {0}", "仓库已存在：{0}"),
+    GIT_REPO_NOT_FOUND(20003, "Repository not found: {0}", "仓库不存在：{0}"),
     ;
 
     private final int code;

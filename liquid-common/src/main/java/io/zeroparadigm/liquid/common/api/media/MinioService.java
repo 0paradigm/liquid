@@ -17,6 +17,7 @@
 
 package io.zeroparadigm.liquid.common.api.media;
 
+import java.io.InputStream;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,9 @@ public interface MinioService {
 
     @Nullable
     String upload(MultipartFile file, @Nullable String specName, String bucketName);
+
+    @Nullable
+    String upload(InputStream is, String specName, String bucketName);
 
     @Nullable
     byte[] download(String filename, String bucketName);

@@ -2,6 +2,59 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
 <mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.RepoMapper">
+    <insert id="createRepo">
+        INSERT INTO `t_ds_repo`
+            (`owner`, `name`, `forked_from`, `description`, `language`, `privated`)
+        VALUES (#{userId}, #{repoName}, #{forkedId}, #{description}, #{language}, #{private});
+    </insert>
+
+    <insert id="addCollaborator">
+        INSERT INTO `t_rel_repo_collaborator`
+            (`repo`, `user`)
+        VALUES (#{repoId}, #{userId});
+    </insert>
+
+    <insert id="addContributor">
+        INSERT
+        IGNORE INTO `t_ds_v3_repo_contributors` (`repo_id`, `user_login`)
+        VALUES (
+        #{repoId},
+        #{userId}
+        );
+    </insert>
+
+    <update id="setAuth">
+        INSERT INTO `t_rel_repo_auth`
+            (`repo`, `user`, `read`, `manage`, `push`, `settings`, `admin`)
+        VALUES (#{repoId}, #{userId}, #{read}, #{manage}, #{push}, #{settings}, #{admin}) ON DUPLICATE KEY
+        UPDATE;
+    </update>
+
+    <update id="setPublic">
+        UPDATE `t_ds_repo`
+        SET `privated` = FALSE
+        WHERE `id` = #{repoId};
+    </update>
+
+    <update id="setPrivate">
+        UPDATE `t_ds_repo`
+        SET `privated` = TRUE
+        WHERE `id` = #{repoId};
+    </update>
+
+    <update id="updateNameFindByOwnerAndName">
+        UPDATE `t_ds_repo`
+        SET `name` = #{newName}
+        WHERE `owner` = (SELECT `id` FROM `t_ds_user` WHERE `login` = #{owner})
+          AND `name` = #{name};
+    </update>
+
+    <update id="setIsPrivate">
+        UPDATE `t_ds_repo`
+        SET `privated` = #{isPrivate}
+        WHERE `owner` = (SELECT `id` FROM `t_ds_user` WHERE `login` = #{owner})
+          AND `name` = #{name};
+    </update>
 
     <select id="findById" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
         SELECT *
@@ -13,6 +66,13 @@
         DELETE
         FROM `t_ds_repo`
         WHERE `id` = #{id};
+    </delete>
+
+    <delete id="removeCollaborator">
+        DELETE
+        FROM `t_rel_repo_collaborator`
+        WHERE `repo` = #{repoId}
+          AND `user` = #{userId};
     </delete>
 
     <select id="findByOwnerAndName" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
@@ -35,6 +95,12 @@
         WHERE `repo` = ${id};
     </select>
 
+    <insert id="addStarer">
+        INSERT INTO `t_rel_user_star`
+            (`user`, `repo`)
+        VALUES (#{userId}, #{repoId});
+    </insert>
+
     <select id="listStarers" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
         SELECT *
         FROM `t_ds_user`
@@ -46,6 +112,30 @@
         FROM `t_rel_user_watch`
         WHERE `repo` = ${id};
     </select>
+
+
+    <insert id="addWatcher">
+        INSERT
+        IGNORE INTO `t_rel_user_watch` (`repo`, `user`)
+        VALUES (
+        #{repoId},
+        #{userId}
+        );
+    </insert>
+
+    <delete id="removeWatcher">
+        DELETE
+        FROM `t_rel_user_watch`
+        WHERE `repo` = #{repoId}
+          AND `user` = #{userId};
+    </delete>
+
+    <delete id="deleteStarer">
+        DELETE
+        FROM `t_rel_user_star`
+        WHERE `repo` = #{repoId}
+          AND `user` = #{userId};
+    </delete>
 
     <select id="listWatchers" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
         SELECT *
@@ -60,22 +150,41 @@
     </select>
 
     <select id="listForks" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
-        SELECT `owner`
+        SELECT *
         FROM `t_ds_repo`
         WHERE `forked_from` = #{id};
     </select>
 
-<!--    <select id="countContributors" resultType="java.lang.Integer">-->
-<!--        SELECT COUNT(*)-->
-<!--        FROM `t_ds_repo`-->
-<!--        WHERE `forked_from` = ${id};-->
-<!--    </select>-->
+    <select id="listCollaborators" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
+        SELECT *
+        FROM `t_ds_user`
+        WHERE `id` IN (SELECT `user` FROM `t_rel_repo_collaborator` WHERE `repo` = #{repoId});
+    </select>
 
-<!--    <select id="listContributors" resultType="io.zeroparadigm.liquid.core.dao.entity.User">-->
-<!--        SELECT `owner`-->
-<!--        FROM `t_ds_repo`-->
-<!--        WHERE `forked_from` = #{id};-->
-<!--    </select>-->
+    <select id="findByName" resultType="io.zeroparadigm.liquid.core.dao.entity.Repo">
+        SELECT *
+        FROM `t_ds_repo`
+        WHERE LOWER(`name`) like LOWER(concat('%', #{name,jdbcType=VARCHAR}, '%'))
+          AND (`privated` = FALSE OR (`privated` = TRUE AND `owner` = #{userId}));
+    </select>
 
+    <select id="verifyAuth" resultType="java.lang.Boolean">
+        SELECT COUNT(*) > 0
+        FROM `t_rel_repo_collaborator`
+        WHERE `repo` = #{repoId}
+          AND `user` = #{userId};
+    </select>
 
+    <select id="getIsPrivate">
+        SELECT `privated`
+        FROM `t_ds_repo`
+        WHERE `owner` = (SELECT `id` FROM `t_ds_user` WHERE `login` = #{owner})
+          AND `name` = #{name};
+    </select>
+
+    <select id="listContributors" resultType="java.lang.String">
+        SELECT `user_login`
+        FROM `t_ds_v3_repo_contributors`
+        WHERE `repo_id` = #{repoId};
+    </select>
 </mapper>

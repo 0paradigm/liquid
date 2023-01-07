@@ -46,6 +46,33 @@ public interface UserMapper extends BaseMapper<User> {
     @Nullable
     User findById(@Nullable @Param("id") Integer id);
 
+    List<User> listAll();
+
+    boolean hasAccessTo(@Param("uid") Integer userId, @Param("owner") String owner, @Param("repo") String repoName);
+
+    /**
+     * create user.
+     */
+    void createUser(@Param("login") String login, @Param("name") String name, @Param("email") String email,
+                    @Nullable @Param("twitter_username") String twitter_username, @Nullable @Param("bio") String bio,
+                    @Nullable @Param("company") String company, @Nullable @Param("location") String location,
+                    @Param("password") String password, @Nullable @Param("phone") String phone);
+
+    List<Repo> listWatchingRepos(@Param("uid") Integer userId);
+
+    /**
+     * update user
+     * @param phone
+     * @return
+     */
+    void updateUserById(@Param("id") Integer id, @Nullable @Param("twitter_username") String twitter_username,
+                    @Nullable @Param("bio") String bio, @Nullable @Param("company") String company, @Nullable @Param("name") String name,
+                    @Nullable @Param("location") String location, @Nullable @Param("phone") String phone,
+                        @Param("updated_at") Long updated_at);
+
+    @Nullable
+    User findByPhone(@Nullable @Param("phone") String phone);
+
     /**
      * Deletes user by id.
      *
@@ -109,4 +136,12 @@ public interface UserMapper extends BaseMapper<User> {
      */
     @Nullable
     List<Repo> listUserRepos(@Param("user") String login);
+
+    List<Repo> listStarredRepos(@Param("user") Integer user);
+
+    /**
+     * Fuzzy search using login or main.
+     */
+    @Nullable
+    List<User> fuzzySearch(@Param("nameOrMail") String nameOrMail);
 }

@@ -67,9 +67,28 @@ public class Repo implements Serializable {
     private String name;
 
     /**
+     * repo description
+     */
+    @TableField("description")
+    private String description;
+
+    /**
+     * repo main language
+     */
+    @TableField("language")
+    private String language;
+
+    /**
      * forked from (origin) repo id.
      */
     @TableField("forked_from")
     @Nullable
     private Integer forkedFrom;
+
+    /**
+     * private or not.
+     */
+    @TableField("privated")
+    @NonNull
+    private Boolean privated;
 }

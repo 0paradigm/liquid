@@ -5,6 +5,7 @@ CREATE TABLE `t_ds_repo`
     `name`        varchar(20) NOT NULL,
 
     `forked_from` int,
+    `private`     bool NOT NULL DEFAULT FALSE,
 
     CONSTRAINT `fk__ds_repo__owner_id` FOREIGN KEY (`owner`) REFERENCES `t_ds_user` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk__ds_repo__fork_id` FOREIGN KEY (`forked_from`) REFERENCES `t_ds_repo` (`id`) ON DELETE SET NULL,
@@ -30,6 +31,16 @@ CREATE TABLE `t_rel_repo_auth`
     CONSTRAINT `fk__rel_repo_auth__repo_id` FOREIGN KEY (`repo`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk__rel_repo_auth__user_id` FOREIGN KEY (`user`) REFERENCES `t_ds_user` (`id`) ON DELETE CASCADE,
     CONSTRAINT `uniq__rel_repo_auth__record` UNIQUE (`repo`, `user`)
+);
+
+CREATE TABLE `t_rel_repo_collaborator`
+(
+    `repo`     int  NOT NULL,
+    `user`     int  NOT NULL,
+
+    CONSTRAINT `fk__rel_repo_colla__repo_id` FOREIGN KEY (`repo`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk__rel_repo_colla__user_id` FOREIGN KEY (`user`) REFERENCES `t_ds_user` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `uniq__rel_repo_colla__record` UNIQUE (`repo`, `user`)
 );
 
 
@@ -69,6 +80,7 @@ CREATE TABLE `t_ds_issue`
     `display_id` int    NOT NULL,
     `repo`       int    NOT NULL,
     `opener`     int    NOT NULL,
+    `title`      varchar(100) NOT NULL,
 
     `created_at` bigint NOT NULL,
     `closed`    bool NOT NULL DEFAULT FALSE,
@@ -133,6 +145,59 @@ CREATE TABLE `t_rel_issue_milestone`
     CONSTRAINT `fk__rel_issue_milestone__issue` FOREIGN KEY (`issue`) REFERENCES `t_ds_issue` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk__rel_issue_milestone__milestone` FOREIGN KEY (`milestone`) REFERENCES `t_ds_repo_milestone` (`id`) ON DELETE CASCADE,
     CONSTRAINT `uniq__rel_issue_milestone__record` UNIQUE (`issue`, `milestone`)
+);
+
+
+CREATE TABLE `t_ds_issue_comment`
+(
+    `id`         int PRIMARY KEY AUTO_INCREMENT,
+    `repo`       int    NOT NULL,
+    `issue`      int    NOT NULL,
+    `author`     int    NOT NULL,
+    `comment`    text,
+
+    `created_at` bigint NOT NULL,
+
+    CONSTRAINT `fk__ds_issue_comment__repo` FOREIGN KEY (`repo`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE
+--     CONSTRAINT `fk__ds_issue_comment__issue` FOREIGN KEY (`issue`) REFERENCES `t_ds_issue` (`id`) ON DELETE CASCADE
+--     CONSTRAINT `uniq__ds_issue_comment__display_id` UNIQUE (`issue`, `repo`, `author`)
+);
+
+CREATE TABLE `t_ds_pr`
+(
+    `id`         int PRIMARY KEY AUTO_INCREMENT,
+    `display_id` int    NOT NULL,
+    `repo`       int    NOT NULL,
+    `opener`     int    NOT NULL,
+    `title`      varchar(100) NOT NULL,
+
+    `head`      int NOT NULL,
+    `base`      int NOT NULL,
+
+    `created_at` bigint NOT NULL,
+    `closed_at`  bigint,
+    `closed`    bool NOT NULL DEFAULT FALSE,
+
+    CONSTRAINT `fk__ds_pr__repo` FOREIGN KEY (`repo`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk__ds_pr__opener` FOREIGN KEY (`opener`) REFERENCES `t_ds_user` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk__ds_pr__head` FOREIGN KEY (`head`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk__ds_pr__base` FOREIGN KEY (`base`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `uniq__ds_pr__display_id` UNIQUE (`repo`, `display_id`)
+);
+
+CREATE TABLE `t_ds_pr_comment`
+(
+    `id`         int PRIMARY KEY AUTO_INCREMENT,
+    `repo`       int    NOT NULL,
+    `pr`         int    NOT NULL,
+    `author`     int    NOT NULL,
+    `comment`    text,
+
+    `created_at` bigint NOT NULL,
+
+    CONSTRAINT `fk__ds_pr_comment__repo` FOREIGN KEY (`repo`) REFERENCES `t_ds_repo` (`id`) ON DELETE CASCADE
+--     CONSTRAINT `fk__ds_pr_comment__pr` FOREIGN KEY (`pr`) REFERENCES `t_ds_pr` (`id`) ON DELETE CASCADE
+--     CONSTRAINT `uniq__ds_issue_comment__display_id` UNIQUE (`issue`, `repo`, `author`)
 );
 
 

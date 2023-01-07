@@ -3,14 +3,14 @@
 
 <mapper namespace="io.zeroparadigm.liquid.core.dao.mapper.IssueMapper">
     <insert id="assignIssue">
-        INSERT INTO `t_rel_issue_assignee`
+        INSERT INTO `t_rel_issue_assignees`
         (`issue`, `assignee`)
         VALUES
-        (#{issue_id}, #{assignee_id});
+        (#{issue_id}, #{assignee});
     </insert>
 
     <insert id="assignLabelById">
-        INSERT INTO `t_rel_issue_label`
+        INSERT INTO `t_rel_issue_labels`
         (`issue`, `label`)
         VALUES
         (#{issue_id}, #{label_id});
@@ -23,22 +23,34 @@
         (#{issue_id}, #{milestone_id});
     </insert>
 
+    <insert id="createIssue">
+        INSERT INTO `t_ds_issue`
+        (`display_id`, `repo`, `opener`, `title`, `created_at`, `closed`)
+        VALUES
+        (#{display_id}, #{repo_id}, #{opener}, #{title}, #{createdTime}, #{closed});
+    </insert>
+
+    <insert id="addLabel">
+        INSERT INTO `t_ds_v2_issue_label`
+        VALUES (#{repo}, #{issue_id}, #{tag}, #{color});
+    </insert>
+
     <update id="closeIssue">
         UPDATE `t_ds_issue`
-        SET `closed` = 'true'
-        WHERE `id` = #{id};
+        SET `closed` = ${closed}
+        WHERE `id` = #{issue_id};
     </update>
 
     <delete id="removeAssignee">
         DELETE
-        FROM `t_rel_issue_assignee`
+        FROM `t_rel_issue_assignees`
         WHERE `issue` = #{issue_id}
-          AND `assignee` = #{assignee_id};
+          AND `assignee` = #{assignee};
     </delete>
 
     <delete id="removeLabelById">
         DELETE
-        FROM `t_rel_issue_label`
+        FROM `t_rel_issue_labels`
         WHERE `issue` = #{issue_id}
           AND `label` = #{label_id};
     </delete>
@@ -65,7 +77,7 @@
     <select id="findByDisplayedIdandRepoId" resultType="io.zeroparadigm.liquid.core.dao.entity.Issue">
         SELECT *
         FROM `t_ds_issue`
-        WHERE `displayed_id` = #{displayed_id}
+        WHERE `display_id` = #{display_id}
           AND `repo` = #{repo_id};
     </select>
 
@@ -84,9 +96,9 @@
 
     <select id="findByRepoIdandLabel" resultType="io.zeroparadigm.liquid.core.dao.entity.Issue">
         SELECT *
-        FROM `t_ds_issue` JOIN `t_rel_issue_label` ON `t_ds_issue`.`id` = `t_rel_issue_label`.`issue`
+        FROM `t_ds_issue` JOIN `t_rel_issue_labels` ON `t_ds_issue`.`id` = `t_rel_issue_labels`.`issue`
         WHERE `t_ds_issue`.`repo` = #{repo_id}
-          AND `t_rel_issue_label`.`label` = #{label_id};
+          AND `t_rel_issue_labels`.`label` = #{label_id};
     </select>
 
     <select id="findCreatedTimeById" resultType="java.lang.Long">
@@ -111,7 +123,7 @@
 
     <select id="findAssigneeById" resultType="io.zeroparadigm.liquid.core.dao.entity.User">
         SELECT `t_ds_user`.*
-        FROM `t_ds_user` JOIN `t_rel_issue_assignee` ON `t_ds_user`.`id` = `t_rel_issue_assignee`.`assignee`
-        WHERE `t_rel_issue_assignee`.`issue` = #{issue_id};
+        FROM `t_ds_user` JOIN `t_rel_issue_assignees` ON `t_ds_user`.`id` = `t_rel_issue_assignees`.`assignee`
+        WHERE `t_rel_issue_assignees`.`issue` = #{id};
     </select>
 </mapper>

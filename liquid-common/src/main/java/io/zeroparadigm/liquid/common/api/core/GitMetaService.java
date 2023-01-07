@@ -15,8 +15,12 @@
  * limitations under the License.
  */
 
-package io.zeroparadigm.liquid.core.service;
+package io.zeroparadigm.liquid.common.api.core;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public interface GitMetaService {
 
+    void recordContributor(String owner, String repo, String contLogin);
 }

@@ -23,6 +23,15 @@ import java.util.List;
 public interface IssueMapper extends BaseMapper<Issue> {
 
     /**
+     * Create new issue.
+     */
+    void createIssue(@Param("display_id") Integer displayId, @Param("repo_id") Integer repoId,
+                     @Param("opener") Integer opener, @Param("title") String title, @Param("createdTime") Long createdTime,
+                     @Param("closed") Boolean closed);
+
+    void addLabel(@Param("repo") Integer repoId, @Param("issue_id") Integer displayId, @Param("tag") String tag, @Param("color") String color);
+
+    /**
      * Gets issue by id.
      *
      * @param id issue id
@@ -147,7 +156,7 @@ public interface IssueMapper extends BaseMapper<Issue> {
      * Close issue
      * @param issueId issue id
      */
-    void closeIssue(@Param("issue_id") Integer issueId);
+    void closeIssue(@Param("issue_id") Integer issueId, @Param("closed") Boolean closed);
 
     /**
      * Assign issue to milestone

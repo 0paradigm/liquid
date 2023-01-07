@@ -15,11 +15,19 @@ spring:
       max-file-size: 50MB
       max-request-size: 100MB
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
+  redis:
+    host: 127.0.0.1
+    port: 16379
+    database: 0
+    password:
+    timeout: 1200
+    jedis:
+      pool:
+        enabled: true
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1
 
 logging:
   file:
@@ -30,3 +38,6 @@ jwt:
   encrypt-secret: 'cQfTjWnZr4u7w!z%C*F-JaNdRgUkXp2s5v8y/A?D(G+KbPeShVmYq3t6w9z$C&E)'
   default-expire-time: 86400000
   remember-expire-time: 2678400000
+
+
+
