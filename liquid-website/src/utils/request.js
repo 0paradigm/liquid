@@ -10,12 +10,13 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
     config => {
+        config.headers.Locale = localStorage.getItem('liquid-locale') || 'zh-CN';
+        
         const token = getToken();
         if (token) {
-            config.headers.Token = token
-            config.headers.Authorization = token
+            config.headers.Authorization = token;
         }
-        return config
+        return config;
     },
 
     error => Promise.reject(error)
